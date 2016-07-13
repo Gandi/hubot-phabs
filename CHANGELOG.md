@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 0.1.3 - wip
+- refactoring on phabricator lib
+
 ### 0.1.2 - 2016-07-13
 - add `.phab list projects` command to list known projects from configuration
 

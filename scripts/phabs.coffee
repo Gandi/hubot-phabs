@@ -36,7 +36,7 @@ humanFileSize = (size) ->
 module.exports = (robot) ->
   phab = new Phabricator robot, process.env
 
-  robot.respond (/ph(?:ab)? list projects$/i), (msg) ->
+  robot.respond (/ph(?:ab)? list projects$/), (msg) ->
     msg.send "Known Projects: #{Object.keys(phabColumns).join(', ')}"
 
   robot.respond (/ph(?:ab)? new ([a-z]+) (.+)/), (msg) ->

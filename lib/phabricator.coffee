@@ -25,6 +25,22 @@ class Phabricator
     return false unless (@url and @apikey)
     true
 
+
+  phabGet: (msg, query, endpoint, cb) ->
+    body = querystring.stringify(query)
+    msg.http(@url)
+      .path("api/#{endpoint}")
+      .get(body) (err, res, payload) ->
+        json_body = null
+        switch res.statusCode
+          when 200 then json_body = JSON.parse(payload)
+          else
+            console.log res.statusCode
+            console.log payload
+            json_body = { message: 'Fail' }
+        cb json_body
+
+
   withUser: (msg, user, cb) ->
     if @ready(msg) == true
       id = user.phid
@@ -42,22 +58,12 @@ class Phabricator
           "emails[0]": email,
           "api.token": @apikey
         }
-        body = querystring.stringify(query)
-        msg.http(@url)
-          .path("api/user.query")
-          .get(body) (err, res, payload) ->
-            json_body = null
-            switch res.statusCode
-              when 200 then json_body = JSON.parse(payload)
-              else
-                console.log res.statusCode
-                console.log payload
-                json_body = { message: 'Fail' }
-            unless json_body['result']
-              msg.send "Sorry, I cannot find #{email} :("
-              return
-            user.phid = json_body['result']["0"]["phid"]
-            cb user.phid
+        @phabGet msg, query, "user.query", (json_body) ->
+          unless json_body['result']
+            msg.send "Sorry, I cannot find #{email} :("
+            return
+          user.phid = json_body['result']["0"]["phid"]
+          cb user.phid
 
 
   taskInfo: (msg, id, cb) ->
@@ -66,18 +72,9 @@ class Phabricator
         "task_id": id,
         "api.token": @apikey
       }
-      body = querystring.stringify(query)
-      msg.http(@url)
-        .path("api/maniphest.info")
-        .get(body) (err, res, payload) ->
-          json_body = null
-          switch res.statusCode
-            when 200 then json_body = JSON.parse(payload)
-            else
-              console.log res.statusCode
-              console.log payload
-              json_body = { message: 'Fail' }
-          cb json_body
+      @phabGet msg, query, "maniphest.info", (json_body) ->
+        cb json_body
+
 
   fileInfo: (msg, id, cb) ->
     if @ready(msg) == true
@@ -85,18 +82,9 @@ class Phabricator
         "id": id,
         "api.token": @apikey
       }
-      body = querystring.stringify(query)
-      msg.http(@url)
-        .path("api/file.info")
-        .get(body) (err, res, payload) ->
-          json_body = null
-          switch res.statusCode
-            when 200 then json_body = JSON.parse(payload)
-            else
-              console.log res.statusCode
-              console.log payload
-              json_body = { message: 'Fail' }
-          cb json_body
+      @phabGet msg, query, "file.info", (json_body) ->
+        cb json_body
+
 
   pasteInfo: (msg, id, cb) ->
     if @ready(msg) == true
@@ -104,18 +92,9 @@ class Phabricator
         "ids[0]": id,
         "api.token": @apikey
       }
-      body = querystring.stringify(query)
-      msg.http(@url)
-        .path("api/paste.query")
-        .get(body) (err, res, payload) ->
-          json_body = null
-          switch res.statusCode
-            when 200 then json_body = JSON.parse(payload)
-            else
-              console.log res.statusCode
-              console.log payload
-              json_body = { message: 'Fail' }
-          cb json_body
+      @phabGet msg, query, "paste.query", (json_body) ->
+        cb json_body
+
 
   createTask: (msg, phid, title, cb) ->
     if @ready(msg) == true
@@ -140,19 +119,9 @@ class Phabricator
         else
           query["transactions[4][type]"] = "column"
           query["transactions[4][value]"] = "#{phid}"
+        @phabGet msg, query, "maniphest.edit", (json_body) ->
+          cb json_body
 
-        body = querystring.stringify(query)
-        msg.http(url)
-          .path("api/maniphest.edit")
-          .get(body) (err, res, payload) ->
-            json_body = null
-            switch res.statusCode
-              when 200 then json_body = JSON.parse(payload)
-              else
-                console.log res.statusCode
-                console.log payload
-                json_body = JSON.parse(payload)
-            cb json_body
 
   assignTask: (msg, tid, userphid, cb) ->
     if @ready(msg) == true
@@ -162,18 +131,9 @@ class Phabricator
         "transactions[0][value]": "#{userphid}",
         "api.token": @apikey,
       }
-      body = querystring.stringify(query)
-      msg.http(@url)
-        .path("api/maniphest.edit")
-        .get(body) (err, res, payload) ->
-          json_body = null
-          switch res.statusCode
-            when 200 then json_body = JSON.parse(payload)
-            else
-              console.log res.statusCode
-              console.log payload
-              json_body = { message: 'Fail' }
-          cb json_body
+      @phabGet msg, query, "maniphest.edit", (json_body) ->
+        cb json_body
+
 
   listTasks: (msg, projphid, cb) ->
     if @ready(msg) == true
@@ -182,17 +142,8 @@ class Phabricator
         "status": "status-open",
         "api.token": @apikey,
       }
-      body = querystring.stringify(query)
-      msg.http(@url)
-        .path("api/maniphest.query")
-        .get(body) (err, res, payload) ->
-          json_body = null
-          switch res.statusCode
-            when 200 then json_body = JSON.parse(payload)
-            else
-              console.log res.statusCode
-              console.log payload
-              json_body = { message: 'Fail' }
-          cb json_body
+      @phabGet msg, query, "maniphest.query", (json_body) ->
+        cb json_body
+
 
 module.exports = Phabricator
