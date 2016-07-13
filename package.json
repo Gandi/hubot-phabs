@@ -25,10 +25,10 @@
   },
   "devDependencies": {
     "chai": "^2.1.1",
-    "sinon": "^1.4.2",
-    "sinon-chai": "^2.8.0",
     "hubot-test-helper": "1.4.4",
-    "mocha": "^2.4.5"
+    "mocha": "^2.4.5",
+    "sinon": "^1.4.2",
+    "sinon-chai": "^2.8.0"
   },
   "scripts": {
     "test": "make test"
