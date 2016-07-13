@@ -6,7 +6,7 @@
 # Configuration:
 #  PHABRICATOR_URL
 #  PHABRICATOR_API_KEY
-#  PHABRICATOR_LISTS_INCOMING
+#  PHABRICATOR_BOT_PHID
 #
 # Author:
 #   mose

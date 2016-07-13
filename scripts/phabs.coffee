@@ -4,12 +4,18 @@
 # Dependencies:
 #
 # Configuration:
-# PHABRICATOR_URL
-# PHABRICATOR_API_KEY
-# PHABRICATOR_PROJECTS
+#   PHABRICATOR_URL
+#   PHABRICATOR_API_KEY
+#   PHABRICATOR_PROJECTS
+#   PHABRICATOR_BOT_PHID
 #
 # Commands:
-#   <bot> phab new <board> <name of the card>
+#   hubot phab new <project> <name of the task> - creates a new task
+#   hubot phab assign Txx to <user> - assigns task Txxx to comeone
+#   hubot phab <user> - checks if user is known or not
+#   hubot phab me as <email> - makes caller known with <email>
+#   hubot phab <user> = <email> - associates user to email
+#   anything Txxx - complements with the title of the task, file (F) or paste (P)
 #
 # Author:
 #   mose
@@ -22,15 +28,12 @@ if process.env.PHABRICATOR_PROJECTS != undefined
     [code, label] = list.split ':'
     phabColumns[label] = code
 
+humanFileSize = (size) ->
+  i = Math.floor( Math.log(size) / Math.log(1024) )
+  return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
+
 module.exports = (robot) ->
   phab = new Phabricator robot, process.env
-
-  robot.respond (/ph(?:ab)? help/i), (msg) ->
-    text =  "  phab new <board> <name of a new card>\n"
-    text += "       creates a new card in a given column in Phabricator.\n"
-    text += "       Known columns are #{Object.keys(phabColumns).join(', ')}.\n"
-    msg.send text
-
 
   robot.respond (/ph(?:ab)? new ([a-z]+) (.+)/i), (msg) ->
     column = phabColumns[msg.match[1]]
@@ -119,7 +122,7 @@ module.exports = (robot) ->
             else
               size = humanFileSize(body['result']['byteSize'])
               if url
-                msg.send "T#{id} - #{body['result']['name']} (#{body['result']['mimeType']} #{size})"
+                msg.send "F#{id} - #{body['result']['name']} (#{body['result']['mimeType']} #{size})"
               else
                 msg.send "#{body['result']['uri']} - #{body['result']['name']} (#{body['result']['mimeType']} #{size})"
         when 'P'
@@ -132,6 +135,6 @@ module.exports = (robot) ->
                 if v['language'] != ''
                   lang = " (#{v['language']})"
                 if url
-                  msg.send "T#{id} - #{v['title']}#{lang}"
+                  msg.send "P#{id} - #{v['title']}#{lang}"
                 else
                   msg.send "#{v['uri']} - #{v['title']}#{lang}"
