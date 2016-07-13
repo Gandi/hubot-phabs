@@ -29,6 +29,7 @@ Configuration
 - `PHABRICATOR_URL` - main url of your Phabricator instance
 - `PHABRICATOR_API_KEY` - api key for the bot user
 - `PHABRICATOR_PROJECTS` - list of projects, with this format: `PHID-PROJ-xxx:name,PHID-PCOL-xxx:another`
+- `PHABRICATOR_BOT_PHID` - the phid for the bot user (so we can remove him from tasks he creates)
 
 The declarative list of projects is not that way because name of projects can be long sometimes, and we want to use a short name for irc/slack commands. 
 
