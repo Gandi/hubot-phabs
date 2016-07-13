@@ -31,7 +31,7 @@ Configuration
 - `PHABRICATOR_PROJECTS` - list of projects, with this format: `PHID-PROJ-xxx:name,PHID-PCOL-xxx:another`
 - `PHABRICATOR_BOT_PHID` - the phid for the bot user (so we can remove him from tasks he creates)
 
-The declarative list of projects is not that way because name of projects can be long sometimes, and we want to use a short name for irc/slack commands. 
+The declarative list of projects is declared that way because name of projects can be long sometimes, and we want to use a short name for irc/slack commands. 
 
 If a PHID-PROJ-xxx is given, it will target the project, and if a dashboard exist, put the task in the default column.
 
