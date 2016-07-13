@@ -45,7 +45,7 @@ Commands
 
     .phab new <project-or-column> <task title>
         creates a new task in the list of the ones defined in cactus configuration
-        Supported projects are listed by the PHABRICATOR_LISTS_INCOMING env var.
+        Supported projects are listed by the PHABRICATOR_PROJECTS env var.
         The new task will be created in the default column of the project board.
         the issuer of the command will be added in the list of subscribers for the
         newly cerated task.
