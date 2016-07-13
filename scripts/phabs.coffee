@@ -15,6 +15,7 @@
 #   hubot phab <user> - checks if user is known or not
 #   hubot phab me as <email> - makes caller known with <email>
 #   hubot phab <user> = <email> - associates user to email
+#   hubot phab list projects - list known projects according to configuration
 #   anything Txxx - complements with the title of the task, file (F) or paste (P)
 #
 # Author:
@@ -35,7 +36,10 @@ humanFileSize = (size) ->
 module.exports = (robot) ->
   phab = new Phabricator robot, process.env
 
-  robot.respond (/ph(?:ab)? new ([a-z]+) (.+)/i), (msg) ->
+  robot.respond (/ph(?:ab)? list projects$/i), (msg) ->
+    msg.send "Known Projects: #{Object.keys(phabColumns).join(', ')}"
+
+  robot.respond (/ph(?:ab)? new ([a-z]+) (.+)/), (msg) ->
     column = phabColumns[msg.match[1]]
     name = msg.match[2]
     if column and name
@@ -50,7 +54,7 @@ module.exports = (robot) ->
       msg.send "Command incomplete."
 
 
-  robot.respond /ph(?:ab)? ([^ ]*)$/i, (msg) ->
+  robot.respond /ph(?:ab)? ([^ ]*)$/, (msg) ->
     name = msg.match[1]
     assignee = robot.brain.userForName(name)
     unless assignee
@@ -60,13 +64,13 @@ module.exports = (robot) ->
       msg.send "Hey I know #{name}, he's #{userPhid}"
 
 
-  robot.respond /ph(?:ab)? me as (.*@.*)$/i, (msg) ->
+  robot.respond /ph(?:ab)? me as (.*@.*)$/, (msg) ->
     email = msg.match[1]
     msg.message.user.email_address = email
     msg.send "Okay, I'll remember your email is #{email}"
 
 
-  robot.respond /ph(?:ab)? ([^ ]*) *?= *?([^ ]*@.*)$/i, (msg) ->
+  robot.respond /ph(?:ab)? ([^ ]*) *?= *?([^ ]*@.*)$/, (msg) ->
     who = msg.match[1]
     email = msg.match[2]
     assignee = robot.brain.userForName(who)
@@ -77,7 +81,7 @@ module.exports = (robot) ->
     msg.send "Okay, I'll remember #{who} email as #{email}"
 
 
-  robot.respond /ph(?:ab)? assign (?:([^ ]+) (?:to|on) (T)([0-9]+)|T([0-9]+) (?:to|on) ([^ ]+))$/i, (msg) ->
+  robot.respond /ph(?:ab)? assign (?:([^ ]+) (?:to|on) (T)([0-9]+)|T([0-9]+) (?:to|on) ([^ ]+))$/, (msg) ->
     if msg.match[2] == "T"
       who = msg.match[1]
       what = msg.match[3]

@@ -64,6 +64,9 @@ Commands
     .phab <someone> = <email@example.com>
         registers email for another user, follows the same concept as .phab me as ..
 
+    .phab list projects
+        will list known projects and columns according to configuratio param
+
 Development
 ----------------
 
