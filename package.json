@@ -1,0 +1,37 @@
+{
+  "name": "hubot-phabs",
+  "description": "A hubot plugin for communication with a Phabricator instance.",
+  "version": "0.1.0",
+  "author": {
+    "name": "mose",
+    "email": "mose@gandi.net",
+    "url": "https://github.com/mose"
+  },
+  "license": "MIT",
+  "keywords": [
+    "hubot",
+    "hubot-scripts",
+    "phabricator"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Gandi/hubot-phabs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Gandi/hubot-phabs/issues"
+  },
+  "dependencies": {
+    "coffee-script": "~1.6"
+  },
+  "devDependencies": {
+    "chai": "^2.1.1",
+    "sinon": "^1.4.2",
+    "sinon-chai": "^2.8.0",
+    "hubot-test-helper": "1.4.4",
+    "mocha": "^2.4.5"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "main": "index.js"
+}
