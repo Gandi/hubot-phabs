@@ -97,7 +97,7 @@ Gandi loves Free and Open Source Software. This project is used internally at Ga
 
 Authors
 ------------
-- @mose - author and maintainer
+- [@mose](https://github.com/mose) - author and maintainer
 
 License
 -------------
