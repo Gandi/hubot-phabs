@@ -102,43 +102,43 @@ module.exports = (robot) ->
           msg.send "Ok. T#{what} is now assigned to #{assignee.name}"
         else
           msg.send "#{body['result']['error_info']}"
+    msg.finish()
 
 
-  robot.hear new RegExp("(\.ph(?:ab)? )?(?:.+)?(?:(#{process.env.PHABRICATOR_URL})/?| |^)(T|F|P)([0-9]+)"), (msg) ->
-    if msg.match[1] == undefined
-      url = msg.match[2]
-      type = msg.match[3]
-      id = msg.match[4]
-      switch type
-        when 'T'
-          phab.taskInfo msg, id, (body) ->
-            if body['error_info']
-              msg.send body['error_info']
+  robot.hear new RegExp("(?:.+|^)(?:(#{process.env.PHABRICATOR_URL})/?| |^)(T|F|P)([0-9]+)"), (msg) ->
+    url = msg.match[1]
+    type = msg.match[2]
+    id = msg.match[3]
+    switch type
+      when 'T'
+        phab.taskInfo msg, id, (body) ->
+          if body['error_info']
+            msg.send body['error_info']
+          else
+            if url
+              msg.send "T#{id} - #{body['result']['title']}"
             else
+              msg.send "#{body['result']['uri']} - #{body['result']['title']}"
+      when 'F'
+        phab.fileInfo msg, id, (body) ->
+          if body['error_info']
+            msg.send body['error_info']
+          else
+            size = humanFileSize(body['result']['byteSize'])
+            if url
+              msg.send "F#{id} - #{body['result']['name']} (#{body['result']['mimeType']} #{size})"
+            else
+              msg.send "#{body['result']['uri']} - #{body['result']['name']} (#{body['result']['mimeType']} #{size})"
+      when 'P'
+        phab.pasteInfo msg, id, (body) ->
+          if body['error_info']
+            msg.send body['error_info']
+          else
+            for k, v of body['result']
+              lang = ''
+              if v['language'] != ''
+                lang = " (#{v['language']})"
               if url
-                msg.send "T#{id} - #{body['result']['title']}"
+                msg.send "P#{id} - #{v['title']}#{lang}"
               else
-                msg.send "#{body['result']['uri']} - #{body['result']['title']}"
-        when 'F'
-          phab.fileInfo msg, id, (body) ->
-            if body['error_info']
-              msg.send body['error_info']
-            else
-              size = humanFileSize(body['result']['byteSize'])
-              if url
-                msg.send "F#{id} - #{body['result']['name']} (#{body['result']['mimeType']} #{size})"
-              else
-                msg.send "#{body['result']['uri']} - #{body['result']['name']} (#{body['result']['mimeType']} #{size})"
-        when 'P'
-          phab.pasteInfo msg, id, (body) ->
-            if body['error_info']
-              msg.send body['error_info']
-            else
-              for k, v of body['result']
-                lang = ''
-                if v['language'] != ''
-                  lang = " (#{v['language']})"
-                if url
-                  msg.send "P#{id} - #{v['title']}#{lang}"
-                else
-                  msg.send "#{v['uri']} - #{v['title']}#{lang}"
+                msg.send "#{v['uri']} - #{v['title']}#{lang}"
