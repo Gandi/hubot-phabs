@@ -1,4 +1,6 @@
 columns.py
+.codeclimate.yml
 .travis.yml
 .git
+coffeelint.json
 npm-debug.log

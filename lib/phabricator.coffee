@@ -50,9 +50,11 @@ class Phabricator
         email = user.email_address || user.pagerdutyEmail
         unless email
           if msg.message.user.name == user.name
-            msg.send "Sorry, I can't figure out your email address :( Can you tell me with `.phab me as you@yourdomain.com`?"
+            msg.send "Sorry, I can't figure out your email address :( " +
+                     "Can you tell me with `.phab me as you@yourdomain.com`?"
           else
-            msg.send "Sorry, I can't figure #{user.name} email address. can you help me with .phab #{user.name} = <email>"
+            msg.send "Sorry, I can't figure #{user.name} email address. " +
+                     "Can you help me with .phab #{user.name} = <email>"
           return
         query = {
           "emails[0]": email,
