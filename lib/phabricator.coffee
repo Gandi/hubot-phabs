@@ -66,6 +66,30 @@ class Phabricator
           cb user.phid
 
 
+  withUserByPhid: (robot, phid, cb) ->
+    if phid?
+      user = null
+      for k of robot.brain.data.users
+        thisphid = robot.brain.data.users[k].phid
+        if thisphid? and thisphid is phid
+          user = robot.brain.data.users[k]
+          break
+      if user?
+        cb user
+      else
+        query = {
+          "phids[0]": phid,
+          "api.token": @apikey
+        }
+        @phabGet robot, query, "user.query", (json_body) ->
+          if json_body['result']?
+            cb { name: json_body['result']["0"]["userName"] }
+          else
+            cb { name: 'unknown' }
+    else
+      cb { name: 'nobody' }
+
+
   taskInfo: (msg, id, cb) ->
     if @ready(msg) == true
       query = {

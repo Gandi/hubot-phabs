@@ -1,8 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
-### 0.1.3 - wip
+### 0.1.3 - 2016-07-14
 - refactoring on phabricator lib
+- add a `.phab Txxx` to get task status and owner
 
 ### 0.1.2 - 2016-07-13
 - add `.phab list projects` command to list known projects from configuration

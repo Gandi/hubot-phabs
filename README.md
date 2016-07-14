@@ -55,6 +55,9 @@ Commands
         the issuer of the command will be added in the list of subscribers for the
         newly cerated task.
 
+    .phab Txxx
+        gives the status, priority and owner of the task xxx
+
     .phab assign T123 to <someone>
     .phab assign <someone> to T123
     .phab assign T123 on <simone>

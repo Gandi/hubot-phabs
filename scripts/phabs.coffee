@@ -36,8 +36,10 @@ humanFileSize = (size) ->
 module.exports = (robot) ->
   phab = new Phabricator robot, process.env
 
+
   robot.respond (/ph(?:ab)? list projects$/), (msg) ->
     msg.send "Known Projects: #{Object.keys(phabColumns).join(', ')}"
+
 
   robot.respond (/ph(?:ab)? new ([a-z]+) (.+)/), (msg) ->
     column = phabColumns[msg.match[1]]
@@ -54,11 +56,24 @@ module.exports = (robot) ->
       msg.send "Command incomplete."
 
 
+  robot.respond /ph(?:ab)? T([0-9]+)$/, (msg) ->
+    what = msg.match[1]
+    phab.taskInfo msg, what, (body) ->
+      if body.result?
+        phab.withUserByPhid robot, body.result.ownerPHID, (owner) ->
+          status = body.result.status
+          priority = body.result.priority
+          msg.send "T#{what} has status #{status}, priority #{priority}, owner #{owner.name}"
+      else
+        msg.send "Sorry, this task T#{what} was not found."
+    msg.finish()
+
+
   robot.respond /ph(?:ab)? ([^ ]*)$/, (msg) ->
     name = msg.match[1]
     assignee = robot.brain.userForName(name)
     unless assignee
-      msg.send "Sorry I have no idea who #{name} is. Did you mistype it?"
+      msg.send "Sorry, I have no idea who #{name} is. Did you mistype it?"
       return
     phab.withUser msg, assignee, (userPhid) ->
       msg.send "Hey I know #{name}, he's #{userPhid}"
