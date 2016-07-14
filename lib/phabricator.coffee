@@ -28,7 +28,7 @@ class Phabricator
 
   phabGet: (msg, query, endpoint, cb) ->
     body = querystring.stringify(query)
-    msg.http(@url)
+    msg.http(process.env.PHABRICATOR_URL)
       .path("api/#{endpoint}")
       .get(body) (err, res, payload) ->
         json_body = null
@@ -127,6 +127,7 @@ class Phabricator
       url = @url
       apikey = @apikey
       bot_phid = @bot_phid
+      phabGet = @phabGet
       @withUser msg, msg.message.user, (userPhid) ->
         query = {
           "transactions[0][type]": "title",
@@ -145,7 +146,7 @@ class Phabricator
         else
           query["transactions[4][type]"] = "column"
           query["transactions[4][value]"] = "#{phid}"
-        @phabGet msg, query, "maniphest.edit", (json_body) ->
+        phabGet msg, query, "maniphest.edit", (json_body) ->
           cb json_body
 
 
