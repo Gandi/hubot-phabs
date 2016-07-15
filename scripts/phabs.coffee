@@ -56,7 +56,7 @@ module.exports = (robot) ->
       msg.send 'Command incomplete.'
 
 
-  robot.respond /ph(?:ab)? T([0-9]+)$/, (msg) ->
+  robot.respond /ph(?:ab)? T([0-9]+) ?$/, (msg) ->
     what = msg.match[1]
     phab.taskInfo msg, what, (body) ->
       if body.result?
