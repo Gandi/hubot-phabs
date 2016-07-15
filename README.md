@@ -49,6 +49,7 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
           T2 - <title of the task>
         - if it's not in an url it will reply with
           <task url> - <task title>
+        NOTE: this call will record this Task id associated to you for 5 minutes
 
     .phab new <project-or-column> <task title>
         creates a new task in the list of the ones defined in cactus configuration
@@ -56,13 +57,18 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
         The new task will be created in the default column of the project board.
         the issuer of the command will be added in the list of subscribers for the
         newly cerated task.
+        NOTE: this call will record this Task id associated to you for 5 minutes
 
     .phab Txxx
+    .phab
         gives the status, priority and owner of the task xxx
+        NOTE: you don't need to specify the Txx if you have one in your 5 minutes memory
 
     .phab Txxx is open
     .phab Txxx broken
+    .phab low
         changes status or priority for task Txxx. the 'is' is optional.
+        NOTE: you don't need to specify the Txx if you have one in your 5 minutes memory
         Available statuses are:
         - open
         - resolved
@@ -85,8 +91,11 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
     .phab assign T123 on <simone>
     .phab T123 on <someone>
     .phab <someone> on T123
+    .phab on <someone>
+    .phab <someone> on
         assigns the given task to a user (or the given user to the task, which is exactly the same).
         the 'to' and 'on' conjunctions are inter-changeable.
+        NOTE: you don't need to specify the Txx if you have one in your 5 minutes memory
 
     .phab <someone>
         will check is <someone> is linked to his phabricator account (using email address)

@@ -37,19 +37,19 @@ humanFileSize = (size) ->
 module.exports = (robot) ->
   phab = new Phabricator robot, process.env
 
-  robot.respond /ph(?:ab)? create$/, (msg) ->
-    id = 'T42'
-    phab.recordPhid msg, id
-    msg.finish()
+  # robot.respond /ph(?:ab)? create$/, (msg) ->
+  #   id = 'T42'
+  #   phab.recordPhid msg, id
+  #   msg.finish()
 
-  robot.respond /ph(?:ab)? read$/, (msg) ->
-    console.log phab.retrievePhid msg
-    msg.finish()
+  # robot.respond /ph(?:ab)? read$/, (msg) ->
+  #   console.log phab.retrievePhid msg
+  #   msg.finish()
 
-  robot.respond /ph(?:ab)? date$/, (msg) ->
-    console.log moment(msg.message.user.lastTask).utc().format()
-    console.log moment().utc().format()
-    msg.finish()
+  # robot.respond /ph(?:ab)? date$/, (msg) ->
+  #   console.log moment(msg.message.user.lastTask).utc().format()
+  #   console.log moment().utc().format()
+  #   msg.finish()
 
   robot.respond (/ph(?:ab)? list projects$/), (msg) ->
     msg.send "Known Projects: #{Object.keys(phabColumns).join(', ')}"
