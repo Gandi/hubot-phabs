@@ -83,7 +83,10 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
     .phab assign T123 to <someone>
     .phab assign <someone> to T123
     .phab assign T123 on <simone>
+    .phab T123 on <someone>
+    .phab <someone> on T123
         assigns the given task to a user (or the given user to the task, which is exactly the same).
+        the 'to' and 'on' conjunctions are inter-changeable.
 
     .phab <someone>
         will check is <someone> is linked to his phabricator account (using email address)

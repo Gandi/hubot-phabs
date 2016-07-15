@@ -122,7 +122,7 @@ module.exports = (robot) ->
 
 
   robot.respond new RegExp(
-    'ph(?:ab)? assign (?:([^ ]+) (?:to|on) (T)([0-9]+)|T([0-9]+) (?:to|on) ([^ ]+))$'
+    'ph(?:ab)?(?: assign)? (?:([^ ]+) (?:to|on) (T)([0-9]+)|T([0-9]+) (?:to|on) ([^ ]+))$'
   ), (msg) ->
     if msg.match[2] is 'T'
       who = msg.match[1]
@@ -159,10 +159,15 @@ module.exports = (robot) ->
           if body['error_info']
             msg.send body['error_info']
           else
+            closed = ''
+            if body['result']['isClosed'] is true
+              closed = " (#{body['result']['status']})"
             if url
-              msg.send "T#{id} - #{body['result']['title']}"
+              msg.send "T#{id}#{closed} - #{body['result']['title']} " +
+                       "(#{body['result']['priority']})"
             else
-              msg.send "#{body['result']['uri']} - #{body['result']['title']}"
+              msg.send "#{body['result']['uri']}#{closed} - #{body['result']['title']} " +
+                       "(#{body['result']['priority']})"
       when 'F'
         phab.fileInfo msg, id, (body) ->
           if body['error_info']
