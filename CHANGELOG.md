@@ -1,6 +1,8 @@
 Hubot-phabs Changelog
 ==========================
 
+### 0.1.7 - wip
+
 ### 0.1.6 - 2016-07-15
 - add more information on tasks output
 - changed .ph assign Txx to <user> to be able to omit the 'assign' part
