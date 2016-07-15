@@ -56,7 +56,7 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
         Supported projects are listed by the PHABRICATOR_PROJECTS env var.
         The new task will be created in the default column of the project board.
         the issuer of the command will be added in the list of subscribers for the
-        newly cerated task.
+        newly created task.
         NOTE: this call will record this Task id associated to you for 5 minutes
 
     .phab Txxx

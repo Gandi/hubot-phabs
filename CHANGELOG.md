@@ -1,6 +1,8 @@
 Hubot-phabs Changelog
 ==========================
 
+### 0.1.8 - wip
+
 ### 0.1.7 - 2016-07-16
 - create a 5-minute memory of the last Task called, to shorten further commands
 
