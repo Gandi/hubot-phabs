@@ -1,6 +1,8 @@
 Hubot-phabs Changelog
 ==========================
 
+### 0.1.6 - wip
+
 ### 0.1.5 - 2016-07-15
 - add command to change task status and priority
 
