@@ -70,6 +70,30 @@ module.exports = (robot) ->
     msg.finish()
 
 
+  robot.respond /ph(?:ab)? T([0-9]+) (?:is )?(open|resolved|wontfix|invalid|spite)$/, (msg) ->
+    id = msg.match[1]
+    status = msg.match[2]
+    phab.updateStatus msg, id, status, (body) ->
+      if body['result']['error_info'] is undefined
+        msg.send "Ok, T#{id} now has status #{status}."
+      else
+        msg.send "oops #{body['result']['error_info']}"
+    msg.finish()
+
+
+  robot.respond new RegExp(
+    'ph(?:ab)? T([0-9]+) (?:is )?(unbreak|broken|none|unknown|high|normal|low|urgent|wish)$'
+    ), (msg) ->
+    id = msg.match[1]
+    priority = msg.match[2]
+    phab.updatePriority msg, id, priority, (body) ->
+      if body['result']['error_info'] is undefined
+        msg.send "Ok, T#{id} now has priority #{priority}."
+      else
+        msg.send "oops #{body['result']['error_info']}"
+    msg.finish()
+
+
   robot.respond /ph(?:ab)? ([^ ]*)$/, (msg) ->
     name = msg.match[1]
     assignee = robot.brain.userForName(name)

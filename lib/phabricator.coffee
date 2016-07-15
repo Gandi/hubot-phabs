@@ -149,6 +149,39 @@ class Phabricator
         phabGet msg, query, 'maniphest.edit', (json_body) ->
           cb json_body
 
+  updateStatus: (msg, id, status, cb) ->
+    if @ready(msg) is true
+      query = {
+        'id': id,
+        'status': status,
+        'comments': "status set to #{status} by #{msg.message.user.name}",
+        'api.token': @apikey,
+      }
+      @phabGet msg, query, 'maniphest.update', (json_body) ->
+        cb json_body
+
+  updatePriority: (msg, id, priority, cb) ->
+    if @ready(msg) is true
+      priorities = {
+        'unbreak': 100,
+        'broken': 100,
+        'need triage': 90,
+        'none': 90,
+        'unknown': 90,
+        'low': 25,
+        'normal': 50,
+        'high': 80,
+        'urgent': 80,
+        'wish': 0
+      }
+      query = {
+        'id': id,
+        'priority': priorities[priority],
+        'comments': "priority set to #{priority} by #{msg.message.user.name}",
+        'api.token': @apikey,
+      }
+      @phabGet msg, query, 'maniphest.update', (json_body) ->
+        cb json_body
 
   assignTask: (msg, tid, userphid, cb) ->
     if @ready(msg) is true

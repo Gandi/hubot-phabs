@@ -58,6 +58,26 @@ Commands
     .phab Txxx
         gives the status, priority and owner of the task xxx
 
+    .phab Txxx is open
+    .phab Txxx broken
+        changes status or priority for task Txxx. the 'is' is optional.
+        Available statuses are:
+        - open
+        - resolved
+        - wontfix
+        - invalid
+        - spite
+        Available priorities are
+        - broken   -> Unbreak Now!
+        - unbreak  -> Unbreak Now!
+        - none     -> Needs Triage
+        - unknown  -> Needs Triage
+        - high     -> High
+        - urgent   -> High
+        - normal   -> Normal
+        - low      -> Low
+        - wish     -> Whishlist
+
     .phab assign T123 to <someone>
     .phab assign <someone> to T123
     .phab assign T123 on <simone>
