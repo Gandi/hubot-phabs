@@ -83,7 +83,7 @@ module.exports = (robot) ->
 
   robot.respond new RegExp(
     'ph(?:ab)? T([0-9]+) (?:is )?(unbreak|broken|none|unknown|high|normal|low|urgent|wish)$'
-    ), (msg) ->
+  ), (msg) ->
     id = msg.match[1]
     priority = msg.match[2]
     phab.updatePriority msg, id, priority, (body) ->
