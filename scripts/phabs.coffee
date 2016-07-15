@@ -23,8 +23,8 @@
 
 Phabricator = require '../lib/phabricator'
 
-phabColumns = {}
-if process.env.PHABRICATOR_PROJECTS != undefined
+phabColumns = { }
+if process.env.PHABRICATOR_PROJECTS isnt undefined
   for list in process.env.PHABRICATOR_PROJECTS.split(',')
     [code, label] = list.split ':'
     phabColumns[label] = code
@@ -49,11 +49,11 @@ module.exports = (robot) ->
         if body['error_info']
           msg.send "#{body['error_info']}"
         else
-          id = body['result']['object']["id"]
+          id = body['result']['object']['id']
           url = process.env.PHABRICATOR_URL + "/T#{id}"
           msg.send "Task T#{id} created = #{url}"
     else
-      msg.send "Command incomplete."
+      msg.send 'Command incomplete.'
 
 
   robot.respond /ph(?:ab)? T([0-9]+)$/, (msg) ->
@@ -63,7 +63,8 @@ module.exports = (robot) ->
         phab.withUserByPhid robot, body.result.ownerPHID, (owner) ->
           status = body.result.status
           priority = body.result.priority
-          msg.send "T#{what} has status #{status}, priority #{priority}, owner #{owner.name}"
+          msg.send "T#{what} has status #{status}, " +
+                   "priority #{priority}, owner #{owner.name}"
       else
         msg.send "Sorry, this task T#{what} was not found."
     msg.finish()
@@ -96,8 +97,10 @@ module.exports = (robot) ->
     msg.send "Okay, I'll remember #{who} email as #{email}"
 
 
-  robot.respond /ph(?:ab)? assign (?:([^ ]+) (?:to|on) (T)([0-9]+)|T([0-9]+) (?:to|on) ([^ ]+))$/, (msg) ->
-    if msg.match[2] == "T"
+  robot.respond new RegExp(
+    'ph(?:ab)? assign (?:([^ ]+) (?:to|on) (T)([0-9]+)|T([0-9]+) (?:to|on) ([^ ]+))$'
+  ), (msg) ->
+    if msg.match[2] is 'T'
       who = msg.match[1]
       what = msg.match[3]
     else
@@ -105,7 +108,7 @@ module.exports = (robot) ->
       what = msg.match[4]
     assignee = robot.brain.userForName(who)
     unless assignee
-      if msg.message.user.name == who
+      if msg.message.user.name is who
         msg.send "Sorry I don't know who you are, can you .phab me as <email>"
       else
         msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
@@ -113,14 +116,16 @@ module.exports = (robot) ->
     phab.withUser msg, assignee, (userPhid) ->
       # console.log userPhid
       phab.assignTask msg, what, userPhid, (body) ->
-        if body['result']['error_info'] == undefined
+        if body['result']['error_info'] is undefined
           msg.send "Ok. T#{what} is now assigned to #{assignee.name}"
         else
           msg.send "#{body['result']['error_info']}"
     msg.finish()
 
 
-  robot.hear new RegExp("(?:.+|^)(?:(#{process.env.PHABRICATOR_URL})/?| |^)(T|F|P)([0-9]+)"), (msg) ->
+  robot.hear new RegExp(
+    "(?:.+|^)(?:(#{process.env.PHABRICATOR_URL})/?| |^)(T|F|P)([0-9]+)"
+  ), (msg) ->
     url = msg.match[1]
     type = msg.match[2]
     id = msg.match[3]
@@ -141,9 +146,11 @@ module.exports = (robot) ->
           else
             size = humanFileSize(body['result']['byteSize'])
             if url
-              msg.send "F#{id} - #{body['result']['name']} (#{body['result']['mimeType']} #{size})"
+              msg.send "F#{id} - #{body['result']['name']} " +
+                       "(#{body['result']['mimeType']} #{size})"
             else
-              msg.send "#{body['result']['uri']} - #{body['result']['name']} (#{body['result']['mimeType']} #{size})"
+              msg.send "#{body['result']['uri']} - #{body['result']['name']} "+
+                       "(#{body['result']['mimeType']} #{size})"
       when 'P'
         phab.pasteInfo msg, id, (body) ->
           if body['error_info']
@@ -151,7 +158,7 @@ module.exports = (robot) ->
           else
             for k, v of body['result']
               lang = ''
-              if v['language'] != ''
+              if v['language'] isnt ''
                 lang = " (#{v['language']})"
               if url
                 msg.send "P#{id} - #{v['title']}#{lang}"
