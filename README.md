@@ -40,6 +40,8 @@ If a PHID-PCOL-xxx is given, it will target the column in whatever project this 
 Commands
 --------------
 
+Commands prefexed by `.phab` are here taking in account we use the `.` as hubot prefix, just replace it with your prefix if it is different. Also, `phab` can be shortened to `ph` in the commands.
+
     something about https://phabricator.example.com/T2#17207
     just talking about T123. did you see that one?
         the plugin will watch if it sees T[0-9]+
