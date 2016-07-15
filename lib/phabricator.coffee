@@ -11,7 +11,8 @@
 # Author:
 #   mose
 
-querystring = require('querystring')
+querystring = require 'querystring'
+moment = require 'moment'
 
 class Phabricator
   constructor: (@robot, env) ->
@@ -149,6 +150,20 @@ class Phabricator
         phabGet msg, query, 'maniphest.edit', (json_body) ->
           cb json_body
 
+
+  recordPhid: (msg, id) ->
+    msg.message.user.lastTask = moment().utc()
+    msg.message.user.lastPhid = id
+
+
+  retrievePhid: (msg) ->
+    expires_at = moment(msg.message.user.lastTask).add(5, 'minutes')
+    if msg.message.user.lastPhid? and moment().utc().isBefore(expires_at)
+      msg.message.user.lastPhid
+    else
+      null
+
+
   updateStatus: (msg, id, status, cb) ->
     if @ready(msg) is true
       query = {
@@ -159,6 +174,7 @@ class Phabricator
       }
       @phabGet msg, query, 'maniphest.update', (json_body) ->
         cb json_body
+
 
   updatePriority: (msg, id, priority, cb) ->
     if @ready(msg) is true
@@ -182,6 +198,7 @@ class Phabricator
       }
       @phabGet msg, query, 'maniphest.update', (json_body) ->
         cb json_body
+
 
   assignTask: (msg, tid, userphid, cb) ->
     if @ready(msg) is true

@@ -22,6 +22,7 @@
 #   mose
 
 Phabricator = require '../lib/phabricator'
+moment = require 'moment'
 
 phabColumns = { }
 if process.env.PHABRICATOR_PROJECTS isnt undefined
@@ -36,6 +37,19 @@ humanFileSize = (size) ->
 module.exports = (robot) ->
   phab = new Phabricator robot, process.env
 
+  robot.respond /ph(?:ab)? create$/, (msg) ->
+    id = 'T42'
+    phab.recordPhid msg, id
+    msg.finish()
+
+  robot.respond /ph(?:ab)? read$/, (msg) ->
+    console.log phab.retrievePhid msg
+    msg.finish()
+
+  robot.respond /ph(?:ab)? date$/, (msg) ->
+    console.log moment(msg.message.user.lastTask).utc().format()
+    console.log moment().utc().format()
+    msg.finish()
 
   robot.respond (/ph(?:ab)? list projects$/), (msg) ->
     msg.send "Known Projects: #{Object.keys(phabColumns).join(', ')}"
@@ -51,27 +65,37 @@ module.exports = (robot) ->
         else
           id = body['result']['object']['id']
           url = process.env.PHABRICATOR_URL + "/T#{id}"
+          phab.recordPhid msg, id
           msg.send "Task T#{id} created = #{url}"
     else
       msg.send 'Command incomplete.'
 
 
-  robot.respond /ph(?:ab)? T([0-9]+) ?$/, (msg) ->
-    what = msg.match[1]
-    phab.taskInfo msg, what, (body) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+) ?)?$/, (msg) ->
+    id = msg.match[1] ? phab.retrievePhid(msg)
+    unless id?
+      msg.send "Sorry, you don't have any task active right now."
+      msg.finish()
+      return
+    phab.taskInfo msg, id, (body) ->
       if body.result?
         phab.withUserByPhid robot, body.result.ownerPHID, (owner) ->
           status = body.result.status
           priority = body.result.priority
-          msg.send "T#{what} has status #{status}, " +
+          phab.recordPhid msg, id
+          msg.send "T#{id} has status #{status}, " +
                    "priority #{priority}, owner #{owner.name}"
       else
-        msg.send "Sorry, this task T#{what} was not found."
+        msg.send "Sorry, this task T#{id} was not found."
     msg.finish()
 
 
-  robot.respond /ph(?:ab)? T([0-9]+) (?:is )?(open|resolved|wontfix|invalid|spite)$/, (msg) ->
-    id = msg.match[1]
+  robot.respond /ph(?:ab)?(?: T([0-9]+))? (?:is )?(open|resolved|wontfix|invalid|spite)$/, (msg) ->
+    id = msg.match[1] ? phab.retrievePhid(msg)
+    unless id?
+      msg.send "Sorry, you don't have any task active right now."
+      msg.finish()
+      return
     status = msg.match[2]
     phab.updateStatus msg, id, status, (body) ->
       if body['result']['error_info'] is undefined
@@ -82,9 +106,13 @@ module.exports = (robot) ->
 
 
   robot.respond new RegExp(
-    'ph(?:ab)? T([0-9]+) (?:is )?(unbreak|broken|none|unknown|high|normal|low|urgent|wish)$'
+    'ph(?:ab)?(?: T([0-9]+))? (?:is )?(unbreak|broken|none|unknown|high|normal|low|urgent|wish)$'
   ), (msg) ->
-    id = msg.match[1]
+    id = msg.match[1] ? phab.retrievePhid(msg)
+    unless id?
+      msg.send "Sorry, you don't have any task active right now."
+      msg.finish()
+      return
     priority = msg.match[2]
     phab.updatePriority msg, id, priority, (body) ->
       if body['result']['error_info'] is undefined
@@ -122,7 +150,7 @@ module.exports = (robot) ->
 
 
   robot.respond new RegExp(
-    'ph(?:ab)?(?: assign)? (?:([^ ]+) (?:to|on) (T)([0-9]+)|T([0-9]+) (?:to|on) ([^ ]+))$'
+    'ph(?:ab)?(?: assign)? (?:([^ ]+)(?: (?:to|on) (T)([0-9]+))?|(?:T([0-9]+) )?(?:to|on) ([^ ]+))$'
   ), (msg) ->
     if msg.match[2] is 'T'
       who = msg.match[1]
@@ -130,6 +158,11 @@ module.exports = (robot) ->
     else
       who = msg.match[5]
       what = msg.match[4]
+    id = what ? phab.retrievePhid(msg)
+    unless id?
+      msg.send "Sorry, you don't have any task active right now."
+      msg.finish()
+      return
     assignee = robot.brain.userForName(who)
     unless assignee
       if msg.message.user.name is who
@@ -139,9 +172,9 @@ module.exports = (robot) ->
       return
     phab.withUser msg, assignee, (userPhid) ->
       # console.log userPhid
-      phab.assignTask msg, what, userPhid, (body) ->
+      phab.assignTask msg, id, userPhid, (body) ->
         if body['result']['error_info'] is undefined
-          msg.send "Ok. T#{what} is now assigned to #{assignee.name}"
+          msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
         else
           msg.send "#{body['result']['error_info']}"
     msg.finish()
@@ -168,6 +201,7 @@ module.exports = (robot) ->
             else
               msg.send "#{body['result']['uri']}#{closed} - #{body['result']['title']} " +
                        "(#{body['result']['priority']})"
+            phab.recordPhid msg, id
       when 'F'
         phab.fileInfo msg, id, (body) ->
           if body['error_info']
