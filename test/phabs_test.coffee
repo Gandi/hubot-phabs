@@ -63,7 +63,7 @@ describe 'hubot-phabs', ->
       delete process.env.PHABRICATOR_BOT_PHID
       delete process.env.PHABRICATOR_PROJECTS
 
-    context 'phab Txxx', ->
+    context 'user asks for task info', ->
       beforeEach ->
         room = helper.createRoom(httpd: false)
         do nock.disableNetConnect
@@ -76,7 +76,7 @@ describe 'hubot-phabs', ->
       afterEach ->
         nock.cleanAll()
 
-      context 'user asks for task info', ->
+      context 'phab T42', ->
         beforeEach (done) ->
           room.user.say 'momo', '@hubot phab T42'
           setTimeout done, 100
@@ -84,5 +84,16 @@ describe 'hubot-phabs', ->
         it "gives information about the task Txxx", ->
           expect(room.messages).to.eql [
             ['momo', '@hubot phab T42']
+            ['hubot', 'T42 has status open, priority Low, owner toto']
+          ]
+
+      context 'ph T42 # with an ending space', ->
+        beforeEach (done) ->
+          room.user.say 'momo', '@hubot ph T42 '
+          setTimeout done, 100
+
+        it "gives information about the task Txxx", ->
+          expect(room.messages).to.eql [
+            ['momo', '@hubot ph T42 ']
             ['hubot', 'T42 has status open, priority Low, owner toto']
           ]

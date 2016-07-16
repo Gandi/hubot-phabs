@@ -108,7 +108,7 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
     .phab list projects
         will list known projects and columns according to configuration param
 
-Development
+Testing
 ----------------
 
     npm install
@@ -120,6 +120,9 @@ Development
     
     # or, for watch-mode
     make test-w
+
+    # or for more documentation-style output
+    make test-spec
 
 Changelog
 ---------------
