@@ -33,7 +33,7 @@ describe 'Phabricator:', ->
       process.env.PHABRICATOR_URL = "http://example.com"
       process.env.PHABRICATOR_API_KEY = "xxx"
       process.env.PHABRICATOR_BOT_PHID = "PHID-USER-xxx"
-      process.env.PHABRICATOR_LISTS_INCOMING = "PHID-PROJ-xxx:proj1,PHID-PROJ-yyy:proj2"
+      process.env.PHABRICATOR_PROJECTS = "PHID-PROJ-xxx:proj1,PHID-PROJ-yyy:proj2"
       @phab = new Phabricator null, process.env
       @msg = sinon.spy()
       @msg.message = sinon.spy()
@@ -42,7 +42,7 @@ describe 'Phabricator:', ->
       delete process.env.PHABRICATOR_URL
       delete process.env.PHABRICATOR_API_KEY
       delete process.env.PHABRICATOR_BOT_PHID
-      delete process.env.PHABRICATOR_LISTS_INCOMING
+      delete process.env.PHABRICATOR_PROJECTS
 
     describe 'new', ->
       it 'should initialize vars', ->
