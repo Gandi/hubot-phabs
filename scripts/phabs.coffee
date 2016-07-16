@@ -23,6 +23,7 @@
 
 Phabricator = require '../lib/phabricator'
 moment = require 'moment'
+path = require 'path'
 
 phabColumns = { }
 if process.env.PHABRICATOR_PROJECTS isnt undefined
@@ -53,6 +54,12 @@ module.exports = (robot) ->
 
   robot.respond (/ph(?:ab)? list projects$/), (msg) ->
     msg.send "Known Projects: #{Object.keys(phabColumns).join(', ')}"
+
+
+  robot.respond /ph(?:ab)? version/, (msg) ->
+    pkg = require path.join __dirname, '..', 'package.json'
+    msg.send "hubot-phabs module is version #{pkg.version}"
+    msg.finish()
 
 
   robot.respond (/ph(?:ab)? new ([a-z]+) (.+)/), (msg) ->
