@@ -2,7 +2,7 @@ Phabricator = require('../lib/phabricator.coffee')
 sinon = require("sinon")
 expect = require('chai').use(require('sinon-chai')).expect
 
-describe 'Phabricator:', ->
+describe 'Phabricator lib', ->
 
   context 'when env is not set,', ->
     beforeEach ->

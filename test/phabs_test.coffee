@@ -9,8 +9,22 @@ nock = require('nock')
 sinon = require("sinon")
 expect = require('chai').use(require('sinon-chai')).expect
 
-describe 'hubot-phabs', ->
-  room = null
+room = null
+
+describe 'hubot-phabs module', ->
+
+  hubot = (message) ->
+    beforeEach (done) ->
+      room.messages = []
+      room.user.say "momo", "@hubot #{message}"
+      room.messages.shift()
+      setTimeout (done), 10
+
+  hubotResponse = () ->
+    room.messages[0][1]
+
+  hubotResponseCount = () ->
+    room.messages.length
 
   context 'without calling Phabricator class', ->
     beforeEach ->
@@ -18,8 +32,6 @@ describe 'hubot-phabs', ->
       process.env.PHABRICATOR_API_KEY = "xxx"
       process.env.PHABRICATOR_BOT_PHID = "PHID-USER-xxx"
       process.env.PHABRICATOR_PROJECTS = "PHID-PROJ-xxx:proj1,PHID-PROJ-yyy:proj2"
-      Phabricator = require '../lib/phabricator'
-
       room = helper.createRoom(httpd: false)
 
     afterEach ->
@@ -29,26 +41,20 @@ describe 'hubot-phabs', ->
       delete process.env.PHABRICATOR_PROJECTS
 
     context 'phab version', ->
-      beforeEach ->
-        room.user.say 'momo', '@hubot phab version'
+      hubot 'phab version'
       it 'should reply version number', ->
-        expect(room.messages.length).to.eql 2
-        expect(room.messages[0]).to.eql ['momo', '@hubot phab version']
-        expect(room.messages[1][1]).to.match /hubot-phabs module is version [0-9]+\.[0-9]+\.[0-9]+/
+        expect(hubotResponse()).to.match /hubot-phabs module is version [0-9]+\.[0-9]+\.[0-9]+/
 
     context 'ph version', ->
-      beforeEach ->
-        room.user.say 'momo', '@hubot ph version'
+      hubot 'ph version'
       it 'should reply version number', ->
-        expect(room.messages.length).to.eql 2
-        expect(room.messages[1][1]).to.match /hubot-phabs module is version [0-9]+\.[0-9]+\.[0-9]+/
+        expect(hubotResponse()).to.match /hubot-phabs module is version [0-9]+\.[0-9]+\.[0-9]+/
 
     context 'phab list projects', ->
-      beforeEach ->
-        room.user.say 'momo', '@hubot phab list projects'
+      hubot 'phab list projects'
       it 'should reply the list of known projects according to PHABRICATOR_PROJECTS', ->
-        expect(room.messages.length).to.eql 2
-        expect(room.messages[1][1]).to.eql 'Known Projects: proj1, proj2'
+        expect(hubotResponseCount()).to.eql 1
+        expect(hubotResponse()).to.eql 'Known Projects: proj1, proj2'
 
   context 'with calling Phabricator class', ->
     beforeEach ->
@@ -77,23 +83,11 @@ describe 'hubot-phabs', ->
         nock.cleanAll()
 
       context 'phab T42', ->
-        beforeEach (done) ->
-          room.user.say 'momo', '@hubot phab T42'
-          setTimeout done, 100
-
+        hubot 'phab T42'
         it "gives information about the task Txxx", ->
-          expect(room.messages).to.eql [
-            ['momo', '@hubot phab T42']
-            ['hubot', 'T42 has status open, priority Low, owner toto']
-          ]
+          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
 
       context 'ph T42 # with an ending space', ->
-        beforeEach (done) ->
-          room.user.say 'momo', '@hubot ph T42 '
-          setTimeout done, 100
-
+        hubot 'ph T42 '
         it "gives information about the task Txxx", ->
-          expect(room.messages).to.eql [
-            ['momo', '@hubot ph T42 ']
-            ['hubot', 'T42 has status open, priority Low, owner toto']
-          ]
+          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
