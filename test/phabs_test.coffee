@@ -29,19 +29,20 @@ describe 'hubot-phabs module', ->
   hubotResponseCount = () ->
     room.messages.length
 
-  context 'without calling Phabricator class', ->
-    beforeEach ->
-      process.env.PHABRICATOR_URL = "http://example.com"
-      process.env.PHABRICATOR_API_KEY = "xxx"
-      process.env.PHABRICATOR_BOT_PHID = "PHID-USER-xxx"
-      process.env.PHABRICATOR_PROJECTS = "PHID-PROJ-xxx:proj1,PHID-PROJ-yyy:proj2"
-      room = helper.createRoom(httpd: false)
+  beforeEach ->
+    process.env.PHABRICATOR_URL = "http://example.com"
+    process.env.PHABRICATOR_API_KEY = "xxx"
+    process.env.PHABRICATOR_BOT_PHID = "PHID-USER-xxx"
+    process.env.PHABRICATOR_PROJECTS = "PHID-PROJ-xxx:proj1,PHID-PROJ-yyy:proj2"
+    room = helper.createRoom(httpd: false)
 
-    afterEach ->
-      delete process.env.PHABRICATOR_URL
-      delete process.env.PHABRICATOR_API_KEY
-      delete process.env.PHABRICATOR_BOT_PHID
-      delete process.env.PHABRICATOR_PROJECTS
+  afterEach ->
+    delete process.env.PHABRICATOR_URL
+    delete process.env.PHABRICATOR_API_KEY
+    delete process.env.PHABRICATOR_BOT_PHID
+    delete process.env.PHABRICATOR_PROJECTS
+
+  context 'user wants to know hubot-phabs version', ->
 
     context 'phab version', ->
       hubot 'phab version'
@@ -53,44 +54,32 @@ describe 'hubot-phabs module', ->
       it 'should reply version number', ->
         expect(hubotResponse()).to.match /hubot-phabs module is version [0-9]+\.[0-9]+\.[0-9]+/
 
+  context 'user requests the list of known projects', ->
+
     context 'phab list projects', ->
       hubot 'phab list projects'
       it 'should reply the list of known projects according to PHABRICATOR_PROJECTS', ->
         expect(hubotResponseCount()).to.eql 1
         expect(hubotResponse()).to.eql 'Known Projects: proj1, proj2'
 
-  context 'with calling Phabricator class', ->
+  context 'user asks for task info', ->
     beforeEach ->
-      process.env.PHABRICATOR_URL = "http://example.com"
-      process.env.PHABRICATOR_API_KEY = "xxx"
-      process.env.PHABRICATOR_BOT_PHID = "PHID-USER-xxx"
-      process.env.PHABRICATOR_PROJECTS = "PHID-PROJ-xxx:proj1,PHID-PROJ-yyy:proj2"
+      do nock.disableNetConnect
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.info')
+        .reply( 200, { result: { status: 'open', priority: 'Low', name: 'Test task', ownerPHID: 'PHID-USER-42' }})
+        .get('/api/user.query')
+        .reply( 200, { result: [{ userName: 'toto' }]})
 
     afterEach ->
-      delete process.env.PHABRICATOR_URL
-      delete process.env.PHABRICATOR_API_KEY
-      delete process.env.PHABRICATOR_BOT_PHID
-      delete process.env.PHABRICATOR_PROJECTS
+      nock.cleanAll()
 
-    context 'user asks for task info', ->
-      beforeEach ->
-        room = helper.createRoom(httpd: false)
-        do nock.disableNetConnect
-        nock(process.env.PHABRICATOR_URL)
-          .get('/api/maniphest.info')
-          .reply( 200, { result: { status: 'open', priority: 'Low', name: 'Test task', ownerPHID: 'PHID-USER-42' }})
-          .get('/api/user.query')
-          .reply( 200, { result: [{ userName: 'toto' }]})
+    context 'phab T42', ->
+      hubot 'phab T42'
+      it "gives information about the task Txxx", ->
+        expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
 
-      afterEach ->
-        nock.cleanAll()
-
-      context 'phab T42', ->
-        hubot 'phab T42'
-        it "gives information about the task Txxx", ->
-          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
-
-      context 'ph T42 # with an ending space', ->
-        hubot 'ph T42 '
-        it "gives information about the task Txxx", ->
-          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
+    context 'ph T42 # with an ending space', ->
+      hubot 'ph T42 '
+      it "gives information about the task Txxx", ->
+        expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
