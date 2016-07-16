@@ -113,7 +113,7 @@ Testing
 
     npm install
 
-    npm test
+    npm test # will just run make test
     
     # or
     make test
