@@ -92,7 +92,6 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
     .phab T123 on <someone>
     .phab <someone> on T123
     .phab on <someone>
-    .phab <someone> on
         assigns the given task to a user (or the given user to the task, which is exactly the same).
         the 'to' and 'on' conjunctions are inter-changeable.
         NOTE: you don't need to specify the Txx if you have one in your 5 minutes memory
