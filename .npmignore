@@ -4,3 +4,4 @@ columns.py
 .git
 coffeelint.json
 npm-debug.log
+coverage

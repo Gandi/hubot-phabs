@@ -22,4 +22,13 @@ test-w:
 		--ui tdd \
 		--watch
 
-.PHONY: test test-spec test-w
+test-coverage:
+	@NODE_ENV=test ./node_modules/.bin/mocha \
+		--compilers coffee:coffee-script \
+		--require coffee-coverage/register-istanbul \
+		--reporter dot \
+		--ui tdd \
+		&& ./node_modules/.bin/istanbul report text-summary lcov
+
+
+.PHONY: test test-spec test-w test-coverage
