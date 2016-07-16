@@ -28,7 +28,15 @@ test-coverage:
 		--require coffee-coverage/register-istanbul \
 		--reporter dot \
 		--ui tdd \
-		&& ./node_modules/.bin/istanbul report text-summary lcov
+		&& ./node_modules/.bin/istanbul report lcovonly
+
+test-cov:
+	@NODE_ENV=test ./node_modules/.bin/mocha \
+		--compilers coffee:coffee-script \
+		--require coffee-coverage/register-istanbul \
+		--reporter dot \
+		--ui tdd \
+		&& ./node_modules/.bin/istanbul report
 
 
 .PHONY: test test-spec test-w test-coverage
