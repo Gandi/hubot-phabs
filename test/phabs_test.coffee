@@ -1,12 +1,13 @@
 require('es6-promise').polyfill()
 
 Helper = require('hubot-test-helper')
+Hubot = require('../node_modules/hubot-test-helper/node_modules/hubot')
 
 # helper loads a specific script if it's a file
 helper = new Helper('../scripts/phabs.coffee')
 
 nock = require('nock')
-sinon = require("sinon")
+sinon = require('sinon')
 expect = require('chai').use(require('sinon-chai')).expect
 
 room = null
@@ -19,6 +20,22 @@ describe 'hubot-phabs module', ->
       room.user.say "momo", message
       room.messages.shift()
       setTimeout (done), 50
+
+  setEmail = () ->
+    beforeEach ->
+      room.receive = (userName, message) ->
+        new Promise (resolve) =>
+          @messages.push [userName, message]
+          user = new Hubot.User(userName, { room: @name, email_address: 'momo@example.com' })
+          @robot.receive(new Hubot.TextMessage(user, message), resolve)
+
+  setPhid = () ->
+    beforeEach ->
+      room.receive = (userName, message) ->
+        new Promise (resolve) =>
+          @messages.push [userName, message]
+          user = new Hubot.User(userName, { room: @name, phid: '40' })
+          @robot.receive(new Hubot.TextMessage(user, message), resolve)
 
   hubot = (message) ->
     hubotHear "@hubot #{message}"
@@ -83,3 +100,37 @@ describe 'hubot-phabs module', ->
       hubot 'ph T42 '
       it "gives information about the task Txxx", ->
         expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
+
+
+  context 'user creates a new task', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/user.query')
+        .reply( 200, { result: [{ phid: 'PHID-USER-24' }]})
+        .get('/api/maniphest.edit')
+        .reply( 200, { result: { object: { id: 42 }}})
+
+    afterEach ->
+      nock.cleanAll()
+
+    context 'phab new something blah blah', ->
+      hubot 'phab new something blah blah'
+      it "fails to comply if the project is not registered by PHABRICATOR_PROJECTS", ->
+        expect(hubotResponse()).to.eql 'Command incomplete.'
+
+    context 'phab new proj1 a task', ->
+      context 'when user is doing it for the first time and has no email recorded', ->
+        hubot 'phab new proj1 a task'
+        it "invites the user to set his email address", ->
+          expect(hubotResponse()).to.eql 'Sorry, I can\'t figure out your email address :( Can you tell me with `.phab me as you@yourdomain.com`?'
+      context 'when user is doing it for the first time and has set an email addresse', ->
+        setEmail()
+        hubot 'phab new proj1 a task'
+        it "invites the user to set his email address", ->
+          expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
+      context 'when user is known and his phid is in the brain', ->
+        setPhid()
+        hubot 'phab new proj1 a task'
+        it "invites the user to set his email address", ->
+          expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'

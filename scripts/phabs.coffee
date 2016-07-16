@@ -62,10 +62,10 @@ module.exports = (robot) ->
     msg.finish()
 
 
-  robot.respond (/ph(?:ab)? new ([a-z]+) (.+)/), (msg) ->
+  robot.respond (/ph(?:ab)? new ([-_a-zA-Z0-9]+) (.+)/), (msg) ->
     column = phabColumns[msg.match[1]]
     name = msg.match[2]
-    if column and name
+    if column?
       phab.createTask msg, column, name, (body) ->
         if body['error_info']
           msg.send "#{body['error_info']}"
