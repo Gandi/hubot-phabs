@@ -106,7 +106,7 @@ module.exports = (robot) ->
     status = msg.match[2]
     phab.updateStatus msg, id, status, (body) ->
       if body['result']['error_info'] is undefined
-        msg.send "Ok, T#{id} now has status #{status}."
+        msg.send "Ok, T#{id} now has status #{body['result']['statusName']}."
       else
         msg.send "oops T#{id} #{body['result']['error_info']}"
     msg.finish()
@@ -123,9 +123,9 @@ module.exports = (robot) ->
     priority = msg.match[2]
     phab.updatePriority msg, id, priority, (body) ->
       if body['result']['error_info'] is undefined
-        msg.send "Ok, T#{id} now has priority #{priority}."
+        msg.send "Ok, T#{id} now has priority #{body['result']['priority']}"
       else
-        msg.send "oops #{body['result']['error_info']}"
+        msg.send "oops T#{id} #{body['result']['error_info']}"
     msg.finish()
 
 

@@ -142,47 +142,208 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.update')
-          .reply( 200, { result: { error_info: 'not found.' }})
+          .reply( 200, { result: { error_info: 'No such Maniphest task exists.' }})
 
       afterEach ->
         nock.cleanAll()
 
-      context '', ->
+      context 'phab T424242 is open', ->
         hubot 'phab T424242 is open'
-        it "invites the user to set his email address", ->
-          expect(hubotResponse()).to.eql 'oops T424242 not found.'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
 
     context 'when the task is present', ->
+
+      context 'phab T42 is open', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { statusName: 'Open' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        hubot 'phab T42 is open'
+        it 'reports the status as open', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
+
+      context 'phab T42 open', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { statusName: 'Open' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        hubot 'phab T42 open'
+        it 'reports the status as open', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
+
+      context 'phab T42 resolved', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { statusName: 'Resolved' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        hubot 'phab T42 resolved'
+        it 'reports the status as resolved', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status Resolved.'
+
+      context 'phab T42 wontfix', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { statusName: 'Wontfix' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        hubot 'phab T42 wontfix'
+        it 'reports the status as wontfix', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status Wontfix.'
+
+      context 'phab T42 invalid', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { statusName: 'Invalid' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        hubot 'phab T42 invalid'
+        it 'reports the status as invalid', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status Invalid.'
+
+      context 'phab T42 spite', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { statusName: 'Spite' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        hubot 'phab T42 spite'
+        it 'reports the status as spite', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status Spite.'
+
+  context 'user changes status for a task', ->
+    context 'when the task is unknown', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.update')
-          .reply( 200, { result: { phid: 'PHID-TASK-42' }})
+          .reply( 200, { result: { error_info: 'No such Maniphest task exists.' }})
 
       afterEach ->
         nock.cleanAll()
 
-      context 'phab T42 is open', ->
-        hubot 'phab T42 is open'
-        it 'reports the status as open', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status open.'
-      context 'phab T42 open', ->
-        hubot 'phab T42 open'
-        it 'reports the status as open', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status open.'
-      context 'phab T42 resolved', ->
-        hubot 'phab T42 resolved'
-        it 'reports the status as resolved', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status resolved.'
-      context 'phab T42 wontfix', ->
-        hubot 'phab T42 wontfix'
-        it 'reports the status as wontfix', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status wontfix.'
-      context 'phab T42 invalid', ->
-        hubot 'phab T42 invalid'
-        it 'reports the status as invalid', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status invalid.'
-      context 'phab T42 spite', ->
-        hubot 'phab T42 spite'
-        it 'reports the status as spite', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status spite.'
+      context 'phab T424242 is low', ->
+        hubot 'phab T424242 is low'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
+
+    context 'when the task is present', ->
+  
+      context 'phab T42 is broken', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { priority: 'Unbreak Now!' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab T42 is broken', ->
+          hubot 'phab T42 is broken'
+          it 'reports the priority to be Unbreak Now!', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority Unbreak Now!'
+        context 'phab T42 broken', ->
+          hubot 'phab T42 broken'
+          it 'reports the priority to be Unbreak Now!', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority Unbreak Now!'
+        context 'phab T42 unbreak', ->
+          hubot 'phab T42 unbreak'
+          it 'reports the priority to be Unbreak Now!', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority Unbreak Now!'
+
+  
+      context 'phab T42 is none', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { priority: 'Needs Triage' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab T42 none', ->
+          hubot 'phab T42 none'
+          it 'reports the priority to be Unbreak Now!', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority Needs Triage'
+        context 'phab T42 unknown', ->
+          hubot 'phab T42 unknown'
+          it 'reports the priority to be Unbreak Now!', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority Needs Triage'
+
+      context 'phab T42 is urgent', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { priority: 'High' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab T42 urgent', ->
+          hubot 'phab T42 urgent'
+          it 'reports the priority to be High', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority High'
+        context 'phab T42 high', ->
+          hubot 'phab T42 high'
+          it 'reports the priority to be High', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority High'
+
+      context 'phab T42 is normal', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { priority: 'Normal' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab T42 normal', ->
+          hubot 'phab T42 normal'
+          it 'reports the priority to be Normal', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority Normal'
+
+      context 'phab T42 is low', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.update')
+            .reply( 200, { result: { priority: 'Low' }})
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab T42 low', ->
+          hubot 'phab T42 low'
+          it 'reports the priority to be Low', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority Low'
