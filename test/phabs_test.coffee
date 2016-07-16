@@ -107,7 +107,7 @@ describe 'hubot-phabs module', ->
       do nock.disableNetConnect
       nock(process.env.PHABRICATOR_URL)
         .get('/api/user.query')
-        .reply( 200, { result: [{ phid: 'PHID-USER-24' }]})
+        .reply( 200, { result: [{ phid: 'PHID-USER-42' }]})
         .get('/api/maniphest.edit')
         .reply( 200, { result: { object: { id: 42 }}})
 
@@ -134,3 +134,55 @@ describe 'hubot-phabs module', ->
         hubot 'phab new proj1 a task'
         it "invites the user to set his email address", ->
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
+
+
+  context 'user changes status for a task', ->
+    context 'when the task is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.update')
+          .reply( 200, { result: { error_info: 'not found.' }})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context '', ->
+        hubot 'phab T424242 is open'
+        it "invites the user to set his email address", ->
+          expect(hubotResponse()).to.eql 'oops T424242 not found.'
+
+    context 'when the task is present', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.update')
+          .reply( 200, { result: { phid: 'PHID-TASK-42' }})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42 is open', ->
+        hubot 'phab T42 is open'
+        it 'reports the status as open', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status open.'
+      context 'phab T42 open', ->
+        hubot 'phab T42 open'
+        it 'reports the status as open', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status open.'
+      context 'phab T42 resolved', ->
+        hubot 'phab T42 resolved'
+        it 'reports the status as resolved', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status resolved.'
+      context 'phab T42 wontfix', ->
+        hubot 'phab T42 wontfix'
+        it 'reports the status as wontfix', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status wontfix.'
+      context 'phab T42 invalid', ->
+        hubot 'phab T42 invalid'
+        it 'reports the status as invalid', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status invalid.'
+      context 'phab T42 spite', ->
+        hubot 'phab T42 spite'
+        it 'reports the status as spite', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has status spite.'

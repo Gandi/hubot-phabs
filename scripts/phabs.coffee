@@ -108,7 +108,7 @@ module.exports = (robot) ->
       if body['result']['error_info'] is undefined
         msg.send "Ok, T#{id} now has status #{status}."
       else
-        msg.send "oops #{body['result']['error_info']}"
+        msg.send "oops T#{id} #{body['result']['error_info']}"
     msg.finish()
 
 
