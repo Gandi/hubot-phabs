@@ -52,6 +52,14 @@ describe 'hubot-phabs module', ->
     process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
     process.env.PHABRICATOR_PROJECTS = 'PHID-PROJ-xxx:proj1,PHID-PROJ-yyy:proj2'
     room = helper.createRoom { httpd: false }
+    room.robot.brain.userForId 'user',
+      name: 'user'
+    room.robot.brain.userForId 'user_with_email',
+      name: 'user_with_email',
+      email_address: 'user@example.com'
+    room.robot.brain.userForId 'user_with_phid',
+      name: 'user_with_phid',
+      phid: 'PHID-USER-123456789'
 
   afterEach ->
     delete process.env.PHABRICATOR_URL
@@ -106,6 +114,37 @@ describe 'hubot-phabs module', ->
       it 'gives information about the task Txxx', ->
         expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
 
+
+  context 'user asks about a user', ->
+
+    context 'phab toto', ->
+      hubot 'phab toto'
+      it 'warns when that user is unknown', ->
+        expect(hubotResponse()).to.eql 'Sorry, I have no idea who toto is. Did you mistype it?'
+
+    context 'phab user', ->
+      hubot 'phab user'
+      it 'warns when that user has no email', ->
+        expect(hubotResponse()).to.eql "Sorry, I can't figure user email address. Can you help me with .phab user = <email>"
+
+    context 'phab user_with_email', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.query')
+          .reply(200, { result: [{ userName: 'user_with_email', phid: 'PHID-USER-999' }]})
+
+      afterEach ->
+        nock.cleanAll()
+      hubot 'phab user_with_email'
+      it 'gets the phid for the user if he has an email', ->
+        expect(hubotResponse()).to.eql "Hey I know user_with_email, he's PHID-USER-999"
+        expect(room.robot.brain.userForId('user_with_email').phid).to.eql 'PHID-USER-999'
+        
+    context 'phab user_with_phid', ->
+      hubot 'phab user_with_phid'
+      it 'warns when that user has no email', ->
+        expect(hubotResponse()).to.eql "Hey I know user_with_phid, he's PHID-USER-123456789"
 
   context 'user creates a new task', ->
     beforeEach ->
