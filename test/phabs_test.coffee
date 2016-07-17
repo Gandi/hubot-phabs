@@ -347,3 +347,69 @@ describe 'hubot-phabs module', ->
           hubot 'phab T42 low'
           it 'reports the priority to be Low', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority Low'
+
+  context 'someone talks about a task', ->
+    context 'when the task is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply( 200, { result: { error_info: 'No such Maniphest task exists.' }})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about T424242 or something', ->
+        hubot 'whatever about T424242 or something'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
+
+    context 'when it is an open task', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply( 200, { result: { 
+            status: 'open', 
+            isClosed: false, 
+            title: 'some task', 
+            priority: 'Low', 
+            uri: 'http://example.com/T42'
+          }})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about T42 or something', ->
+        hubot 'whatever about T42 or something'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).to.eql 'http://example.com/T42 - some task (Low)'
+      context 'whatever about http://example.com/T42 or something', ->
+        hubot 'whatever about http://example.com/T42 or something'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).to.eql 'T42 - some task (Low)'
+
+    context 'when it is a closed task', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply( 200, { result: { 
+            status: 'resolved', 
+            isClosed: true, 
+            title: 'some task', 
+            priority: 'Low', 
+            uri: 'http://example.com/T42'
+          }})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about T42 or something', ->
+        hubot 'whatever about T42 or something'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).to.eql 'http://example.com/T42 (resolved) - some task (Low)'
+      context 'whatever about http://example.com/T42 or something', ->
+        hubot 'whatever about http://example.com/T42 or something'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).to.eql 'T42 (resolved) - some task (Low)'

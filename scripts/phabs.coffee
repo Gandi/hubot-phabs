@@ -196,13 +196,13 @@ module.exports = (robot) ->
     switch type
       when 'T'
         phab.taskInfo msg, id, (body) ->
-          if body['error_info']
-            msg.send body['error_info']
+          if body['result']['error_info']?
+            msg.send "oops T#{id} #{body['result']['error_info']}"
           else
             closed = ''
             if body['result']['isClosed'] is true
               closed = " (#{body['result']['status']})"
-            if url
+            if url?
               msg.send "T#{id}#{closed} - #{body['result']['title']} " +
                        "(#{body['result']['priority']})"
             else
@@ -212,10 +212,10 @@ module.exports = (robot) ->
       when 'F'
         phab.fileInfo msg, id, (body) ->
           if body['error_info']
-            msg.send body['error_info']
+            msg.send "oops F#{id} #{body['result']['error_info']}"
           else
             size = humanFileSize(body['result']['byteSize'])
-            if url
+            if url?
               msg.send "F#{id} - #{body['result']['name']} " +
                        "(#{body['result']['mimeType']} #{size})"
             else
@@ -224,13 +224,13 @@ module.exports = (robot) ->
       when 'P'
         phab.pasteInfo msg, id, (body) ->
           if body['error_info']
-            msg.send body['error_info']
+            msg.send "oops P#{id} #{body['result']['error_info']}"
           else
             for k, v of body['result']
               lang = ''
               if v['language'] isnt ''
                 lang = " (#{v['language']})"
-              if url
+              if url?
                 msg.send "P#{id} - #{v['title']}#{lang}"
               else
                 msg.send "#{v['uri']} - #{v['title']}#{lang}"
