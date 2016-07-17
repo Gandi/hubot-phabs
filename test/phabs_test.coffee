@@ -143,6 +143,17 @@ describe 'hubot-phabs module', ->
         expect(hubotResponse()).to.eql "Okay, I'll remember your email is momo@example.com"
         expect(room.robot.brain.userForId('momo').email_address).to.eql 'momo@example.com'
 
+  context 'user declares email for somebody else', ->
+    context 'phab toto = toto@example.com', ->
+      hubot 'phab toto = toto@example.com'
+      it 'complains if the user is unknown', ->
+        expect(hubotResponse()).to.eql "Sorry I have no idea who toto is. Did you mistype it?"
+    context 'phab user = user@example.com', ->
+      hubot 'phab user = user@example.com'
+      it 'sets the email for the user', ->
+        expect(hubotResponse()).to.eql "Okay, I'll remember user email as user@example.com"
+        expect(room.robot.brain.userForId('user').email_address).to.eql 'user@example.com'
+
 
   context 'user creates a new task', ->
     beforeEach ->
