@@ -14,31 +14,15 @@ room = null
 
 describe 'hubot-phabs module', ->
 
-  hubotHear = (message) ->
+  hubotHear = (message, userName='momo') ->
     beforeEach (done) ->
       room.messages = []
-      room.user.say 'momo', message
+      room.user.say userName, message
       room.messages.shift()
       setTimeout (done), 50
 
-  setEmail = ->
-    beforeEach ->
-      room.receive = (userName, message) ->
-        new Promise (resolve) =>
-          @messages.push [userName, message]
-          user = new Hubot.User(userName, { room: @name, email_address: 'momo@example.com' })
-          @robot.receive(new Hubot.TextMessage(user, message), resolve)
-
-  setPhid = ->
-    beforeEach ->
-      room.receive = (userName, message) ->
-        new Promise (resolve) =>
-          @messages.push [userName, message]
-          user = new Hubot.User(userName, { room: @name, phid: '40' })
-          @robot.receive(new Hubot.TextMessage(user, message), resolve)
-
-  hubot = (message) ->
-    hubotHear "@hubot #{message}"
+  hubot = (message, userName='momo') ->
+    hubotHear "@hubot #{message}", userName
 
   hubotResponse = ->
     room.messages[0][1]
@@ -60,6 +44,11 @@ describe 'hubot-phabs module', ->
     room.robot.brain.userForId 'user_with_phid',
       name: 'user_with_phid',
       phid: 'PHID-USER-123456789'
+    room.receive = (userName, message) ->
+      new Promise (resolve) =>
+        @messages.push [userName, message]
+        user = room.robot.brain.userForId userName
+        @robot.receive(new Hubot.TextMessage(user, message), resolve)
 
   afterEach ->
     delete process.env.PHABRICATOR_URL
@@ -140,11 +129,20 @@ describe 'hubot-phabs module', ->
       it 'gets the phid for the user if he has an email', ->
         expect(hubotResponse()).to.eql "Hey I know user_with_email, he's PHID-USER-999"
         expect(room.robot.brain.userForId('user_with_email').phid).to.eql 'PHID-USER-999'
-        
+
     context 'phab user_with_phid', ->
       hubot 'phab user_with_phid'
       it 'warns when that user has no email', ->
         expect(hubotResponse()).to.eql "Hey I know user_with_phid, he's PHID-USER-123456789"
+
+
+  context 'user declares his own email', ->
+    context 'phab me as momo@example.com', ->
+      hubot 'phab me as momo@example.com'
+      it 'says all is going to be fine', ->
+        expect(hubotResponse()).to.eql "Okay, I'll remember your email is momo@example.com"
+        expect(room.robot.brain.userForId('momo').email_address).to.eql 'momo@example.com'
+
 
   context 'user creates a new task', ->
     beforeEach ->
@@ -169,13 +167,11 @@ describe 'hubot-phabs module', ->
         it 'invites the user to set his email address', ->
           expect(hubotResponse()).to.eql 'Sorry, I can\'t figure out your email address :( Can you tell me with `.phab me as you@yourdomain.com`?'
       context 'when user is doing it for the first time and has set an email addresse', ->
-        setEmail()
-        hubot 'phab new proj1 a task'
+        hubot 'phab new proj1 a task', 'user_with_email'
         it 'invites the user to set his email address', ->
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
       context 'when user is known and his phid is in the brain', ->
-        setPhid()
-        hubot 'phab new proj1 a task'
+        hubot 'phab new proj1 a task', 'user_with_phid'
         it 'invites the user to set his email address', ->
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
 

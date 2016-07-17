@@ -142,6 +142,7 @@ module.exports = (robot) ->
   robot.respond /ph(?:ab)? me as (.*@.*)$/, (msg) ->
     email = msg.match[1]
     msg.message.user.email_address = email
+    robot.brain.save()
     msg.send "Okay, I'll remember your email is #{email}"
 
 
