@@ -407,9 +407,114 @@ describe 'hubot-phabs module', ->
 
       context 'whatever about T42 or something', ->
         hubot 'whatever about T42 or something'
-        it "warns the user that this Task doesn't exist", ->
+        it "gives information about the Task, including uri", ->
           expect(hubotResponse()).to.eql 'http://example.com/T42 (resolved) - some task (Low)'
       context 'whatever about http://example.com/T42 or something', ->
         hubot 'whatever about http://example.com/T42 or something'
-        it "warns the user that this Task doesn't exist", ->
+        it "gives information about the Task, without uri", ->
           expect(hubotResponse()).to.eql 'T42 (resolved) - some task (Low)'
+
+
+  context 'someone talks about a file', ->
+    context 'when the file is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/file.info')
+          .reply( 200, { result: { error_info: 'No such file exists.' }})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about F424242 or something', ->
+        hubot 'whatever about F424242 or something'
+        it "warns the user that this File doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops F424242 No such file exists.'
+
+    context 'when it is an existing file', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/file.info')
+          .reply( 200, { result: {
+            name: "image.png",
+            mimeType: "image/png",
+            byteSize: "1409",
+            uri: "https://example.com/F42"
+          }})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about F42 or something', ->
+        hubot 'whatever about F42 or something'
+        it "gives information about the File, including uri", ->
+          expect(hubotResponse()).to.eql 'https://example.com/F42 - image.png (image/png 1.38 kB)'
+      context 'whatever about http://example.com/F42 or something', ->
+        hubot 'whatever about http://example.com/F42 or something'
+        it "gives information about the File, without uri", ->
+          expect(hubotResponse()).to.eql 'F42 - image.png (image/png 1.38 kB)'
+
+
+  context 'someone talks about a paste', ->
+    context 'when the Paste is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/paste.query')
+          .reply( 200, { result: { }})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about P424242 or something', ->
+        hubot 'whatever about P424242 or something'
+        it "warns the user that this Paste doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops P424242 was not found.'
+
+    context 'when it is an existing Paste without a language set', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/paste.query')
+          .reply( 200, { result: [{
+            title: "file.coffee",
+            language: "",
+            uri: "https://example.com/P42"
+          }]})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about P42 or something', ->
+        hubot 'whatever about P42 or something'
+        it "gives information about the Paste, including uri", ->
+          expect(hubotResponse()).to.eql 'https://example.com/P42 - file.coffee'
+      context 'whatever about http://example.com/P42 or something', ->
+        hubot 'whatever about http://example.com/P42 or something'
+        it "gives information about the Paste, without uri", ->
+          expect(hubotResponse()).to.eql 'P42 - file.coffee'
+
+
+    context 'when it is an existing Paste with a language set', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/paste.query')
+          .reply( 200, { result: [{
+            title: "file.coffee",
+            language: "coffee",
+            uri: "https://example.com/P42"
+          }]})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about P42 or something', ->
+        hubot 'whatever about P42 or something'
+        it "gives information about the Paste, including uri", ->
+          expect(hubotResponse()).to.eql 'https://example.com/P42 - file.coffee (coffee)'
+      context 'whatever about http://example.com/P42 or something', ->
+        hubot 'whatever about http://example.com/P42 or something'
+        it "gives information about the Paste, without uri", ->
+          expect(hubotResponse()).to.eql 'P42 - file.coffee (coffee)'

@@ -211,7 +211,7 @@ module.exports = (robot) ->
             phab.recordPhid msg, id
       when 'F'
         phab.fileInfo msg, id, (body) ->
-          if body['error_info']
+          if body['result']['error_info']?
             msg.send "oops F#{id} #{body['result']['error_info']}"
           else
             size = humanFileSize(body['result']['byteSize'])
@@ -223,14 +223,13 @@ module.exports = (robot) ->
                        "(#{body['result']['mimeType']} #{size})"
       when 'P'
         phab.pasteInfo msg, id, (body) ->
-          if body['error_info']
-            msg.send "oops P#{id} #{body['result']['error_info']}"
+          if Object.keys(body['result']).length < 1 
+            msg.send "oops P#{id} was not found."
           else
-            for k, v of body['result']
-              lang = ''
-              if v['language'] isnt ''
-                lang = " (#{v['language']})"
-              if url?
-                msg.send "P#{id} - #{v['title']}#{lang}"
-              else
-                msg.send "#{v['uri']} - #{v['title']}#{lang}"
+            lang = ''
+            if body['result'][0]['language'] isnt ''
+              lang = " (#{body['result'][0]['language']})"
+            if url?
+              msg.send "P#{id} - #{body['result'][0]['title']}#{lang}"
+            else
+              msg.send "#{body['result'][0]['uri']} - #{body['result'][0]['title']}#{lang}"
