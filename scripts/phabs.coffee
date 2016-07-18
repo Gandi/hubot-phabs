@@ -231,7 +231,7 @@ module.exports = (robot) ->
                        "(#{body['result']['mimeType']} #{size})"
       when 'P'
         phab.pasteInfo msg, id, (body) ->
-          if Object.keys(body['result']).length < 1 
+          if Object.keys(body['result']).length < 1
             msg.send "oops P#{id} was not found."
           else
             lang = ''

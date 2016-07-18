@@ -14,15 +14,15 @@ room = null
 
 describe 'hubot-phabs module', ->
 
-  hubotHear = (message, userName='momo', tempo=40) ->
+  hubotHear = (message, userName = 'momo', tempo = 40) ->
     beforeEach (done) ->
       room.user.say userName, message
       setTimeout (done), tempo
 
-  hubot = (message, userName='momo') ->
+  hubot = (message, userName = 'momo') ->
     hubotHear "@hubot #{message}", userName
 
-  hubotResponse = (i=1) ->
+  hubotResponse = (i = 1) ->
     room.messages[i][1]
 
   hubotResponseCount = ->
@@ -34,14 +34,17 @@ describe 'hubot-phabs module', ->
     process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
     process.env.PHABRICATOR_PROJECTS = 'PHID-PROJ-xxx:proj1,PHID-PCOL-yyy:proj2'
     room = helper.createRoom { httpd: false }
-    room.robot.brain.userForId 'user',
+    room.robot.brain.userForId 'user', {
       name: 'user'
-    room.robot.brain.userForId 'user_with_email',
+    }
+    room.robot.brain.userForId 'user_with_email', {
       name: 'user_with_email',
       email_address: 'user@example.com'
-    room.robot.brain.userForId 'user_with_phid',
+    }
+    room.robot.brain.userForId 'user_with_phid', {
       name: 'user_with_phid',
       phid: 'PHID-USER-123456789'
+    }
     room.receive = (userName, message) ->
       new Promise (resolve) =>
         @messages.push [userName, message]
@@ -84,14 +87,14 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
-          .reply(200, { result: { 
+          .reply(200, { result: {
             status: 'open',
             priority: 'Low',
             name: 'Test task',
             ownerPHID: 'PHID-USER-42'
             } })
           .get('/api/user.query')
-          .reply(200, { result: [{ userName: 'toto' }]})
+          .reply(200, { result: [{ userName: 'toto' }] })
 
       afterEach ->
         nock.cleanAll()
@@ -133,14 +136,14 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
-          .reply(200, { result: { 
+          .reply(200, { result: {
             status: 'open',
             priority: 'Low',
             name: 'Test task',
             ownerPHID: null
             } })
           .get('/api/user.query')
-          .reply(200, { result: [{ userName: 'toto' }]})
+          .reply(200, { result: [{ userName: 'toto' }] })
 
       afterEach ->
         nock.cleanAll()
@@ -155,14 +158,14 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
-          .reply(200, { result: { 
+          .reply(200, { result: {
             status: 'open',
             priority: 'Low',
             name: 'Test task',
             ownerPHID: 'PHID-USER-000000'
             } })
           .get('/api/user.query')
-          .reply(200, { result: []})
+          .reply(200, { result: [] })
 
       afterEach ->
         nock.cleanAll()
@@ -183,14 +186,15 @@ describe 'hubot-phabs module', ->
     context 'phab user', ->
       hubot 'phab user'
       it 'warns when that user has no email', ->
-        expect(hubotResponse()).to.eql "Sorry, I can't figure user email address. Can you help me with .phab user = <email>"
+        expect(hubotResponse()).to.eql "Sorry, I can't figure user email address. " +
+                                       'Can you help me with .phab user = <email>'
 
     context 'user has an email', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/user.query')
-          .reply(200, { result: [{ userName: 'user_with_email', phid: 'PHID-USER-999' }]})
+          .reply(200, { result: [{ userName: 'user_with_email', phid: 'PHID-USER-999' }] })
 
       afterEach ->
         nock.cleanAll()
@@ -206,7 +210,7 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/user.query')
-          .reply(200, { result: []})
+          .reply(200, { result: [] })
 
       afterEach ->
         nock.cleanAll()
@@ -214,7 +218,7 @@ describe 'hubot-phabs module', ->
       context 'phab user_with_email', ->
         hubot 'phab user_with_email'
         it 'gets a message complaining about the impossibility to match an email', ->
-          expect(hubotResponse()).to.eql "Sorry, I cannot find user@example.com :("
+          expect(hubotResponse()).to.eql 'Sorry, I cannot find user@example.com :('
 
     context 'phab user_with_phid', ->
       hubot 'phab user_with_phid'
@@ -235,7 +239,7 @@ describe 'hubot-phabs module', ->
     context 'phab toto = toto@example.com', ->
       hubot 'phab toto = toto@example.com'
       it 'complains if the user is unknown', ->
-        expect(hubotResponse()).to.eql "Sorry I have no idea who toto is. Did you mistype it?"
+        expect(hubotResponse()).to.eql 'Sorry I have no idea who toto is. Did you mistype it?'
     context 'phab user = user@example.com', ->
       hubot 'phab user = user@example.com'
       it 'sets the email for the user', ->
@@ -265,7 +269,8 @@ describe 'hubot-phabs module', ->
       context 'when user is doing it for the first time and has no email recorded', ->
         hubot 'phab new proj1 a task'
         it 'invites the user to set his email address', ->
-          expect(hubotResponse()).to.eql 'Sorry, I can\'t figure out your email address :( Can you tell me with `.phab me as you@yourdomain.com`?'
+          expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
+                                         'Can you tell me with `.phab me as you@yourdomain.com`?'
       context 'when user is doing it for the first time and has set an email addresse', ->
         hubot 'phab new proj1 a task', 'user_with_email'
         it 'replies with the object id, and records phid for user', ->
@@ -283,7 +288,7 @@ describe 'hubot-phabs module', ->
           .get('/api/user.query')
           .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
           .get('/api/maniphest.edit')
-          .reply(200, { result: { error_info: "Something went wrong" } })
+          .reply(200, { result: { error_info: 'Something went wrong' } })
 
       afterEach ->
         nock.cleanAll()
@@ -321,7 +326,7 @@ describe 'hubot-phabs module', ->
           .get('/api/maniphest.edit')
           .reply(200, { result: { object: { id: 24 } } })
           .get('/api/maniphest.info')
-          .reply(200, { result: { 
+          .reply(200, { result: {
             status: 'open',
             priority: 'Low',
             name: 'Test task',
@@ -350,10 +355,10 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.query')
-          .reply(200, { result: { 
-            "PHID-TASK-42": { id: 42 }, 
-            "PHID-TASK-43": { id: 43 }, 
-            "PHID-TASK-44": { id: 44 }, 
+          .reply(200, { result: {
+            'PHID-TASK-42': { id: 42 },
+            'PHID-TASK-43': { id: 43 },
+            'PHID-TASK-44': { id: 44 },
             } })
 
       afterEach ->
@@ -404,14 +409,14 @@ describe 'hubot-phabs module', ->
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
-          .reply(200, { result: { 
+          .reply(200, { result: {
             status: 'open',
             priority: 'Low',
             name: 'Test task',
             ownerPHID: 'PHID-USER-42'
             } })
           .get('/api/user.query')
-          .reply(200, { result: [{ userName: 'toto' }]})
+          .reply(200, { result: [{ userName: 'toto' }] })
           .get('/api/maniphest.update')
           .reply(200, { result: { statusName: 'Open' } })
 
@@ -547,7 +552,7 @@ describe 'hubot-phabs module', ->
       do nock.disableNetConnect
       nock(process.env.PHABRICATOR_URL)
         .get('/api/maniphest.update')
-        .replyWithError({'message': 'something awful happened', 'code': 'AWFUL_ERROR'})
+        .replyWithError({ 'message': 'something awful happened', 'code': 'AWFUL_ERROR' })
 
     afterEach ->
       nock.cleanAll()
@@ -693,11 +698,12 @@ describe 'hubot-phabs module', ->
     context 'when the user is unknown', ->
       context 'phab assign T424242 to xxx', ->
         hubot 'phab assign T424242 to xxx'
-        it "warns the user that xx is unknown", ->
-          expect(hubotResponse()).to.eql "Sorry I don't know who is xxx, can you .phab xxx = <email>"
+        it 'warns the user that xx is unknown', ->
+          expect(hubotResponse()).to.eql "Sorry I don't know who is xxx, " +
+                                         'can you .phab xxx = <email>'
       context 'phab assign T424242 to momo', ->
         hubot 'phab assign T424242 to momo'
-        it "warns the user that his email is not known", ->
+        it 'warns the user that his email is not known', ->
           expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
                                          'Can you tell me with `.phab me as you@yourdomain.com`?'
 
@@ -713,7 +719,7 @@ describe 'hubot-phabs module', ->
 
       context 'phab assign T424242 to user_with_phid', ->
         hubot 'phab assign T424242 to user_with_phid'
-        it "warns the user that the task does not exist", ->
+        it 'warns the user that the task does not exist', ->
           expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
 
     context 'task is known', ->
@@ -728,22 +734,22 @@ describe 'hubot-phabs module', ->
 
       context 'phab assign T42 to user_with_phid', ->
         hubot 'phab assign T42 to user_with_phid'
-        it "gives a feedback taht the assignment went ok", ->
+        it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
       context 'phab assign T42 on user_with_phid', ->
         hubot 'phab assign T42 on user_with_phid'
-        it "gives a feedback taht the assignment went ok", ->
+        it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
       context 'phab T42 on user_with_phid', ->
         hubot 'phab T42 on user_with_phid'
-        it "gives a feedback taht the assignment went ok", ->
+        it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
       context 'phab user_with_phid on T42', ->
         hubot 'phab user_with_phid on T42'
-        it "gives a feedback taht the assignment went ok", ->
+        it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
   # ---------------------------------------------------------------------------------
@@ -768,7 +774,7 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
-          .reply(200, { result: { 
+          .reply(200, { result: {
             status: 'open',
             isClosed: false,
             title: 'some task',
@@ -793,7 +799,7 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
-          .reply(200, { result: { 
+          .reply(200, { result: {
             status: 'resolved',
             isClosed: true,
             title: 'some task',
@@ -806,11 +812,11 @@ describe 'hubot-phabs module', ->
 
       context 'whatever about T42 or something', ->
         hubot 'whatever about T42 or something'
-        it "gives information about the Task, including uri", ->
+        it 'gives information about the Task, including uri', ->
           expect(hubotResponse()).to.eql 'http://example.com/T42 (resolved) - some task (Low)'
       context 'whatever about http://example.com/T42 or something', ->
         hubot 'whatever about http://example.com/T42 or something'
-        it "gives information about the Task, without uri", ->
+        it 'gives information about the Task, without uri', ->
           expect(hubotResponse()).to.eql 'T42 (resolved) - some task (Low)'
 
 
@@ -877,11 +883,11 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/paste.query')
-          .reply(200, { result: [ {
+          .reply(200, { result: [{
             title: 'file.coffee',
             language: '',
             uri: 'https://example.com/P42'
-          } ] })
+          }] })
 
       afterEach ->
         nock.cleanAll()
@@ -901,11 +907,11 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/paste.query')
-          .reply(200, { result: [ {
+          .reply(200, { result: [{
             title: 'file.coffee',
             language: 'coffee',
             uri: 'https://example.com/P42'
-          } ] })
+          }] })
 
       afterEach ->
         nock.cleanAll()

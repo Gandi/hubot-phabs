@@ -39,21 +39,21 @@ class Phabricator
               if res.headers['content-type'] is 'application/json'
                 json_body = JSON.parse(payload)
               else
-                json_body = { 
+                json_body = {
                   result: {
                     error_code: 'ENOTJSON',
                     error_info: 'api did not deliver json'
                   }
                 }
             else
-              json_body = { 
+              json_body = {
                 result: {
                   error_code: res.statusCode,
                   error_info: "http error #{res.statusCode}"
                 }
               }
         else
-          json_body = { 
+          json_body = {
             result: {
               error_code: err.code,
               error_info: err.message

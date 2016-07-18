@@ -16,5 +16,3 @@ ratings:
   paths:
   - "**.coffee"
   - "**.py"
-exclude_paths:
-- test/

@@ -39,7 +39,7 @@
   },
   "scripts": {
     "test": "make test",
-    "lint": "coffeelint lib/phabricator.coffee scripts/phabs.coffee"
+    "posttest": "coffeelint lib/phabricator.coffee scripts/phabs.coffee test/*"
   },
   "main": "index.js"
 }
