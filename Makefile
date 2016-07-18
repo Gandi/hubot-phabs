@@ -1,6 +1,6 @@
 # REPORTER = progress
 # REPORTER = list
-REPORTER = spec
+# REPORTER = spec
 # REPORTER = dot
 
 test:
