@@ -38,5 +38,13 @@ test-cov:
 		--ui tdd \
 		&& ./node_modules/.bin/istanbul report
 
+test-full:
+	@NODE_ENV=test ./node_modules/.bin/mocha \
+		--compilers coffee:coffee-script \
+		--require ./coffee-coverage.js \
+		--reporter dot \
+		--ui tdd \
+		&& ./node_modules/.bin/coffeelint test/* scripts/* lib/* index.coffee\
+		&& ./node_modules/.bin/istanbul report
 
 .PHONY: test test-spec test-w test-coverage
