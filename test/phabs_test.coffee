@@ -16,15 +16,13 @@ describe 'hubot-phabs module', ->
 
   hubotHear = (message, userName='momo', tempo=20) ->
     beforeEach (done) ->
-      room.messages = []
       room.user.say userName, message
-      room.messages.shift()
       setTimeout (done), tempo
 
   hubot = (message, userName='momo') ->
     hubotHear "@hubot #{message}", userName
 
-  hubotResponse = (i=0) ->
+  hubotResponse = (i=1) ->
     room.messages[i][1]
 
   hubotResponseCount = ->
@@ -75,7 +73,7 @@ describe 'hubot-phabs module', ->
     context 'phab list projects', ->
       hubot 'phab list projects'
       it 'should reply the list of known projects according to PHABRICATOR_PROJECTS', ->
-        expect(hubotResponseCount()).to.eql 1
+        expect(hubotResponseCount()).to.eql 2
         expect(hubotResponse()).to.eql 'Known Projects: proj1, proj2'
 
   # ---------------------------------------------------------------------------------
@@ -107,39 +105,6 @@ describe 'hubot-phabs module', ->
         hubot 'ph T42 '
         it 'gives information about the task Txxx', ->
           expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
-
-    context 'task id is implicit', ->
-      beforeEach ->
-        do nock.disableNetConnect
-        nock(process.env.PHABRICATOR_URL)
-          .get('/api/maniphest.info')
-          .reply(200, { result: { 
-            status: 'open',
-            priority: 'Low',
-            name: 'Test task',
-            ownerPHID: 'PHID-USER-42'
-            } })
-          .get('/api/user.query')
-          .reply(200, { result: [{ userName: 'toto' }]})
-          .get('/api/maniphest.info')
-          .reply(200, { result: { 
-            status: 'open',
-            priority: 'Low',
-            name: 'Test task',
-            ownerPHID: 'PHID-USER-42'
-            } })
-          .get('/api/user.query')
-          .reply(200, { result: [{ userName: 'toto' }]})
-
-      afterEach ->
-        nock.cleanAll()
-
-      context 'ph', ->
-        hubot 'ph T42', 'user'
-        hubot 'ph', 'user'
-        it 'first gives information about the task Txxx', ->
-          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
-
 
   # ---------------------------------------------------------------------------------
   context 'user asks about a user', ->
@@ -267,6 +232,33 @@ describe 'hubot-phabs module', ->
           expect(hubotResponse()).to.eql 'Task T24 created = http://example.com/T24'
 
 
+    context 'implicit re-use of the object id', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.query')
+          .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 24 } } })
+          .get('/api/maniphest.info')
+          .reply(200, { result: { 
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-123456789'
+            } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'phab new proj2 a task', 'user_with_phid'
+        hubot 'ph', 'user_with_phid'
+        it 'replies with the object id', ->
+          expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
+          expect(hubotResponse(3)).to.eql 'T24 has status open, priority Low, owner user_with_phid'
+
+
   # ---------------------------------------------------------------------------------
   context 'user changes status for a task', ->
     context 'when the task is unknown', ->
@@ -309,13 +301,13 @@ describe 'hubot-phabs module', ->
           hubot 'phab T42', 'user_with_phid'
           hubot 'phab is open', 'user_with_phid'
           it 'reports the status as open', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
+            expect(hubotResponse(3)).to.eql 'Ok, T42 now has status Open.'
 
         context 'phab open', ->
           hubot 'phab T42', 'user_with_phid'
           hubot 'phab open', 'user_with_phid'
           it 'reports the status as open', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
+            expect(hubotResponse(3)).to.eql 'Ok, T42 now has status Open.'
 
 
       context 'phab T42 is open', ->
@@ -586,7 +578,7 @@ describe 'hubot-phabs module', ->
         hubot 'phab assign T424242 to momo'
         it "warns the user that his email is not known", ->
           expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
-                                         "Can you tell me with `.phab me as you@yourdomain.com`?"
+                                         'Can you tell me with `.phab me as you@yourdomain.com`?'
 
     context 'task is unknown', ->
       beforeEach ->
@@ -601,7 +593,37 @@ describe 'hubot-phabs module', ->
       context 'phab assign T424242 to user_with_phid', ->
         hubot 'phab assign T424242 to user_with_phid'
         it "warns the user that the task does not exist", ->
-          expect(hubotResponse()).to.eql "No such Maniphest task exists."
+          expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
+
+    context 'task is known', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { id: 42 } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab assign T42 to user_with_phid', ->
+        hubot 'phab assign T42 to user_with_phid'
+        it "gives a feedback taht the assignment went ok", ->
+          expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
+
+      context 'phab assign T42 on user_with_phid', ->
+        hubot 'phab assign T42 on user_with_phid'
+        it "gives a feedback taht the assignment went ok", ->
+          expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
+
+      context 'phab T42 on user_with_phid', ->
+        hubot 'phab T42 on user_with_phid'
+        it "gives a feedback taht the assignment went ok", ->
+          expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
+
+      context 'phab user_with_phid on T42', ->
+        hubot 'phab user_with_phid on T42'
+        it "gives a feedback taht the assignment went ok", ->
+          expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
   # ---------------------------------------------------------------------------------
   context 'someone talks about a task', ->

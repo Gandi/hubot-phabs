@@ -85,7 +85,7 @@ module.exports = (robot) ->
       msg.finish()
       return
     phab.taskInfo msg, id, (body) ->
-      if body.result?
+      if body['result']['error_info'] is undefined
         phab.withUserByPhid robot, body.result.ownerPHID, (owner) ->
           status = body.result.status
           priority = body.result.priority
@@ -93,7 +93,7 @@ module.exports = (robot) ->
           msg.send "T#{id} has status #{status}, " +
                    "priority #{priority}, owner #{owner.name}"
       else
-        msg.send "Sorry, this task T#{id} was not found."
+        msg.send "oops T#{id} #{body['result']['error_info']}"
     msg.finish()
 
 
