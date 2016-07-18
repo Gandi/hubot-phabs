@@ -128,6 +128,49 @@ describe 'hubot-phabs module', ->
         it 'complains that there is no active object id in memory', ->
           expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
+    context 'task id is provided, and owner is null', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: { 
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: null
+            } })
+          .get('/api/user.query')
+          .reply(200, { result: [{ userName: 'toto' }]})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42', ->
+        hubot 'phab T42'
+        it 'gives information about the task Txxx', ->
+          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner nobody'
+
+    context 'task id is provided, and owner is set, but not in brain', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: { 
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-000000'
+            } })
+          .get('/api/user.query')
+          .reply(200, { result: []})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42', ->
+        hubot 'phab T42'
+        it 'gives information about the task Txxx', ->
+          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner unknown'
 
   # ---------------------------------------------------------------------------------
   context 'user asks about a user', ->
@@ -142,7 +185,7 @@ describe 'hubot-phabs module', ->
       it 'warns when that user has no email', ->
         expect(hubotResponse()).to.eql "Sorry, I can't figure user email address. Can you help me with .phab user = <email>"
 
-    context 'phab user_with_email', ->
+    context 'user has an email', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
@@ -152,12 +195,26 @@ describe 'hubot-phabs module', ->
       afterEach ->
         nock.cleanAll()
 
-
       context 'phab user_with_email', ->
         hubot 'phab user_with_email'
         it 'gets the phid for the user if he has an email', ->
           expect(hubotResponse()).to.eql "Hey I know user_with_email, he's PHID-USER-999"
           expect(room.robot.brain.userForId('user_with_email').phid).to.eql 'PHID-USER-999'
+
+    context 'user has an email, but unknown to phabricator', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.query')
+          .reply(200, { result: []})
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab user_with_email', ->
+        hubot 'phab user_with_email'
+        it 'gets a message complaining about the impossibility to match an email', ->
+          expect(hubotResponse()).to.eql "Sorry, I cannot find user@example.com :("
 
     context 'phab user_with_phid', ->
       hubot 'phab user_with_phid'

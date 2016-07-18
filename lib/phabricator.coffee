@@ -105,7 +105,7 @@ class Phabricator
           'api.token': @apikey
         }
         @phabGet robot, query, 'user.query', (json_body) ->
-          if json_body['result']?
+          if json_body['result']['0']?
             cb { name: json_body['result']['0']['userName'] }
           else
             cb { name: 'unknown' }

@@ -56,31 +56,3 @@ describe 'Phabricator lib', ->
         ready = @phab.ready(@msg)
         expect(@msg.send).not.called
         expect(ready).to.be.true
-
-    describe '.withUser', ->
-      it 'should return user id if it is known', (done) ->
-        user = { phid: 42 }
-        cb = sinon.stub()
-        @phab.withUser @msg, user, (id) ->
-          cb id
-          done()
-        expect(cb).calledWith 42
-      context 'user does not have phid, and no email either', ->
-        it 'should ask for email if the caller does not have one', ->
-          user = { id: 42, name: 'proxy' }
-          @msg.message = sinon.spy()
-          @msg.message.user = sinon.spy()
-          @msg.message.user.name = sinon.stub()
-          cb = sinon.stub()
-          @phab.withUser @msg, user, cb
-          expect(@msg.send).calledWithMatch 'your email address'
-          expect(cb).not.called
-        it 'should ask for email if the user does not have one', ->
-          user = { id: 42, name: 'someone' }
-          @msg.message = sinon.spy()
-          @msg.message.user = sinon.spy()
-          @msg.message.user.name = sinon.stub()
-          cb = sinon.stub()
-          @phab.withUser @msg, user, cb
-          expect(@msg.send).calledWithMatch 'someone'
-          expect(cb).not.called
