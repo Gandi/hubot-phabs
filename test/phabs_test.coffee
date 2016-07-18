@@ -339,6 +339,48 @@ describe 'hubot-phabs module', ->
           expect(hubotResponse(3)).to.eql 'T24 has status open, priority Low, owner user_with_phid'
 
   # ---------------------------------------------------------------------------------
+  context 'user asks to count tasks in a project or column', ->
+    context 'phab count something', ->
+      hubot 'phab count something'
+      it 'fails to comply if the project is not registered by PHABRICATOR_PROJECTS', ->
+        expect(hubotResponse()).to.eql 'Command incomplete.'
+
+    context 'phab count proj1', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.query')
+          .reply(200, { result: { 
+            "PHID-TASK-42": { id: 42 }, 
+            "PHID-TASK-43": { id: 43 }, 
+            "PHID-TASK-44": { id: 44 }, 
+            } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'phab count proj1', 'user_with_phid'
+        it 'replies with the unmber of tasks in the project', ->
+          expect(hubotResponse()).to.eql 'proj1 has 3 tasks.'
+
+
+    context 'phab count proj1', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.query')
+          .reply(200, { result: { } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'phab count proj1', 'user_with_phid'
+        it 'replies with the unmber of tasks in the project', ->
+          expect(hubotResponse()).to.eql 'proj1 has no tasks.'
+
+  # ---------------------------------------------------------------------------------
   context 'user changes status for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->

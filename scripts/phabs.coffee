@@ -77,6 +77,17 @@ module.exports = (robot) ->
     else
       msg.send 'Command incomplete.'
 
+  robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+)/), (msg) ->
+    column = phabColumns[msg.match[1]]
+    if column?
+      phab.listTasks msg, column, (body) ->
+        if Object.keys(body['result']).length is 0
+          msg.send "#{msg.match[1]} has no tasks."
+        else
+          msg.send "#{msg.match[1]} has #{Object.keys(body['result']).length} tasks."
+    else
+      msg.send 'Command incomplete.'
+
 
   robot.respond /ph(?:ab)?(?: T([0-9]+) ?)?$/, (msg) ->
     id = msg.match[1] ? phab.retrievePhid(msg)
