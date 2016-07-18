@@ -19,7 +19,7 @@ describe 'hubot-phabs module', ->
       room.messages = []
       room.user.say userName, message
       room.messages.shift()
-      setTimeout (done), 50
+      setTimeout (done), 20
 
   hubot = (message, userName='momo') ->
     hubotHear "@hubot #{message}", userName
