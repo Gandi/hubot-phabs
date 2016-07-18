@@ -426,7 +426,7 @@ describe 'hubot-phabs module', ->
 
     context 'phab T42 spite', ->
       hubot 'phab T42 spite'
-      it 'reports a lib error', ->
+      it 'reports an api error', ->
         expect(hubotResponse()).to.eql 'oops T42 api did not deliver json'
 
   context 'error: lib error', ->
@@ -443,6 +443,21 @@ describe 'hubot-phabs module', ->
       hubot 'phab T42 spite'
       it 'reports a lib error', ->
         expect(hubotResponse()).to.eql 'oops T42 something awful happened'
+
+  context 'error: lib error', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.update')
+        .reply(400)
+
+    afterEach ->
+      nock.cleanAll()
+
+    context 'phab T42 spite', ->
+      hubot 'phab T42 spite'
+      it 'reports a http error', ->
+        expect(hubotResponse()).to.eql 'oops T42 http error 400'
 
   # ---------------------------------------------------------------------------------
   context 'user changes priority for a task', ->

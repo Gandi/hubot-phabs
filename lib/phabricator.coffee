@@ -49,7 +49,7 @@ class Phabricator
               json_body = { 
                 result: {
                   error_code: res.statusCode,
-                  error_info: msg.http.STATUS_CODES[res.statusCode]
+                  error_info: "http error #{res.statusCode}"
                 }
               }
         else
@@ -82,7 +82,7 @@ class Phabricator
           'api.token': @apikey
         }
         @phabGet msg, query, 'user.query', (json_body) ->
-          unless json_body['result']
+          unless json_body['result']['0']?
             msg.send "Sorry, I cannot find #{email} :("
             return
           user.phid = json_body['result']['0']['phid']
