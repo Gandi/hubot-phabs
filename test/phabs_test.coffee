@@ -414,6 +414,21 @@ describe 'hubot-phabs module', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status Spite.'
 
   # ---------------------------------------------------------------------------------
+  context 'error: non json', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.update')
+        .reply(200, '<body></body>', { 'Content-type': 'text/html' })
+
+    afterEach ->
+      nock.cleanAll()
+
+    context 'phab T42 spite', ->
+      hubot 'phab T42 spite'
+      it 'reports a lib error', ->
+        expect(hubotResponse()).to.eql 'oops T42 api did not deliver json'
+
   context 'error: lib error', ->
     beforeEach ->
       do nock.disableNetConnect
