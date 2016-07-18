@@ -41,7 +41,7 @@ class Phabricator
               else
                 json_body = { 
                   result: {
-                    error_code: 'NOTJSON',
+                    error_code: 'ENOTJSON',
                     error_info: 'api did not deliver json'
                   }
                 }

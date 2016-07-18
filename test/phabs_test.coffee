@@ -108,38 +108,37 @@ describe 'hubot-phabs module', ->
         it 'gives information about the task Txxx', ->
           expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
 
-    # context 'task id is implicit', ->
-    #   beforeEach ->
-    #     do nock.disableNetConnect
-    #     nock(process.env.PHABRICATOR_URL)
-    #       .get('/api/maniphest.info')
-    #       .reply(200, { result: { 
-    #         status: 'open',
-    #         priority: 'Low',
-    #         name: 'Test task',
-    #         ownerPHID: 'PHID-USER-42'
-    #         } })
-    #       .get('/api/user.query')
-    #       .reply(200, { result: [{ userName: 'toto' }]})
-    #       .get('/api/maniphest.info')
-    #       .reply(200, { result: { 
-    #         status: 'open',
-    #         priority: 'Low',
-    #         name: 'Test task',
-    #         ownerPHID: 'PHID-USER-42'
-    #         } })
-    #       .get('/api/user.query')
-    #       .reply(200, { result: [{ userName: 'toto' }]})
+    context 'task id is implicit', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: { 
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-42'
+            } })
+          .get('/api/user.query')
+          .reply(200, { result: [{ userName: 'toto' }]})
+          .get('/api/maniphest.info')
+          .reply(200, { result: { 
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-42'
+            } })
+          .get('/api/user.query')
+          .reply(200, { result: [{ userName: 'toto' }]})
 
-    #   afterEach ->
-    #     nock.cleanAll()
+      afterEach ->
+        nock.cleanAll()
 
-    #   context 'ph', ->
-    #     hubot 'ph T42'
-    #     hubot 'ph'
-    #     it 'gives information about the task Txxx', ->
-    #       expect(hubotResponse(1)).to.eql 'T42 has status open, priority Low, owner toto'
-
+      context 'ph', ->
+        hubot 'ph T42', 'user'
+        hubot 'ph', 'user'
+        it 'first gives information about the task Txxx', ->
+          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
 
 
   # ---------------------------------------------------------------------------------
@@ -164,10 +163,13 @@ describe 'hubot-phabs module', ->
 
       afterEach ->
         nock.cleanAll()
-      hubot 'phab user_with_email'
-      it 'gets the phid for the user if he has an email', ->
-        expect(hubotResponse()).to.eql "Hey I know user_with_email, he's PHID-USER-999"
-        expect(room.robot.brain.userForId('user_with_email').phid).to.eql 'PHID-USER-999'
+
+
+      context 'phab user_with_email', ->
+        hubot 'phab user_with_email'
+        it 'gets the phid for the user if he has an email', ->
+          expect(hubotResponse()).to.eql "Hey I know user_with_email, he's PHID-USER-999"
+          expect(room.robot.brain.userForId('user_with_email').phid).to.eql 'PHID-USER-999'
 
     context 'phab user_with_phid', ->
       hubot 'phab user_with_phid'
@@ -412,6 +414,22 @@ describe 'hubot-phabs module', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status Spite.'
 
   # ---------------------------------------------------------------------------------
+  context 'error: lib error', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.update')
+        .replyWithError({'message': 'something awful happened', 'code': 'AWFUL_ERROR'})
+
+    afterEach ->
+      nock.cleanAll()
+
+    context 'phab T42 spite', ->
+      hubot 'phab T42 spite'
+      it 'reports a lib error', ->
+        expect(hubotResponse()).to.eql 'oops T42 something awful happened'
+
+  # ---------------------------------------------------------------------------------
   context 'user changes priority for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
@@ -540,20 +558,20 @@ describe 'hubot-phabs module', ->
           expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
                                          "Can you tell me with `.phab me as you@yourdomain.com`?"
 
-      context 'task is unknown', ->
-        beforeEach ->
-          do nock.disableNetConnect
-          nock(process.env.PHABRICATOR_URL)
-            .get('/api/maniphest.edit')
-            .reply(200, { result: { error_info: 'No such Maniphest task exists.' } })
+    context 'task is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { error_info: 'No such Maniphest task exists.' } })
 
-        afterEach ->
-          nock.cleanAll()
+      afterEach ->
+        nock.cleanAll()
 
-        context 'phab assign T424242 to user_with_phid', ->
-          hubot 'phab assign T424242 to user_with_phid'
-          it "warns the user that the task does not exist", ->
-            expect(hubotResponse()).to.eql "No such Maniphest task exists."
+      context 'phab assign T424242 to user_with_phid', ->
+        hubot 'phab assign T424242 to user_with_phid'
+        it "warns the user that the task does not exist", ->
+          expect(hubotResponse()).to.eql "No such Maniphest task exists."
 
   # ---------------------------------------------------------------------------------
   context 'someone talks about a task', ->
