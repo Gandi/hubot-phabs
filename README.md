@@ -109,6 +109,9 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
     .phab list projects
         will list known projects and columns according to configuration param
 
+    .phab version
+        displays the version of hubot-phabs that is installed
+
 Testing
 ----------------
 
