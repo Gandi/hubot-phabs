@@ -120,7 +120,8 @@ Testing
 
     npm install
 
-    npm test # will just run make test
+    # will run make test and coffeelint
+    npm test 
     
     # or
     make test
@@ -130,6 +131,9 @@ Testing
 
     # or for more documentation-style output
     make test-spec
+
+    # and to generate coverage
+    make test-cov
 
 Changelog
 ---------------
