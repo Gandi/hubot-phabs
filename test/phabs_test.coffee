@@ -34,7 +34,7 @@ describe 'hubot-phabs module', ->
     process.env.PHABRICATOR_URL = 'http://example.com'
     process.env.PHABRICATOR_API_KEY = 'xxx'
     process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
-    process.env.PHABRICATOR_PROJECTS = 'PHID-PROJ-xxx:proj1,PHID-PROJ-yyy:proj2'
+    process.env.PHABRICATOR_PROJECTS = 'PHID-PROJ-xxx:proj1,PHID-PCOL-yyy:proj2'
     room = helper.createRoom { httpd: false }
     room.robot.brain.userForId 'user',
       name: 'user'
@@ -245,6 +245,24 @@ describe 'hubot-phabs module', ->
         hubot 'phab new proj1 a task', 'user_with_phid'
         it 'informs that something went wrong', ->
           expect(hubotResponse()).to.eql 'Something went wrong'
+
+
+    context 'phab new proj2 a task', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.query')
+          .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 24 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'phab new proj2 a task', 'user_with_phid'
+        it 'replies with the object id', ->
+          expect(hubotResponse()).to.eql 'Task T24 created = http://example.com/T24'
 
 
   # ---------------------------------------------------------------------------------

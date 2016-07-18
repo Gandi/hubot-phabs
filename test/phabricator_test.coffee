@@ -1,6 +1,7 @@
 Phabricator = require('../lib/phabricator.coffee')
 sinon = require("sinon")
 expect = require('chai').use(require('sinon-chai')).expect
+nock = require('nock')
 
 describe 'Phabricator lib', ->
 
