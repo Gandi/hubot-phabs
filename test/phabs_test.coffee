@@ -481,8 +481,8 @@ describe 'hubot-phabs module', ->
         hubot 'phab assign T424242 to xxx'
         it "warns the user that xx is unknown", ->
           expect(hubotResponse()).to.eql "Sorry I don't know who is xxx, can you .phab xxx = <email>"
-      context 'phab assign T424242 to user', ->
-        hubot 'phab assign T424242 to user', 'user'
+      context 'phab assign T424242 to momo', ->
+        hubot 'phab assign T424242 to momo'
         it "warns the user that his email is not known", ->
           expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
                                          "Can you tell me with `.phab me as you@yourdomain.com`?"

@@ -181,10 +181,7 @@ module.exports = (robot) ->
           else
             msg.send "#{body['result']['error_info']}"
     else
-      if msg.message.user.name is who
-        msg.send "Sorry I don't know who you are, can you .phab me as <email>"
-      else
-        msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
+      msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
     msg.finish()
 
 
