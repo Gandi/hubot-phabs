@@ -33,12 +33,32 @@ class Phabricator
       .path("api/#{endpoint}")
       .get(body) (err, res, payload) ->
         json_body = null
-        switch res.statusCode
-          when 200 then json_body = JSON.parse(payload)
-          else
-            console.log res.statusCode
-            console.log payload
-            json_body = { message: 'Fail' }
+        if res?
+          switch res.statusCode
+            when 200
+              if res.headers['content-type'] is 'application/json'
+                json_body = JSON.parse(payload)
+              else
+                json_body = { 
+                  result: {
+                    error_code: 'NOTJSON',
+                    error_info: 'api did not deliver json'
+                  }
+                }
+            else
+              json_body = { 
+                result: {
+                  error_code: res.statusCode,
+                  error_info: msg.http.STATUS_CODES[res.statusCode]
+                }
+              }
+        else
+          json_body = { 
+            result: {
+              error_code: err.code,
+              error_info: err.message
+            }
+          }
         cb json_body
 
 
