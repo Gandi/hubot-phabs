@@ -14,12 +14,12 @@ room = null
 
 describe 'hubot-phabs module', ->
 
-  hubotHear = (message, userName='momo') ->
+  hubotHear = (message, userName='momo', tempo=20) ->
     beforeEach (done) ->
       room.messages = []
       room.user.say userName, message
       room.messages.shift()
-      setTimeout (done), 20
+      setTimeout (done), tempo
 
   hubot = (message, userName='momo') ->
     hubotHear "@hubot #{message}", userName
