@@ -3,6 +3,15 @@
 # REPORTER = spec
 # REPORTER = dot
 
+test-full:
+	@NODE_ENV=test ./node_modules/.bin/mocha \
+		--compilers coffee:coffee-script \
+		--require ./coffee-coverage.js \
+		--reporter dot \
+		--ui tdd \
+		&& ./node_modules/.bin/coffeelint test/* scripts/* lib/* index.coffee \
+		&& ./node_modules/.bin/istanbul report
+
 test:
 	@NODE_ENV=test ./node_modules/.bin/mocha \
 		--compilers coffee:coffee-script \
@@ -38,13 +47,7 @@ test-cov:
 		--ui tdd \
 		&& ./node_modules/.bin/istanbul report
 
-test-full:
-	@NODE_ENV=test ./node_modules/.bin/mocha \
-		--compilers coffee:coffee-script \
-		--require ./coffee-coverage.js \
-		--reporter dot \
-		--ui tdd \
-		&& ./node_modules/.bin/coffeelint test/* scripts/* lib/* index.coffee\
-		&& ./node_modules/.bin/istanbul report
+lint:
+	@NODE_ENV=test ./node_modules/.bin/coffeelint test/* scripts/* lib/* index.coffee
 
-.PHONY: test test-spec test-w test-coverage
+.PHONY: test test-spec test-w test-coverage test-cov test-full lint

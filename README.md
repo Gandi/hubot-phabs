@@ -135,6 +135,12 @@ Testing
     # and to generate coverage
     make test-cov
 
+    # and to run the lint
+    make lint
+
+    # run the lint and the coverage
+    make
+
 Changelog
 ---------------
 All changes are listed in the [CHANGELOG](CHANGELOG.md)
