@@ -223,6 +223,38 @@ describe 'hubot-phabs module', ->
 
     context 'when the task is present', ->
 
+      context 'phab open', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: { 
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-42'
+            } })
+          .get('/api/user.query')
+          .reply(200, { result: [{ userName: 'toto' }]})
+          .get('/api/maniphest.update')
+          .reply(200, { result: { statusName: 'Open' } })
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab is open', ->
+          hubot 'phab T42', 'user_with_phid'
+          hubot 'phab is open', 'user_with_phid'
+          it 'reports the status as open', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
+
+        context 'phab open', ->
+          hubot 'phab T42', 'user_with_phid'
+          hubot 'phab open', 'user_with_phid'
+          it 'reports the status as open', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
+
+
       context 'phab T42 is open', ->
         beforeEach ->
           do nock.disableNetConnect
@@ -233,9 +265,15 @@ describe 'hubot-phabs module', ->
         afterEach ->
           nock.cleanAll()
 
-        hubot 'phab T42 is open'
-        it 'reports the status as open', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
+        context 'phab open', ->
+          hubot 'phab open'
+          it 'warns the user that there is no active task in memory', ->
+            expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
+
+        context 'phab T42 is open', ->
+          hubot 'phab T42 is open'
+          it 'reports the status as open', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
 
       context 'phab T42 open', ->
         beforeEach ->
@@ -247,9 +285,10 @@ describe 'hubot-phabs module', ->
         afterEach ->
           nock.cleanAll()
 
-        hubot 'phab T42 open'
-        it 'reports the status as open', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
+        context 'phab T42 open', ->
+          hubot 'phab T42 open'
+          it 'reports the status as open', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
 
       context 'phab T42 resolved', ->
         beforeEach ->
@@ -261,9 +300,10 @@ describe 'hubot-phabs module', ->
         afterEach ->
           nock.cleanAll()
 
-        hubot 'phab T42 resolved'
-        it 'reports the status as resolved', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status Resolved.'
+        context 'phab T42 resolved', ->
+          hubot 'phab T42 resolved'
+          it 'reports the status as resolved', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status Resolved.'
 
       context 'phab T42 wontfix', ->
         beforeEach ->
@@ -275,9 +315,10 @@ describe 'hubot-phabs module', ->
         afterEach ->
           nock.cleanAll()
 
-        hubot 'phab T42 wontfix'
-        it 'reports the status as wontfix', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status Wontfix.'
+        context 'phab T42 wontfix', ->
+          hubot 'phab T42 wontfix'
+          it 'reports the status as wontfix', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status Wontfix.'
 
       context 'phab T42 invalid', ->
         beforeEach ->
@@ -289,9 +330,10 @@ describe 'hubot-phabs module', ->
         afterEach ->
           nock.cleanAll()
 
-        hubot 'phab T42 invalid'
-        it 'reports the status as invalid', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status Invalid.'
+        context 'phab T42 invalid', ->
+          hubot 'phab T42 invalid'
+          it 'reports the status as invalid', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status Invalid.'
 
       context 'phab T42 spite', ->
         beforeEach ->
@@ -303,11 +345,12 @@ describe 'hubot-phabs module', ->
         afterEach ->
           nock.cleanAll()
 
-        hubot 'phab T42 spite'
-        it 'reports the status as spite', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has status Spite.'
+        context 'phab T42 spite', ->
+          hubot 'phab T42 spite'
+          it 'reports the status as spite', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status Spite.'
 
-  context 'user changes status for a task', ->
+  context 'user changes priority for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
         do nock.disableNetConnect
@@ -334,6 +377,11 @@ describe 'hubot-phabs module', ->
 
         afterEach ->
           nock.cleanAll()
+
+        context 'phab broken', ->
+          hubot 'phab broken'
+          it 'warns the user that there is no active task in memory', ->
+            expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
         context 'phab T42 is broken', ->
           hubot 'phab T42 is broken'
