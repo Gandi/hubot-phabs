@@ -2,6 +2,7 @@ columns.py
 .codeclimate.yml
 .travis.yml
 .git
+.gitignore
 coffeelint.json
 npm-debug.log
 coverage
