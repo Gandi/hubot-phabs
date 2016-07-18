@@ -24,8 +24,8 @@ describe 'hubot-phabs module', ->
   hubot = (message, userName='momo') ->
     hubotHear "@hubot #{message}", userName
 
-  hubotResponse = ->
-    room.messages[0][1]
+  hubotResponse = (i=0) ->
+    room.messages[i][1]
 
   hubotResponseCount = ->
     room.messages.length
@@ -80,31 +80,66 @@ describe 'hubot-phabs module', ->
 
   # ---------------------------------------------------------------------------------
   context 'user asks for task info', ->
-    beforeEach ->
-      do nock.disableNetConnect
-      nock(process.env.PHABRICATOR_URL)
-        .get('/api/maniphest.info')
-        .reply(200, { result: { 
-          status: 'open',
-          priority: 'Low',
-          name: 'Test task',
-          ownerPHID: 'PHID-USER-42'
-          } })
-        .get('/api/user.query')
-        .reply(200, { result: [{ userName: 'toto' }]})
 
-    afterEach ->
-      nock.cleanAll()
+    context 'task id is provided', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: { 
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-42'
+            } })
+          .get('/api/user.query')
+          .reply(200, { result: [{ userName: 'toto' }]})
 
-    context 'phab T42', ->
-      hubot 'phab T42'
-      it 'gives information about the task Txxx', ->
-        expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
+      afterEach ->
+        nock.cleanAll()
 
-    context 'ph T42 # with an ending space', ->
-      hubot 'ph T42 '
-      it 'gives information about the task Txxx', ->
-        expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
+      context 'phab T42', ->
+        hubot 'phab T42'
+        it 'gives information about the task Txxx', ->
+          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
+
+      context 'ph T42 # with an ending space', ->
+        hubot 'ph T42 '
+        it 'gives information about the task Txxx', ->
+          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
+
+    # context 'task id is implicit', ->
+    #   beforeEach ->
+    #     do nock.disableNetConnect
+    #     nock(process.env.PHABRICATOR_URL)
+    #       .get('/api/maniphest.info')
+    #       .reply(200, { result: { 
+    #         status: 'open',
+    #         priority: 'Low',
+    #         name: 'Test task',
+    #         ownerPHID: 'PHID-USER-42'
+    #         } })
+    #       .get('/api/user.query')
+    #       .reply(200, { result: [{ userName: 'toto' }]})
+    #       .get('/api/maniphest.info')
+    #       .reply(200, { result: { 
+    #         status: 'open',
+    #         priority: 'Low',
+    #         name: 'Test task',
+    #         ownerPHID: 'PHID-USER-42'
+    #         } })
+    #       .get('/api/user.query')
+    #       .reply(200, { result: [{ userName: 'toto' }]})
+
+    #   afterEach ->
+    #     nock.cleanAll()
+
+    #   context 'ph', ->
+    #     hubot 'ph T42'
+    #     hubot 'ph'
+    #     it 'gives information about the task Txxx', ->
+    #       expect(hubotResponse(1)).to.eql 'T42 has status open, priority Low, owner toto'
+
 
 
   # ---------------------------------------------------------------------------------
