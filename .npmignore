@@ -5,3 +5,4 @@ columns.py
 coffeelint.json
 npm-debug.log
 coverage
+coffee-coverage.js

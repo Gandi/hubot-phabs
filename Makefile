@@ -25,7 +25,7 @@ test-w:
 test-coverage:
 	@NODE_ENV=test ./node_modules/.bin/mocha \
 		--compilers coffee:coffee-script \
-		--require coffee-coverage/register-istanbul \
+		--require ./coffee-coverage.js \
 		--reporter dot \
 		--ui tdd \
 		&& ./node_modules/.bin/istanbul report lcovonly
@@ -33,7 +33,7 @@ test-coverage:
 test-cov:
 	@NODE_ENV=test ./node_modules/.bin/mocha \
 		--compilers coffee:coffee-script \
-		--require coffee-coverage/register-istanbul \
+		--require ./coffee-coverage.js \
 		--reporter dot \
 		--ui tdd \
 		&& ./node_modules/.bin/istanbul report
