@@ -106,6 +106,29 @@ describe 'hubot-phabs module', ->
         it 'gives information about the task Txxx', ->
           expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
 
+    context 'task id is provided but doesn not exist', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: { error_info: 'No such Maniphest task exists.' } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42', ->
+        hubot 'phab T42'
+        it 'gives information about the task Txxx', ->
+          expect(hubotResponse()).to.eql 'oops T42 No such Maniphest task exists.'
+
+
+    context 'failed implicit re-use of the object id', ->
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'ph', 'user_with_phid'
+        it 'complains that there is no active object id in memory', ->
+          expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
+
+
   # ---------------------------------------------------------------------------------
   context 'user asks about a user', ->
 
@@ -257,7 +280,6 @@ describe 'hubot-phabs module', ->
         it 'replies with the object id', ->
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
           expect(hubotResponse(3)).to.eql 'T24 has status open, priority Low, owner user_with_phid'
-
 
   # ---------------------------------------------------------------------------------
   context 'user changes status for a task', ->
