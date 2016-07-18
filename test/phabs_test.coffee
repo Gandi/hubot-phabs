@@ -487,6 +487,21 @@ describe 'hubot-phabs module', ->
           expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
                                          "Can you tell me with `.phab me as you@yourdomain.com`?"
 
+      context 'task is unknown', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.edit')
+            .reply(200, { result: { error_info: 'No such Maniphest task exists.' } })
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab assign T424242 to user_with_phid', ->
+          hubot 'phab assign T424242 to user_with_phid'
+          it "warns the user that the task does not exist", ->
+            expect(hubotResponse()).to.eql "No such Maniphest task exists."
+
   # ---------------------------------------------------------------------------------
   context 'someone talks about a task', ->
     context 'when the task is unknown', ->
