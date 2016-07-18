@@ -67,8 +67,8 @@ module.exports = (robot) ->
     name = msg.match[2]
     if column?
       phab.createTask msg, column, name, (body) ->
-        if body['error_info']
-          msg.send "#{body['error_info']}"
+        if body['result']['error_info']?
+          msg.send "#{body['result']['error_info']}"
         else
           id = body['result']['object']['id']
           url = process.env.PHABRICATOR_URL + "/T#{id}"

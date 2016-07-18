@@ -156,35 +156,53 @@ describe 'hubot-phabs module', ->
 
 
   context 'user creates a new task', ->
-    beforeEach ->
-      do nock.disableNetConnect
-      nock(process.env.PHABRICATOR_URL)
-        .get('/api/user.query')
-        .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
-        .get('/api/maniphest.edit')
-        .reply(200, { result: { object: { id: 42 } } })
-
-    afterEach ->
-      nock.cleanAll()
-
     context 'phab new something blah blah', ->
       hubot 'phab new something blah blah'
       it 'fails to comply if the project is not registered by PHABRICATOR_PROJECTS', ->
         expect(hubotResponse()).to.eql 'Command incomplete.'
 
     context 'phab new proj1 a task', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.query')
+          .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
       context 'when user is doing it for the first time and has no email recorded', ->
         hubot 'phab new proj1 a task'
         it 'invites the user to set his email address', ->
           expect(hubotResponse()).to.eql 'Sorry, I can\'t figure out your email address :( Can you tell me with `.phab me as you@yourdomain.com`?'
       context 'when user is doing it for the first time and has set an email addresse', ->
         hubot 'phab new proj1 a task', 'user_with_email'
-        it 'invites the user to set his email address', ->
+        it 'replies with the object id, and records phid for user', ->
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
+          expect(room.robot.brain.userForId('user_with_email').phid).to.eql 'PHID-USER-42'
       context 'when user is known and his phid is in the brain', ->
         hubot 'phab new proj1 a task', 'user_with_phid'
-        it 'invites the user to set his email address', ->
+        it 'replies with the object id', ->
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
+
+    context 'phab new proj1 a task', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.query')
+          .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { error_info: "Something went wrong" } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'when something goes wrong on phabricator side', ->
+        hubot 'phab new proj1 a task', 'user_with_phid'
+        it 'informs that something went wrong', ->
+          expect(hubotResponse()).to.eql 'Something went wrong'
 
 
   context 'user changes status for a task', ->
