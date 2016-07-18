@@ -56,6 +56,7 @@ describe 'hubot-phabs module', ->
     delete process.env.PHABRICATOR_BOT_PHID
     delete process.env.PHABRICATOR_PROJECTS
 
+  # ---------------------------------------------------------------------------------
   context 'user wants to know hubot-phabs version', ->
 
     context 'phab version', ->
@@ -68,6 +69,7 @@ describe 'hubot-phabs module', ->
       it 'should reply version number', ->
         expect(hubotResponse()).to.match /hubot-phabs module is version [0-9]+\.[0-9]+\.[0-9]+/
 
+  # ---------------------------------------------------------------------------------
   context 'user requests the list of known projects', ->
 
     context 'phab list projects', ->
@@ -76,6 +78,7 @@ describe 'hubot-phabs module', ->
         expect(hubotResponseCount()).to.eql 1
         expect(hubotResponse()).to.eql 'Known Projects: proj1, proj2'
 
+  # ---------------------------------------------------------------------------------
   context 'user asks for task info', ->
     beforeEach ->
       do nock.disableNetConnect
@@ -104,6 +107,7 @@ describe 'hubot-phabs module', ->
         expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
 
 
+  # ---------------------------------------------------------------------------------
   context 'user asks about a user', ->
 
     context 'phab toto', ->
@@ -136,6 +140,7 @@ describe 'hubot-phabs module', ->
         expect(hubotResponse()).to.eql "Hey I know user_with_phid, he's PHID-USER-123456789"
 
 
+  # ---------------------------------------------------------------------------------
   context 'user declares his own email', ->
     context 'phab me as momo@example.com', ->
       hubot 'phab me as momo@example.com'
@@ -143,6 +148,7 @@ describe 'hubot-phabs module', ->
         expect(hubotResponse()).to.eql "Okay, I'll remember your email is momo@example.com"
         expect(room.robot.brain.userForId('momo').email_address).to.eql 'momo@example.com'
 
+  # ---------------------------------------------------------------------------------
   context 'user declares email for somebody else', ->
     context 'phab toto = toto@example.com', ->
       hubot 'phab toto = toto@example.com'
@@ -155,6 +161,7 @@ describe 'hubot-phabs module', ->
         expect(room.robot.brain.userForId('user').email_address).to.eql 'user@example.com'
 
 
+  # ---------------------------------------------------------------------------------
   context 'user creates a new task', ->
     context 'phab new something blah blah', ->
       hubot 'phab new something blah blah'
@@ -205,6 +212,7 @@ describe 'hubot-phabs module', ->
           expect(hubotResponse()).to.eql 'Something went wrong'
 
 
+  # ---------------------------------------------------------------------------------
   context 'user changes status for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
@@ -350,6 +358,7 @@ describe 'hubot-phabs module', ->
           it 'reports the status as spite', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status Spite.'
 
+  # ---------------------------------------------------------------------------------
   context 'user changes priority for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
@@ -465,6 +474,20 @@ describe 'hubot-phabs module', ->
           it 'reports the priority to be Low', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority Low'
 
+  # ---------------------------------------------------------------------------------
+  context 'user assigns someone to a task', ->
+    context 'when the user is unknown', ->
+      context 'phab assign T424242 to xxx', ->
+        hubot 'phab assign T424242 to xxx'
+        it "warns the user that xx is unknown", ->
+          expect(hubotResponse()).to.eql "Sorry I don't know who is xxx, can you .phab xxx = <email>"
+      context 'phab assign T424242 to user', ->
+        hubot 'phab assign T424242 to user', 'user'
+        it "warns the user that his email is not known", ->
+          expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
+                                         "Can you tell me with `.phab me as you@yourdomain.com`?"
+
+  # ---------------------------------------------------------------------------------
   context 'someone talks about a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
@@ -532,6 +555,7 @@ describe 'hubot-phabs module', ->
           expect(hubotResponse()).to.eql 'T42 (resolved) - some task (Low)'
 
 
+  # ---------------------------------------------------------------------------------
   context 'someone talks about a file', ->
     context 'when the file is unknown', ->
       beforeEach ->
@@ -572,7 +596,7 @@ describe 'hubot-phabs module', ->
         it 'gives information about the File, without uri', ->
           expect(hubotResponse()).to.eql 'F42 - image.png (image/png 1.38 kB)'
 
-
+  # ---------------------------------------------------------------------------------
   context 'someone talks about a paste', ->
     context 'when the Paste is unknown', ->
       beforeEach ->

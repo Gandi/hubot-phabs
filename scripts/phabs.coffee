@@ -172,19 +172,19 @@ module.exports = (robot) ->
       msg.finish()
       return
     assignee = robot.brain.userForName(who)
-    unless assignee
+    if assignee?
+      phab.withUser msg, assignee, (userPhid) ->
+        # console.log userPhid
+        phab.assignTask msg, id, userPhid, (body) ->
+          if body['result']['error_info'] is undefined
+            msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
+          else
+            msg.send "#{body['result']['error_info']}"
+    else
       if msg.message.user.name is who
         msg.send "Sorry I don't know who you are, can you .phab me as <email>"
       else
         msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
-      return
-    phab.withUser msg, assignee, (userPhid) ->
-      # console.log userPhid
-      phab.assignTask msg, id, userPhid, (body) ->
-        if body['result']['error_info'] is undefined
-          msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
-        else
-          msg.send "#{body['result']['error_info']}"
     msg.finish()
 
 
