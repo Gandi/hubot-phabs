@@ -14,7 +14,7 @@ room = null
 
 describe 'hubot-phabs module', ->
 
-  hubotHear = (message, userName='momo', tempo=20) ->
+  hubotHear = (message, userName='momo', tempo=30) ->
     beforeEach (done) ->
       room.user.say userName, message
       setTimeout (done), tempo
