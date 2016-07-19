@@ -1,12 +1,12 @@
 Hubot-phabs Changelog
 ==========================
 
-### 0.1.8 - wip
+### 1.0.0 - 2016-07-19
 - add a .phab version command
-- add code coverage for further tests implementation
-- make project alias can use numbers, underscores and dashes
-- fixing some error management cases (lovely tests)
 - add a .phab count proj to count number of tasks in a paroject
+- write full code coverage for further tests implementation
+- make project alias can use numbers, underscores and dashes
+- fixing various error management cases (lovely tests)
 
 ### 0.1.7 - 2016-07-16
 - create a 5-minute memory of the last Task called, to shorten further commands
