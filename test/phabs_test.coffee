@@ -98,6 +98,10 @@ describe 'hubot-phabs module', ->
             ownerPHID: 'PHID-USER-42'
             } })
           .get('/api/user.query')
+          .query(query = {
+            'phids[0]': 'PHID-USER-42',
+            'api.token': 'xxx'
+          })
           .reply(200, { result: [{ userName: 'toto' }] })
 
       afterEach ->
@@ -140,14 +144,16 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
           .reply(200, { result: {
             status: 'open',
             priority: 'Low',
             name: 'Test task',
             ownerPHID: null
             } })
-          .get('/api/user.query')
-          .reply(200, { result: [{ userName: 'toto' }] })
 
       afterEach ->
         nock.cleanAll()
@@ -162,6 +168,10 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
           .reply(200, { result: {
             status: 'open',
             priority: 'Low',
@@ -169,6 +179,10 @@ describe 'hubot-phabs module', ->
             ownerPHID: 'PHID-USER-000000'
             } })
           .get('/api/user.query')
+          .query(query = {
+            'phids[0]': 'PHID-USER-000000',
+            'api.token': 'xxx'
+          })
           .reply(200, { result: [] })
 
       afterEach ->
