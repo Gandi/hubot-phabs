@@ -98,7 +98,7 @@ describe 'hubot-phabs module', ->
             ownerPHID: 'PHID-USER-42'
             } })
           .get('/api/user.query')
-          .query(query = {
+          .query({
             'phids[0]': 'PHID-USER-42',
             'api.token': 'xxx'
           })
@@ -179,7 +179,7 @@ describe 'hubot-phabs module', ->
             ownerPHID: 'PHID-USER-000000'
             } })
           .get('/api/user.query')
-          .query(query = {
+          .query({
             'phids[0]': 'PHID-USER-000000',
             'api.token': 'xxx'
           })
