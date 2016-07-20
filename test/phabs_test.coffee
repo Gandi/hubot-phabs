@@ -87,6 +87,10 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
           .reply(200, { result: {
             status: 'open',
             priority: 'Low',
