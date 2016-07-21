@@ -266,13 +266,13 @@ describe 'hubot-phabs module', ->
 
 
   # ---------------------------------------------------------------------------------
-  context 'user creates a new task', ->
+  context 'user creates a new task, ', ->
     context 'phab new something blah blah', ->
       hubot 'phab new something blah blah'
       it 'fails to comply if the project is not registered by PHABRICATOR_PROJECTS', ->
         expect(hubotResponse()).to.eql 'Command incomplete.'
 
-    context 'phab new proj1 a task', ->
+    context 'a task without description, ', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
@@ -298,6 +298,25 @@ describe 'hubot-phabs module', ->
         hubot 'phab new proj1 a task', 'user_with_phid'
         it 'replies with the object id', ->
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
+
+
+    context 'a task with description, ', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.query')
+          .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'phab new proj1 a task = with a description', 'user_with_phid'
+        it 'replies with the object id', ->
+          expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
+
 
     context 'phab new proj1 a task', ->
       beforeEach ->

@@ -178,7 +178,7 @@ class Phabricator
         cb json_body
 
 
-  createTask: (msg, phid, title, cb) ->
+  createTask: (msg, phid, title, description, cb) ->
     if @ready(msg) is true
       url = @url
       apikey = @apikey
@@ -188,7 +188,7 @@ class Phabricator
         query = {
           'transactions[0][type]': 'title',
           'transactions[0][value]': "#{title}",
-          'transactions[1][type]': 'description',
+          'transactions[1][type]': 'comment',
           'transactions[1][value]': "(created by #{msg.message.user.name} on irc)",
           'transactions[2][type]': 'subscribers.add',
           'transactions[2][value][0]': "#{userPhid}",
@@ -202,6 +202,9 @@ class Phabricator
         else
           query['transactions[4][type]'] = 'column'
           query['transactions[4][value]'] = "#{phid}"
+        if description?
+          query['transactions[5][type]'] = 'description'
+          query['transactions[5][value]'] = "#{description}"
         phabGet msg, query, 'maniphest.edit', (json_body) ->
           cb json_body
 
