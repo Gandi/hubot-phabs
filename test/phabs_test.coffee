@@ -936,11 +936,13 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/paste.query')
-          .reply(200, { result: [{
-            title: 'file.coffee',
-            language: '',
-            uri: 'https://example.com/P42'
-          }] })
+          .reply(200, { result: {
+            "PHID-PSTE-hdxawtm6psdtsxy3nyzk": {
+              title: 'file.coffee',
+              language: '',
+              uri: 'https://example.com/P42'
+            } 
+          } })
 
       afterEach ->
         nock.cleanAll()
@@ -960,11 +962,13 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/paste.query')
-          .reply(200, { result: [{
-            title: 'file.coffee',
-            language: 'coffee',
-            uri: 'https://example.com/P42'
-          }] })
+          .reply(200, { result: {
+            "PHID-PSTE-hdxawtm6psdtsxy3nyzk": {
+              title: 'file.coffee',
+              language: 'coffee',
+              uri: 'https://example.com/P42'
+            } 
+          } })
 
       afterEach ->
         nock.cleanAll()

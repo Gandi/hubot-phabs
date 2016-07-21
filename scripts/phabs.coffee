@@ -246,9 +246,10 @@ module.exports = (robot) ->
             msg.send "oops P#{id} was not found."
           else
             lang = ''
-            if body['result'][0]['language'] isnt ''
-              lang = " (#{body['result'][0]['language']})"
+            key = Object.keys(body['result'])[0]
+            if body['result'][key]['language'] isnt ''
+              lang = " (#{body['result'][key]['language']})"
             if url?
-              msg.send "P#{id} - #{body['result'][0]['title']}#{lang}"
+              msg.send "P#{id} - #{body['result'][key]['title']}#{lang}"
             else
-              msg.send "#{body['result'][0]['uri']} - #{body['result'][0]['title']}#{lang}"
+              msg.send "#{body['result'][key]['uri']} - #{body['result'][key]['title']}#{lang}"

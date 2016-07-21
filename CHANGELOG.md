@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.0.3 - 2016-07-21
+- fix detection of information about Paste
+
 ### 1.0.2 - 2016-07-21
 - fix error detection (yeah, again)
 
