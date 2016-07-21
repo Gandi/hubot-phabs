@@ -45,12 +45,13 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
 
     something about https://phabricator.example.com/T2#17207
     just talking about T123. did you see that one?
-        the plugin will watch if it sees T[0-9]+
+        the plugin will watch if it sees T[0-9]+ (or P for pastes or F for files)
         - if it is in an url, it will reply with 
           T2 - <title of the task>
         - if it's not in an url it will reply with
           <task url> - <task title>
         NOTE: this call will record this Task id associated to you for 5 minutes
+
 
     .phab new <project-or-column> <task title>
         creates a new task in the list of the ones defined in cactus configuration
