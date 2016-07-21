@@ -15,6 +15,35 @@ querystring = require 'querystring'
 moment = require 'moment'
 
 class Phabricator
+
+  statuses: {
+    'open': 'open',
+    'opened': 'open',
+    'resolved': 'resolved',
+    'resolve': 'resolved',
+    'closed': 'resolved',
+    'close': 'resolved',
+    'wontfix': 'wontfix',
+    'noway': 'wontfix',
+    'invalid': 'invalid',
+    'rejected': 'invalid',
+    'spite': 'spite',
+    'lame': 'spite'
+  }
+
+  priorities: {
+    'unbreak': 100,
+    'broken': 100,
+    'need triage': 90,
+    'none': 90,
+    'unknown': 90,
+    'low': 25,
+    'normal': 50,
+    'high': 80,
+    'urgent': 80,
+    'wish': 0
+  }
+
   constructor: (@robot, env) ->
     @url = env.PHABRICATOR_URL
     @apikey = env.PHABRICATOR_API_KEY
@@ -216,8 +245,8 @@ class Phabricator
     if @ready(msg) is true
       query = {
         'id': id,
-        'status': status,
-        'comments': "status set to #{status} by #{msg.message.user.name}",
+        'status': @statuses[status],
+        'comments': "status set to #{@statuses[status]} by #{msg.message.user.name}",
         'api.token': @apikey,
       }
       @phabGet msg, query, 'maniphest.update', (json_body) ->
@@ -226,22 +255,10 @@ class Phabricator
 
   updatePriority: (msg, id, priority, cb) ->
     if @ready(msg) is true
-      priorities = {
-        'unbreak': 100,
-        'broken': 100,
-        'need triage': 90,
-        'none': 90,
-        'unknown': 90,
-        'low': 25,
-        'normal': 50,
-        'high': 80,
-        'urgent': 80,
-        'wish': 0
-      }
       query = {
         'id': id,
-        'priority': priorities[priority],
-        'comments': "priority set to #{priority} by #{msg.message.user.name}",
+        'priority': @priorities[priority],
+        'comments': "priority set to #{@priorities[priority]} by #{msg.message.user.name}",
         'api.token': @apikey,
       }
       @phabGet msg, query, 'maniphest.update', (json_body) ->

@@ -38,19 +38,6 @@ humanFileSize = (size) ->
 module.exports = (robot) ->
   phab = new Phabricator robot, process.env
 
-  # robot.respond /ph(?:ab)? create$/, (msg) ->
-  #   id = 'T42'
-  #   phab.recordPhid msg, id
-  #   msg.finish()
-
-  # robot.respond /ph(?:ab)? read$/, (msg) ->
-  #   console.log phab.retrievePhid msg
-  #   msg.finish()
-
-  # robot.respond /ph(?:ab)? date$/, (msg) ->
-  #   console.log moment(msg.message.user.lastTask).utc().format()
-  #   console.log moment().utc().format()
-  #   msg.finish()
 
   robot.respond (/ph(?:ab)? list projects$/), (msg) ->
     msg.send "Known Projects: #{Object.keys(phabColumns).join(', ')}"
@@ -120,7 +107,9 @@ module.exports = (robot) ->
     msg.finish()
 
 
-  robot.respond /ph(?:ab)?(?: T([0-9]+))? (?:is )?(open|resolved|wontfix|invalid|spite)$/, (msg) ->
+  robot.respond new RegExp(
+    "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.statuses).join('|')})$"
+  ), (msg) ->
     id = msg.match[1] ? phab.retrievePhid(msg)
     unless id?
       msg.send "Sorry, you don't have any task active right now."
@@ -136,7 +125,7 @@ module.exports = (robot) ->
 
 
   robot.respond new RegExp(
-    'ph(?:ab)?(?: T([0-9]+))? (?:is )?(unbreak|broken|none|unknown|high|normal|low|urgent|wish)$'
+    "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.priorities).join('|')})$"
   ), (msg) ->
     id = msg.match[1] ? phab.retrievePhid(msg)
     unless id?

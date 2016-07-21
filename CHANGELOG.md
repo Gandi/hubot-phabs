@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.0.5 - wip
+- add some more alternatives for changing statuses and priorities
+
 ### 1.0.4 - 2016-07-22
 - add information gathering for M* objects (Pholio mocks)
 

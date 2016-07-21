@@ -78,21 +78,18 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
         changes status or priority for task Txxx. the 'is' is optional.
         NOTE: you don't need to specify the Txx if you have one in your 5 minutes memory
         Available statuses are:
-        - open
-        - resolved
-        - wontfix
-        - invalid
-        - spite
+        - open, opened                     -> open
+        - resolved, resolve, closed, close -> resolved
+        - wontfix, noway                   -> wontfix
+        - invalid, rejected                -> invalid
+        - spite, lame                      -> spite
         Available priorities are
-        - broken   -> Unbreak Now!
-        - unbreak  -> Unbreak Now!
-        - none     -> Needs Triage
-        - unknown  -> Needs Triage
-        - high     -> High
-        - urgent   -> High
-        - normal   -> Normal
-        - low      -> Low
-        - wish     -> Whishlist
+        - broken, unbreak         -> Unbreak Now!
+        - none, unknown, triage   -> Needs Triage
+        - high, urgent            -> High
+        - normal                  -> Normal
+        - low                     -> Low
+        - wish, wishlist          -> Whishlist
 
     .phab assign T123 to <someone>
     .phab assign <someone> to T123
