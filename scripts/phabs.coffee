@@ -108,15 +108,15 @@ module.exports = (robot) ->
       msg.finish()
       return
     phab.taskInfo msg, id, (body) ->
-      if body['error_info'] is undefined
+      if body['error_info']?
+        msg.send "oops T#{id} #{body['error_info']}"
+      else
         phab.withUserByPhid robot, body.result.ownerPHID, (owner) ->
           status = body.result.status
           priority = body.result.priority
           phab.recordPhid msg, id
           msg.send "T#{id} has status #{status}, " +
                    "priority #{priority}, owner #{owner.name}"
-      else
-        msg.send "oops T#{id} #{body['error_info']}"
     msg.finish()
 
 
@@ -128,10 +128,10 @@ module.exports = (robot) ->
       return
     status = msg.match[2]
     phab.updateStatus msg, id, status, (body) ->
-      if body['error_info'] is undefined
-        msg.send "Ok, T#{id} now has status #{body['result']['statusName']}."
-      else
+      if body['error_info']?
         msg.send "oops T#{id} #{body['error_info']}"
+      else
+        msg.send "Ok, T#{id} now has status #{body['result']['statusName']}."
     msg.finish()
 
 
@@ -145,10 +145,10 @@ module.exports = (robot) ->
       return
     priority = msg.match[2]
     phab.updatePriority msg, id, priority, (body) ->
-      if body['error_info'] is undefined
-        msg.send "Ok, T#{id} now has priority #{body['result']['priority']}"
-      else
+      if body['error_info']?
         msg.send "oops T#{id} #{body['error_info']}"
+      else
+        msg.send "Ok, T#{id} now has priority #{body['result']['priority']}"
     msg.finish()
 
 
@@ -197,10 +197,10 @@ module.exports = (robot) ->
     if assignee?
       phab.withUser msg, assignee, (userPhid) ->
         phab.assignTask msg, id, userPhid, (body) ->
-          if body['error_info'] is undefined
-            msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
-          else
+          if body['error_info']?
             msg.send "#{body['error_info']}"
+          else
+            msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
     else
       msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
     msg.finish()

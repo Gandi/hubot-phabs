@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.0.2 - 2016-07-21
+- fix error detection (yeah, again)
+
 ### 1.0.1 - 2016-07-21
 - add a .phab paste some new paste
 - fix error handling
