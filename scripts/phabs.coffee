@@ -207,7 +207,7 @@ module.exports = (robot) ->
 
 
   robot.hear new RegExp(
-    "(?:.+|^)(?:(#{process.env.PHABRICATOR_URL})/?| |^)(T|F|P)([0-9]+)"
+    "(?:.+|^)(?:(#{process.env.PHABRICATOR_URL})/?| |^)(T|F|P|M)([0-9]+)"
   ), (msg) ->
     url = msg.match[1]
     type = msg.match[2]
@@ -253,3 +253,18 @@ module.exports = (robot) ->
               msg.send "P#{id} - #{body['result'][key]['title']}#{lang}"
             else
               msg.send "#{body['result'][key]['uri']} - #{body['result'][key]['title']}#{lang}"
+      when 'M'
+        phab.mockInfo msg, id, (body) ->
+          if Object.keys(body['result']).length < 1
+            msg.send "oops M#{id} was not found."
+          else
+            v = body['result']["M#{id}"]
+            status = ''
+            if v['status'] is 'closed'
+              status = " (#{v['status']})"
+            if url?
+              msg.send "#{v['fullName']}#{status}"
+              return
+            else
+              msg.send "#{v['uri']} - #{v['fullName']}#{status}"
+              return

@@ -139,6 +139,15 @@ class Phabricator
       @phabGet msg, query, 'paste.query', (json_body) ->
         cb json_body
 
+  mockInfo: (msg, id, cb) ->
+    if @ready(msg) is true
+      query = {
+        'names[]': "M#{id}",
+        'api.token': @apikey
+      }
+      @phabGet msg, query, 'phid.lookup', (json_body) ->
+        cb json_body
+
 
   createTask: (msg, phid, title, cb) ->
     if @ready(msg) is true

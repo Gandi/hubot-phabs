@@ -981,3 +981,80 @@ describe 'hubot-phabs module', ->
         hubot 'whatever about http://example.com/P42 or something'
         it 'gives information about the Paste, without uri', ->
           expect(hubotResponse()).to.eql 'P42 - file.coffee (coffee)'
+
+  # ---------------------------------------------------------------------------------
+  context 'someone talks about a mock', ->
+    context 'when the Paste is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: { } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about M424242 or something', ->
+        hubot 'whatever about M424242 or something'
+        it "warns the user that this Mock doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops M424242 was not found.'
+
+    context 'when it is an existing Mock without a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result:{
+            "M42": {
+              "phid": "PHID-MOCK-6g6p65ez5ctxudji5twy",
+              "uri": "https://example.com/M42",
+              "typeName": "Pholio Mock",
+              "type": "MOCK",
+              "name": "M42",
+              "fullName": "M42: Test Mock",
+              "status": "open"
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about M42 or something', ->
+        hubot 'whatever about M42 or something'
+        it 'gives information about the Paste, including uri', ->
+          expect(hubotResponse()).to.eql 'https://example.com/M42 - M42: Test Mock'
+      context 'whatever about http://example.com/M42 or something', ->
+        hubot 'whatever about http://example.com/M42 or something'
+        it 'gives information about the Paste, without uri', ->
+          expect(hubotResponse()).to.eql 'M42: Test Mock'
+
+    context 'when it is an existing Mock with a status open', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result:{
+            "M42": {
+              "phid": "PHID-MOCK-6g6p65ez5ctxudji5twy",
+              "uri": "https://example.com/M42",
+              "typeName": "Pholio Mock",
+              "type": "MOCK",
+              "name": "M42",
+              "fullName": "M42: Test Mock",
+              "status": "closed"
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about M42 or something', ->
+        hubot 'whatever about M42 or something'
+        it 'gives information about the Paste, including uri', ->
+          expect(hubotResponse()).to.eql 'https://example.com/M42 - M42: Test Mock (closed)'
+      context 'whatever about http://example.com/M42 or something', ->
+        hubot 'whatever about http://example.com/M42 or something'
+        it 'gives information about the Paste, without uri', ->
+          expect(hubotResponse()).to.eql 'M42: Test Mock (closed)'
+
+
