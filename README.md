@@ -57,11 +57,13 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
         NOTE: this call will record this Task id associated to you for 5 minutes
 
     .phab new <project-or-column> <task title>
+    .phab new <project-or-column> <task title> = <description>
         creates a new task in the list of the ones defined in cactus configuration
         Supported projects are listed by the PHABRICATOR_PROJECTS env var.
         The new task will be created in the default column of the project board.
         the issuer of the command will be added in the list of subscribers for the
         newly created task.
+        The <description> is optional, and will be used as description if provided
         NOTE: this call will record this Task id associated to you for 5 minutes
 
     .phab paste <new paste title>
