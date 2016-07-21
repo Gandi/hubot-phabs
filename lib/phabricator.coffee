@@ -40,24 +40,21 @@ class Phabricator
                 json_body = JSON.parse(payload)
               else
                 json_body = {
-                  result: {
-                    error_code: 'ENOTJSON',
-                    error_info: 'api did not deliver json'
-                  }
+                  result: { },
+                  error_code: 'ENOTJSON',
+                  error_info: 'api did not deliver json'
                 }
             else
               json_body = {
-                result: {
-                  error_code: res.statusCode,
-                  error_info: "http error #{res.statusCode}"
-                }
+                result: { },
+                error_code: res.statusCode,
+                error_info: "http error #{res.statusCode}"
               }
         else
           json_body = {
-            result: {
-              error_code: err.code,
-              error_info: err.message
-            }
+            result: { },
+            error_code: err.code,
+            error_info: err.message
           }
         cb json_body
 
@@ -168,6 +165,28 @@ class Phabricator
           query['transactions[4][type]'] = 'column'
           query['transactions[4][value]'] = "#{phid}"
         phabGet msg, query, 'maniphest.edit', (json_body) ->
+          cb json_body
+
+
+  createPaste: (msg, title, cb) ->
+    if @ready(msg) is true
+      url = @url
+      apikey = @apikey
+      bot_phid = @bot_phid
+      phabGet = @phabGet
+      @withUser msg, msg.message.user, (userPhid) ->
+        query = {
+          'transactions[0][type]': 'title',
+          'transactions[0][value]': "#{title}",
+          'transactions[1][type]': 'text',
+          'transactions[1][value]': "(created by #{msg.message.user.name} on irc)",
+          'transactions[2][type]': 'subscribers.add',
+          'transactions[2][value][0]': "#{userPhid}",
+          'transactions[3][type]': 'subscribers.remove',
+          'transactions[3][value][0]': "#{bot_phid}",
+          'api.token': apikey,
+        }
+        phabGet msg, query, 'paste.edit', (json_body) ->
           cb json_body
 
 

@@ -122,7 +122,7 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
-          .reply(200, { result: { error_info: 'No such Maniphest task exists.' } })
+          .reply(200, { error_info: 'No such Maniphest task exists.' })
 
       afterEach ->
         nock.cleanAll()
@@ -306,7 +306,7 @@ describe 'hubot-phabs module', ->
           .get('/api/user.query')
           .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
           .get('/api/maniphest.edit')
-          .reply(200, { result: { error_info: 'Something went wrong' } })
+          .reply(200, { error_info: 'Something went wrong' })
 
       afterEach ->
         nock.cleanAll()
@@ -360,6 +360,41 @@ describe 'hubot-phabs module', ->
         it 'replies with the object id', ->
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
           expect(hubotResponse(3)).to.eql 'T24 has status open, priority Low, owner user_with_phid'
+  # ---------------------------------------------------------------------------------
+  context 'someone creates a new paste', ->
+    context 'something goes wrong', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/paste.edit')
+          .reply(200, { error_info: 'Something went wrong' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'when something goes wrong on phabricator side', ->
+        hubot 'ph paste a new paste', 'user_with_phid'
+        it 'informs that something went wrong', ->
+          expect(hubotResponse()).to.eql 'Something went wrong'
+
+    context 'nothing goes wrong', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/paste.edit')
+          .query({
+            title: 'a new paste'
+            })
+          .reply(200, { result: { object: { id: 24 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'ph paste a new paste', ->
+        hubot 'ph paste a new paste', 'user_with_phid'
+        it 'gives the link to fill up the paste Paste', ->
+          expect(hubotResponse()).to.eql 'Paste P24 created = ' +
+                                         'edit on http://example.com/paste/edit/24'
 
   # ---------------------------------------------------------------------------------
   context 'user asks to count tasks in a project or column', ->
@@ -410,7 +445,7 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.update')
-          .reply(200, { result: { error_info: 'No such Maniphest task exists.' } })
+          .reply(200, { error_info: 'No such Maniphest task exists.' })
 
       afterEach ->
         nock.cleanAll()
@@ -602,7 +637,7 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.update')
-          .reply(200, { result: { error_info: 'No such Maniphest task exists.' } })
+          .reply(200, { error_info: 'No such Maniphest task exists.' })
 
       afterEach ->
         nock.cleanAll()
@@ -730,7 +765,7 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.edit')
-          .reply(200, { result: { error_info: 'No such Maniphest task exists.' } })
+          .reply(200, { error_info: 'No such Maniphest task exists.' })
 
       afterEach ->
         nock.cleanAll()
@@ -777,7 +812,7 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
-          .reply(200, { result: { error_info: 'No such Maniphest task exists.' } })
+          .reply(200, { error_info: 'No such Maniphest task exists.' })
 
       afterEach ->
         nock.cleanAll()
@@ -845,7 +880,7 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/file.info')
-          .reply(200, { result: { error_info: 'No such file exists.' } })
+          .reply(200, { error_info: 'No such file exists.' })
 
       afterEach ->
         nock.cleanAll()

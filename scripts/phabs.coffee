@@ -67,8 +67,8 @@ module.exports = (robot) ->
     name = msg.match[2]
     if column?
       phab.createTask msg, column, name, (body) ->
-        if body['result']['error_info']?
-          msg.send "#{body['result']['error_info']}"
+        if body['error_info']?
+          msg.send "#{body['error_info']}"
         else
           id = body['result']['object']['id']
           url = process.env.PHABRICATOR_URL + "/T#{id}"
@@ -76,6 +76,18 @@ module.exports = (robot) ->
           msg.send "Task T#{id} created = #{url}"
     else
       msg.send 'Command incomplete.'
+
+  robot.respond /ph(?:ab)? paste (.*)$/, (msg) ->
+    title = msg.match[1]
+    phab.createPaste msg, title, (body) ->
+      if body['error_info']?
+        msg.send "#{body['error_info']}"
+      else
+        id = body['result']['object']['id']
+        url = process.env.PHABRICATOR_URL + "/paste/edit/#{id}"
+        phab.recordPhid msg, id
+        msg.send "Paste P#{id} created = edit on #{url}"
+
 
   robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+)/), (msg) ->
     column = phabColumns[msg.match[1]]
@@ -96,7 +108,7 @@ module.exports = (robot) ->
       msg.finish()
       return
     phab.taskInfo msg, id, (body) ->
-      if body['result']['error_info'] is undefined
+      if body['error_info'] is undefined
         phab.withUserByPhid robot, body.result.ownerPHID, (owner) ->
           status = body.result.status
           priority = body.result.priority
@@ -104,7 +116,7 @@ module.exports = (robot) ->
           msg.send "T#{id} has status #{status}, " +
                    "priority #{priority}, owner #{owner.name}"
       else
-        msg.send "oops T#{id} #{body['result']['error_info']}"
+        msg.send "oops T#{id} #{body['error_info']}"
     msg.finish()
 
 
@@ -116,10 +128,10 @@ module.exports = (robot) ->
       return
     status = msg.match[2]
     phab.updateStatus msg, id, status, (body) ->
-      if body['result']['error_info'] is undefined
+      if body['error_info'] is undefined
         msg.send "Ok, T#{id} now has status #{body['result']['statusName']}."
       else
-        msg.send "oops T#{id} #{body['result']['error_info']}"
+        msg.send "oops T#{id} #{body['error_info']}"
     msg.finish()
 
 
@@ -133,10 +145,10 @@ module.exports = (robot) ->
       return
     priority = msg.match[2]
     phab.updatePriority msg, id, priority, (body) ->
-      if body['result']['error_info'] is undefined
+      if body['error_info'] is undefined
         msg.send "Ok, T#{id} now has priority #{body['result']['priority']}"
       else
-        msg.send "oops T#{id} #{body['result']['error_info']}"
+        msg.send "oops T#{id} #{body['error_info']}"
     msg.finish()
 
 
@@ -167,7 +179,6 @@ module.exports = (robot) ->
     assignee.email_address = email
     msg.send "Okay, I'll remember #{who} email as #{email}"
 
-
   robot.respond new RegExp(
     'ph(?:ab)?(?: assign)? (?:([^ ]+)(?: (?:to|on) (T)([0-9]+))?|(?:T([0-9]+) )?(?:to|on) ([^ ]+))$'
   ), (msg) ->
@@ -186,10 +197,10 @@ module.exports = (robot) ->
     if assignee?
       phab.withUser msg, assignee, (userPhid) ->
         phab.assignTask msg, id, userPhid, (body) ->
-          if body['result']['error_info'] is undefined
+          if body['error_info'] is undefined
             msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
           else
-            msg.send "#{body['result']['error_info']}"
+            msg.send "#{body['error_info']}"
     else
       msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
     msg.finish()
@@ -204,8 +215,8 @@ module.exports = (robot) ->
     switch type
       when 'T'
         phab.taskInfo msg, id, (body) ->
-          if body['result']['error_info']?
-            msg.send "oops T#{id} #{body['result']['error_info']}"
+          if body['error_info']?
+            msg.send "oops T#{id} #{body['error_info']}"
           else
             closed = ''
             if body['result']['isClosed'] is true
@@ -219,8 +230,8 @@ module.exports = (robot) ->
             phab.recordPhid msg, id
       when 'F'
         phab.fileInfo msg, id, (body) ->
-          if body['result']['error_info']?
-            msg.send "oops F#{id} #{body['result']['error_info']}"
+          if body['error_info']?
+            msg.send "oops F#{id} #{body['error_info']}"
           else
             size = humanFileSize(body['result']['byteSize'])
             if url?

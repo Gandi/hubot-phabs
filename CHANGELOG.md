@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.0.1 - 2016-07-21
+- add a .phab paste some new paste
+- fix error handling
+
 ### 1.0.0 - 2016-07-19
 - add a .phab version command
 - add a .phab count proj to count number of tasks in a paroject

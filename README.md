@@ -60,6 +60,9 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
         newly created task.
         NOTE: this call will record this Task id associated to you for 5 minutes
 
+    .phab paste <new paste title>
+        creates a new paste and provide the link to edit it
+
     .phab Txxx
     .phab
         gives the status, priority and owner of the task xxx
