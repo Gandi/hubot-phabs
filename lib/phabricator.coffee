@@ -184,12 +184,13 @@ class Phabricator
       apikey = @apikey
       bot_phid = @bot_phid
       phabGet = @phabGet
+      adapter = msg.robot.adapterName
       @withUser msg, msg.message.user, (userPhid) ->
         query = {
           'transactions[0][type]': 'title',
           'transactions[0][value]': "#{title}",
           'transactions[1][type]': 'comment',
-          'transactions[1][value]': "(created by #{msg.message.user.name} on irc)",
+          'transactions[1][value]': "(created by #{msg.message.user.name} on #{adapter})",
           'transactions[2][type]': 'subscribers.add',
           'transactions[2][value][0]': "#{userPhid}",
           'transactions[3][type]': 'subscribers.remove',
@@ -215,12 +216,13 @@ class Phabricator
       apikey = @apikey
       bot_phid = @bot_phid
       phabGet = @phabGet
+      adapter = msg.robot.adapterName
       @withUser msg, msg.message.user, (userPhid) ->
         query = {
           'transactions[0][type]': 'title',
           'transactions[0][value]': "#{title}",
           'transactions[1][type]': 'text',
-          'transactions[1][value]': "(created by #{msg.message.user.name} on irc)",
+          'transactions[1][value]': "(created by #{msg.message.user.name} on #{adapter})",
           'transactions[2][type]': 'subscribers.add',
           'transactions[2][value][0]': "#{userPhid}",
           'transactions[3][type]': 'subscribers.remove',
