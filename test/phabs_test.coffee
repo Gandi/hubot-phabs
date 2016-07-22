@@ -956,11 +956,11 @@ describe 'hubot-phabs module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/paste.query')
           .reply(200, { result: {
-            "PHID-PSTE-hdxawtm6psdtsxy3nyzk": {
+            'PHID-PSTE-hdxawtm6psdtsxy3nyzk': {
               title: 'file.coffee',
               language: '',
               uri: 'https://example.com/P42'
-            } 
+            }
           } })
 
       afterEach ->
@@ -982,11 +982,11 @@ describe 'hubot-phabs module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/paste.query')
           .reply(200, { result: {
-            "PHID-PSTE-hdxawtm6psdtsxy3nyzk": {
+            'PHID-PSTE-hdxawtm6psdtsxy3nyzk': {
               title: 'file.coffee',
               language: 'coffee',
               uri: 'https://example.com/P42'
-            } 
+            }
           } })
 
       afterEach ->
@@ -1023,15 +1023,15 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/phid.lookup')
-          .reply(200, { result:{
-            "M42": {
-              "phid": "PHID-MOCK-6g6p65ez5ctxudji5twy",
-              "uri": "https://example.com/M42",
-              "typeName": "Pholio Mock",
-              "type": "MOCK",
-              "name": "M42",
-              "fullName": "M42: Test Mock",
-              "status": "open"
+          .reply(200, { result: {
+            'M42': {
+              'phid': 'PHID-MOCK-6g6p65ez5ctxudji5twy',
+              'uri': 'https://example.com/M42',
+              'typeName': 'Pholio Mock',
+              'type': 'MOCK',
+              'name': 'M42',
+              'fullName': 'M42: Test Mock',
+              'status': 'open'
             }
           } })
 
@@ -1052,15 +1052,15 @@ describe 'hubot-phabs module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/phid.lookup')
-          .reply(200, { result:{
-            "M42": {
-              "phid": "PHID-MOCK-6g6p65ez5ctxudji5twy",
-              "uri": "https://example.com/M42",
-              "typeName": "Pholio Mock",
-              "type": "MOCK",
-              "name": "M42",
-              "fullName": "M42: Test Mock",
-              "status": "closed"
+          .reply(200, { result: {
+            'M42': {
+              'phid': 'PHID-MOCK-6g6p65ez5ctxudji5twy',
+              'uri': 'https://example.com/M42',
+              'typeName': 'Pholio Mock',
+              'type': 'MOCK',
+              'name': 'M42',
+              'fullName': 'M42: Test Mock',
+              'status': 'closed'
             }
           } })
 
@@ -1075,5 +1075,3 @@ describe 'hubot-phabs module', ->
         hubot 'whatever about http://example.com/M42 or something'
         it 'gives information about the Paste, without uri', ->
           expect(hubotResponse()).to.eql 'M42: Test Mock (closed)'
-
-
