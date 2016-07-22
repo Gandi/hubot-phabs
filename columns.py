@@ -103,12 +103,12 @@ def execute_apicall(apicall, query):
 
 def main():
     projects = conduit_allprojects()
-    print json.dumps(projects, indent=4, separators=(',', ': '))
+    print json.dumps(projects, indent=4)
 
     for i in projects.keys():
         print "%s (%s)" % (projects[i], i)
         columns = conduit_columns(i)
-        print json.dumps(columns, indent=4, separators=(',', ': '))
+        print json.dumps(columns, indent=4)
 
 if __name__ == '__main__':
     main()
