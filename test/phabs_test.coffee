@@ -1,7 +1,7 @@
 require('es6-promise').polyfill()
 
 Helper = require('hubot-test-helper')
-Hubot = require('../node_modules/hubot-test-helper/node_modules/hubot')
+Hubot = require('../node_modules/hubot')
 
 # helper loads a specific script if it's a file
 helper = new Helper('../scripts/phabs.coffee')
