@@ -46,10 +46,11 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
     something about https://phabricator.example.com/T2#17207
     just talking about T123. did you see that one?
         the plugin will watch if it sees 
-        - T[0-9]+ for tasks
-        - P[0-9]+ for pastes
-        - F[0-9]+ for files
-        - M[0-9]+ for mocks
+        - T[0-9]+ for tasks (of Maniphest)
+        - P[0-9]+ for pastes 
+        - F[0-9]+ for files 
+        - M[0-9]+ for mocks (of Pholio)
+        - r[A-Z]+[a-f0-9]+ for commit (of Diffusion)
         if it is in an url, it will reply with 
           T2 - <title of the task>
         if it's not in an url it will reply with
