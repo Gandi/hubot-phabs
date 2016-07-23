@@ -48,6 +48,15 @@ class Phabricator
     @url = env.PHABRICATOR_URL
     @apikey = env.PHABRICATOR_API_KEY
     @bot_phid = env.PHABRICATOR_BOT_PHID
+    storageLoaded = =>
+      @data = @robot.brain.data.phabricator ||= {
+        projects: { },
+        aliases: { }
+      }
+      @robot.logger.debug 'Phabricator Data Loaded: ' + JSON.stringify(@data, null, 2)
+    @robot.brain.on 'loaded', storageLoaded
+    storageLoaded() # just in case storage was loaded before we got here
+
 
   ready: (msg) ->
     msg.send 'Error: Phabricator url is not specified' if not @url
@@ -57,6 +66,7 @@ class Phabricator
 
 
   phabGet: (msg, query, endpoint, cb) ->
+    query['api.token'] = @apikey
     body = querystring.stringify(query)
     msg.http(process.env.PHABRICATOR_URL)
       .path("api/#{endpoint}")
@@ -87,6 +97,27 @@ class Phabricator
           }
         cb json_body
 
+  withProject: (msg, project, cb) ->
+    data = msg.robot.data.phabricator
+    if data[project]?
+      projectData = data[project]
+    else
+      for a, p of data.aliases
+        if a is project and data[p]?
+          projectData = data[p]
+          break
+    if projectData?
+      if projectData.phid
+        cb projectData
+      else
+        query = { 'names[0]': project }
+        @phabGet msg, query, 'project.query', (json_body) ->
+          if Object.keys(json_body.data).length > 0
+            projectData.phid = Object.keys(json_body.data)[0]
+            cb projectData
+          else
+            msg.send "Sorry, #{project} not found."
+
 
   withUser: (msg, user, cb) ->
     if @ready(msg) is true
@@ -103,10 +134,7 @@ class Phabricator
             msg.send "Sorry, I can't figure #{user.name} email address. " +
                      "Can you help me with .phab #{user.name} = <email>"
           return
-        query = {
-          'emails[0]': email,
-          'api.token': @apikey
-        }
+        query = { 'emails[0]': email }
         @phabGet msg, query, 'user.query', (json_body) ->
           unless json_body['result']['0']?
             msg.send "Sorry, I cannot find #{email} :("
@@ -126,10 +154,7 @@ class Phabricator
       if user?
         cb user
       else
-        query = {
-          'phids[0]': phid,
-          'api.token': @apikey
-        }
+        query = { 'phids[0]': phid }
         @phabGet robot, query, 'user.query', (json_body) ->
           if json_body['result']['0']?
             cb { name: json_body['result']['0']['userName'] }
@@ -141,40 +166,28 @@ class Phabricator
 
   taskInfo: (msg, id, cb) ->
     if @ready(msg) is true
-      query = {
-        'task_id': id,
-        'api.token': @apikey
-      }
+      query = { 'task_id': id }
       @phabGet msg, query, 'maniphest.info', (json_body) ->
         cb json_body
 
 
   fileInfo: (msg, id, cb) ->
     if @ready(msg) is true
-      query = {
-        'id': id,
-        'api.token': @apikey
-      }
+      query = { 'id': id }
       @phabGet msg, query, 'file.info', (json_body) ->
         cb json_body
 
 
   pasteInfo: (msg, id, cb) ->
     if @ready(msg) is true
-      query = {
-        'ids[0]': id,
-        'api.token': @apikey
-      }
+      query = { 'ids[0]': id }
       @phabGet msg, query, 'paste.query', (json_body) ->
         cb json_body
 
 
   genericInfo: (msg, name, cb) ->
     if @ready(msg) is true
-      query = {
-        'names[]': name,
-        'api.token': @apikey
-      }
+      query = { 'names[]': name }
       @phabGet msg, query, 'phid.lookup', (json_body) ->
         cb json_body
 
@@ -182,7 +195,6 @@ class Phabricator
   createTask: (msg, phid, title, description, cb) ->
     if @ready(msg) is true
       url = @url
-      apikey = @apikey
       bot_phid = @bot_phid
       phabGet = @phabGet
       adapter = msg.robot.adapterName
@@ -195,8 +207,7 @@ class Phabricator
           'transactions[2][type]': 'subscribers.add',
           'transactions[2][value][0]': "#{userPhid}",
           'transactions[3][type]': 'subscribers.remove',
-          'transactions[3][value][0]': "#{bot_phid}",
-          'api.token': apikey,
+          'transactions[3][value][0]': "#{bot_phid}"
         }
         if phid.match /PHID-PROJ-/
           query['transactions[4][type]'] = 'projects.add'
@@ -214,7 +225,6 @@ class Phabricator
   createPaste: (msg, title, cb) ->
     if @ready(msg) is true
       url = @url
-      apikey = @apikey
       bot_phid = @bot_phid
       phabGet = @phabGet
       adapter = msg.robot.adapterName
@@ -227,8 +237,7 @@ class Phabricator
           'transactions[2][type]': 'subscribers.add',
           'transactions[2][value][0]': "#{userPhid}",
           'transactions[3][type]': 'subscribers.remove',
-          'transactions[3][value][0]': "#{bot_phid}",
-          'api.token': apikey,
+          'transactions[3][value][0]': "#{bot_phid}"
         }
         phabGet msg, query, 'paste.edit', (json_body) ->
           cb json_body
@@ -252,8 +261,7 @@ class Phabricator
       query = {
         'id': id,
         'status': @statuses[status],
-        'comments': "status set to #{@statuses[status]} by #{msg.message.user.name}",
-        'api.token': @apikey,
+        'comments': "status set to #{@statuses[status]} by #{msg.message.user.name}"
       }
       @phabGet msg, query, 'maniphest.update', (json_body) ->
         cb json_body
@@ -264,8 +272,7 @@ class Phabricator
       query = {
         'id': id,
         'priority': @priorities[priority],
-        'comments': "priority set to #{@priorities[priority]} by #{msg.message.user.name}",
-        'api.token': @apikey,
+        'comments': "priority set to #{@priorities[priority]} by #{msg.message.user.name}"
       }
       @phabGet msg, query, 'maniphest.update', (json_body) ->
         cb json_body
@@ -276,8 +283,7 @@ class Phabricator
       query = {
         'objectIdentifier': "T#{tid}",
         'transactions[0][type]': 'owner',
-        'transactions[0][value]': "#{userphid}",
-        'api.token': @apikey,
+        'transactions[0][value]': "#{userphid}"
       }
       @phabGet msg, query, 'maniphest.edit', (json_body) ->
         cb json_body
@@ -287,8 +293,7 @@ class Phabricator
     if @ready(msg) is true
       query = {
         'projectPHIDs[0]': "#{projphid}",
-        'status': 'status-open',
-        'api.token': @apikey,
+        'status': 'status-open'
       }
       @phabGet msg, query, 'maniphest.query', (json_body) ->
         cb json_body

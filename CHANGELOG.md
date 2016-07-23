@@ -1,6 +1,11 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.2.0 - wip
+- add admin function `.phad` for managing parameteres about projects
+- split files for better code readability
+
+
 ### 1.1.0 - 2016-07-23
 - sort out dependencies 
   you may need to `rm -rf node_modules && npm install` for dev

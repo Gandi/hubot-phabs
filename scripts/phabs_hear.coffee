@@ -1,5 +1,7 @@
 # Description:
 #   enable communication with Phabricator via Conduit api
+#   listens to conversations and supplement with phabricator metadata
+#   when an object is cited.
 #
 # Dependencies:
 #
@@ -10,13 +12,7 @@
 #   PHABRICATOR_BOT_PHID
 #
 # Commands:
-#   hubot phab new <project> <name of the task> - creates a new task
-#   hubot phab assign Txx to <user> - assigns task Txxx to comeone
-#   hubot phab <user> - checks if user is known or not
-#   hubot phab me as <email> - makes caller known with <email>
-#   hubot phab <user> = <email> - associates user to email
-#   hubot phab list projects - list known projects according to configuration
-#   hubot phab version - give the version of hubot-phabs loaded
+#   anything Txxx - complements with the title of the cited object
 #
 # Author:
 #   mose
@@ -194,3 +190,85 @@ module.exports = (robot) ->
     else
       msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
     msg.finish()
+
+
+  robot.hear new RegExp(
+    "(?:.+|^)(?:(#{process.env.PHABRICATOR_URL})/?| |^)" +
+    '(?:(T|F|P|M|B|Q|L|V)([0-9]+)|(r[A-Z]+[a-f0-9]{10,}))'
+  ), (msg) ->
+    url = msg.match[1]
+    type = msg.match[2] ? msg.match[4]
+    id = msg.match[3]
+    switch
+      when 'T' is type
+        phab.taskInfo msg, id, (body) ->
+          if body['error_info']?
+            msg.send "oops #{type}#{id} #{body['error_info']}"
+          else
+            closed = ''
+            if body['result']['isClosed'] is true
+              closed = " (#{body['result']['status']})"
+            if url?
+              msg.send "#{type}#{id}#{closed} - #{body['result']['title']} " +
+                       "(#{body['result']['priority']})"
+            else
+              msg.send "#{body['result']['uri']}#{closed} - #{body['result']['title']} " +
+                       "(#{body['result']['priority']})"
+            phab.recordPhid msg, id
+      when 'F' is type
+        phab.fileInfo msg, id, (body) ->
+          if body['error_info']?
+            msg.send "oops #{type}#{id} #{body['error_info']}"
+          else
+            size = humanFileSize(body['result']['byteSize'])
+            if url?
+              msg.send "#{type}#{id} - #{body['result']['name']} " +
+                       "(#{body['result']['mimeType']} #{size})"
+            else
+              msg.send "#{body['result']['uri']} - #{body['result']['name']} "+
+                       "(#{body['result']['mimeType']} #{size})"
+      when 'P' is type
+        phab.pasteInfo msg, id, (body) ->
+          if Object.keys(body['result']).length < 1
+            msg.send "oops #{type}#{id} was not found."
+          else
+            lang = ''
+            key = Object.keys(body['result'])[0]
+            if body['result'][key]['language'] isnt ''
+              lang = " (#{body['result'][key]['language']})"
+            if url?
+              msg.send "#{type}#{id} - #{body['result'][key]['title']}#{lang}"
+            else
+              msg.send "#{body['result'][key]['uri']} - #{body['result'][key]['title']}#{lang}"
+      when /^M|B|Q|L|V$/.test type
+        phab.genericInfo msg, "#{type}#{id}", (body) ->
+          if Object.keys(body['result']).length < 1
+            msg.send "oops #{type}#{id} was not found."
+          else
+            v = body['result']["#{type}#{id}"]
+            status = ''
+            if v['status'] is 'closed'
+              status = " (#{v['status']})"
+            if url?
+              msg.send "#{v['fullName']}#{status}"
+              return
+            else
+              fullname = v['fullName'].replace("#{type}#{id}: ", '').replace("#{type}#{id} ", '')
+              msg.send "#{v['uri']} - #{fullname}#{status}"
+              return
+      when /^r[A-Z]+[a-f0-9]{10,}$/.test type
+        phab.genericInfo msg, type, (body) ->
+          if Object.keys(body['result']).length < 1
+            msg.send "oops #{type} was not found."
+          else
+            v = body['result']["#{type}"]
+            status = ''
+            if v['status'] is 'closed'
+              status = " (#{v['status']})"
+            if url?
+              msg.send "#{v['fullName']}#{status}"
+              return
+            else
+              fullname = v['fullName'].replace "#{type}: ", ''
+              msg.send "#{v['uri']} - #{fullname}#{status}"
+              return
