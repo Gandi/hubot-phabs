@@ -1003,7 +1003,7 @@ describe 'hubot-phabs module', ->
 
   # ---------------------------------------------------------------------------------
   context 'someone talks about a mock', ->
-    context 'when the Paste is unknown', ->
+    context 'when the mock is unknown', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
@@ -1040,11 +1040,11 @@ describe 'hubot-phabs module', ->
 
       context 'whatever about M42 or something', ->
         hubot 'whatever about M42 or something'
-        it 'gives information about the Paste, including uri', ->
-          expect(hubotResponse()).to.eql 'https://example.com/M42 - M42: Test Mock'
+        it 'gives information about the mock, including uri', ->
+          expect(hubotResponse()).to.eql 'https://example.com/M42 - Test Mock'
       context 'whatever about http://example.com/M42 or something', ->
         hubot 'whatever about http://example.com/M42 or something'
-        it 'gives information about the Paste, without uri', ->
+        it 'gives information about the mock, without uri', ->
           expect(hubotResponse()).to.eql 'M42: Test Mock'
 
     context 'when it is an existing Mock with a status closed', ->
@@ -1069,12 +1069,89 @@ describe 'hubot-phabs module', ->
 
       context 'whatever about M42 or something', ->
         hubot 'whatever about M42 or something'
-        it 'gives information about the Paste, including uri', ->
-          expect(hubotResponse()).to.eql 'https://example.com/M42 - M42: Test Mock (closed)'
+        it 'gives information about the mock, including uri', ->
+          expect(hubotResponse()).to.eql 'https://example.com/M42 - Test Mock (closed)'
       context 'whatever about http://example.com/M42 or something', ->
         hubot 'whatever about http://example.com/M42 or something'
-        it 'gives information about the Paste, without uri', ->
+        it 'gives information about the mock, without uri', ->
           expect(hubotResponse()).to.eql 'M42: Test Mock (closed)'
+
+  # ---------------------------------------------------------------------------------
+  context 'someone talks about a build', ->
+    context 'when the build is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: { } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about B424242 or something', ->
+        hubot 'whatever about B424242 or something'
+        it "warns the user that this build doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops B424242 was not found.'
+
+    context 'when it is an existing build without a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            "B12999": {
+              "phid": "PHID-HMBB-zeg6ru5vnd4fbp744s5f",
+              "uri": "https://example.com/B12999",
+              "typeName": "Buildable",
+              "type": "HMBB",
+              "name": "B12999",
+              "fullName": "B12999: rP46ceba728fee: (stable) Fix an issue",
+              "status": "open"
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about B12999 or something', ->
+        hubot 'whatever about B12999 or something'
+        it 'gives information about the build, including uri', ->
+          expect(hubotResponse())
+            .to.eql 'https://example.com/B12999 - rP46ceba728fee: (stable) Fix an issue'
+      context 'whatever about http://example.com/B12999 or something', ->
+        hubot 'whatever about http://example.com/B12999 or something'
+        it 'gives information about the build, without uri', ->
+          expect(hubotResponse()).to.eql 'B12999: rP46ceba728fee: (stable) Fix an issue'
+
+    context 'when it is an existing build with a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            "B12999": {
+              "phid": "PHID-HMBB-zeg6ru5vnd4fbp744s5f",
+              "uri": "https://example.com/B12999",
+              "typeName": "Buildable",
+              "type": "HMBB",
+              "name": "B12999",
+              "fullName": "B12999: rP46ceba728fee: (stable) Fix an issue",
+              "status": "closed"
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about B12999 or something', ->
+        hubot 'whatever about B12999 or something'
+        it 'gives information about the build, including uri', ->
+          expect(hubotResponse())
+            .to.eql 'https://example.com/B12999 - rP46ceba728fee: (stable) Fix an issue (closed)'
+      context 'whatever about http://example.com/B12999 or something', ->
+        hubot 'whatever about http://example.com/B12999 or something'
+        it 'gives information about the build, without uri', ->
+          expect(hubotResponse()).to.eql 'B12999: rP46ceba728fee: (stable) Fix an issue (closed)'
 
   # ---------------------------------------------------------------------------------
   context 'someone talks about a commit', ->
@@ -1099,14 +1176,14 @@ describe 'hubot-phabs module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/phid.lookup')
           .reply(200, { result: {
-            "rP156f7196453c": {
-              "phid": "PHID-CMIT-7dpynrtygtd7z3bv7f64",
-              "uri": "https://example.com/rP156f7196453c6612ee90f97e41bb9389e5d6ec0b",
-              "typeName": "Diffusion Commit",
-              "type": "CMIT",
-              "name": "rP156f7196453c",
-              "fullName": "rP156f7196453c: (stable) Promote 2016 Week 28",
-              "status": "open"
+            'rP156f7196453c': {
+              'phid': 'PHID-CMIT-7dpynrtygtd7z3bv7f64',
+              'uri': 'https://example.com/rP156f7196453c6612ee90f97e41bb9389e5d6ec0b',
+              'typeName': 'Diffusion Commit',
+              'type': 'CMIT',
+              'name': 'rP156f7196453c',
+              'fullName': 'rP156f7196453c: (stable) Promote 2016 Week 28',
+              'status': 'open'
             }
           } })
 
@@ -1130,14 +1207,14 @@ describe 'hubot-phabs module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/phid.lookup')
           .reply(200, { result: {
-            "rP156f7196453c": {
-              "phid": "PHID-CMIT-7dpynrtygtd7z3bv7f64",
-              "uri": "https://example.com/rP156f7196453c6612ee90f97e41bb9389e5d6ec0b",
-              "typeName": "Diffusion Commit",
-              "type": "CMIT",
-              "name": "rP156f7196453c",
-              "fullName": "rP156f7196453c: (stable) Promote 2016 Week 28",
-              "status": "closed"
+            'rP156f7196453c': {
+              'phid': 'PHID-CMIT-7dpynrtygtd7z3bv7f64',
+              'uri': 'https://example.com/rP156f7196453c6612ee90f97e41bb9389e5d6ec0b',
+              'typeName': 'Diffusion Commit',
+              'type': 'CMIT',
+              'name': 'rP156f7196453c',
+              'fullName': 'rP156f7196453c: (stable) Promote 2016 Week 28',
+              'status': 'closed'
             }
           } })
 

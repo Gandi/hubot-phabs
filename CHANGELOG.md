@@ -1,11 +1,13 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.0.6 - wip
-- sort out dependencies
+### 1.1.0 - 2016-07-23
+- sort out dependencies 
+  you may need to `rm -rf node_moules && npm install` for dev
 - changed hardcoded 'irc' by adapter name in task creation data
 - add recognition for the Diffusion kind of object 
   rP46ceba728fee8a775e2ddf0cdae332a0679413a4 or rP46ceba728fee
+- fix output of mocks recognition to avoid repeating object name
 
 ### 1.0.5 - 2016-07-22
 - add some more alternatives for changing statuses and priorities
