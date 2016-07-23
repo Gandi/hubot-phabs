@@ -23,7 +23,7 @@ describe 'hubot-phabs module', ->
     hubotHear "@hubot #{message}", userName
 
   hubotResponse = (i = 1) ->
-    room.messages[i][1]
+    room.messages[i]?[1]
 
   hubotResponseCount = ->
     room.messages.length
@@ -1047,7 +1047,7 @@ describe 'hubot-phabs module', ->
         it 'gives information about the Paste, without uri', ->
           expect(hubotResponse()).to.eql 'M42: Test Mock'
 
-    context 'when it is an existing Mock with a status open', ->
+    context 'when it is an existing Mock with a status closed', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
@@ -1075,3 +1075,82 @@ describe 'hubot-phabs module', ->
         hubot 'whatever about http://example.com/M42 or something'
         it 'gives information about the Paste, without uri', ->
           expect(hubotResponse()).to.eql 'M42: Test Mock (closed)'
+
+  # ---------------------------------------------------------------------------------
+  context 'someone talks about a commit', ->
+    context 'when the commit is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: { } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about rP156f7196453c or something', ->
+        hubot 'whatever about rP156f7196453c or something'
+        it "warns the user that this commit doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops rP156f7196453c was not found.'
+
+    context 'when it is an existing commit without a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            "rP156f7196453c": {
+              "phid": "PHID-CMIT-7dpynrtygtd7z3bv7f64",
+              "uri": "https://example.com/rP156f7196453c6612ee90f97e41bb9389e5d6ec0b",
+              "typeName": "Diffusion Commit",
+              "type": "CMIT",
+              "name": "rP156f7196453c",
+              "fullName": "rP156f7196453c: (stable) Promote 2016 Week 28",
+              "status": "open"
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about rP156f7196453c or something', ->
+        hubot 'whatever about rP156f7196453c or something'
+        it 'gives information about the Paste, including uri', ->
+          expect(hubotResponse())
+            .to.eql 'https://example.com/rP156f7196453c6612ee90f97e41bb9389e5d6ec0b - ' +
+                    '(stable) Promote 2016 Week 28'
+      context 'whatever about http://example.com/rP156f7196453c or something', ->
+        hubot 'whatever about http://example.com/rP156f7196453c or something'
+        it 'gives information about the Paste, without uri', ->
+          expect(hubotResponse()).to.eql 'rP156f7196453c: (stable) Promote 2016 Week 28'
+
+    context 'when it is an existing commit with a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            "rP156f7196453c": {
+              "phid": "PHID-CMIT-7dpynrtygtd7z3bv7f64",
+              "uri": "https://example.com/rP156f7196453c6612ee90f97e41bb9389e5d6ec0b",
+              "typeName": "Diffusion Commit",
+              "type": "CMIT",
+              "name": "rP156f7196453c",
+              "fullName": "rP156f7196453c: (stable) Promote 2016 Week 28",
+              "status": "closed"
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about rP156f7196453c or something', ->
+        hubot 'whatever about rP156f7196453c or something'
+        it 'gives information about the Paste, including uri', ->
+          expect(hubotResponse())
+            .to.eql 'https://example.com/rP156f7196453c6612ee90f97e41bb9389e5d6ec0b - ' +
+                    '(stable) Promote 2016 Week 28 (closed)'
+      context 'whatever about http://example.com/rP156f7196453c or something', ->
+        hubot 'whatever about http://example.com/rP156f7196453c or something'
+        it 'gives information about the Paste, without uri', ->
+          expect(hubotResponse()).to.eql 'rP156f7196453c: (stable) Promote 2016 Week 28 (closed)'

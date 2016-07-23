@@ -4,6 +4,8 @@ Hubot-phabs Changelog
 ### 1.0.6 - wip
 - sort out dependencies
 - changed hardcoded 'irc' by adapter name in task creation data
+- add recognition for the Diffusion kind of object 
+  rP46ceba728fee8a775e2ddf0cdae332a0679413a4 or rP46ceba728fee
 
 ### 1.0.5 - 2016-07-22
 - add some more alternatives for changing statuses and priorities
