@@ -6,7 +6,7 @@ Hubot-phabs Changelog
   you may need to `rm -rf node_modules && npm install` for dev
 - changed hardcoded 'irc' by adapter name in task creation data
 - fix output of mocks recognition to avoid repeating object name
-- add recognition for the Diffusion kind of object 
+- add recognition for the Diffusion kind of object (commits)
   rP46ceba728fee8a775e2ddf0cdae332a0679413a4 or rP46ceba728fee
 - add recognition for Harbormaster kind of object (builds)
 - add recognition for Ponder kind of object (questions)
