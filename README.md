@@ -52,6 +52,7 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
         - M[0-9]+ for mocks (of Pholio)
         - B[0-9]+ for builds (of Harbormaster)
         - L[0-9]+ for legalpads
+        - V[0-9]+ for polls (of Slowvote)
         - r[A-Z]+[a-f0-9]+ for commit (of Diffusion)
         if it is in an url, it will reply with 
           T2 - <title of the task>

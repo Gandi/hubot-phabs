@@ -11,6 +11,7 @@ Hubot-phabs Changelog
 - add recognition for Harbormaster kind of object (builds)
 - add recognition for Ponder kind of object (questions)
 - add recognition for Legalpad kind of object
+- add recognition for Slowvote kind of object (polls)
 
 ### 1.0.5 - 2016-07-22
 - add some more alternatives for changing statuses and priorities
