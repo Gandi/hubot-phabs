@@ -1099,14 +1099,14 @@ describe 'hubot-phabs module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/phid.lookup')
           .reply(200, { result: {
-            "B12999": {
-              "phid": "PHID-HMBB-zeg6ru5vnd4fbp744s5f",
-              "uri": "https://example.com/B12999",
-              "typeName": "Buildable",
-              "type": "HMBB",
-              "name": "B12999",
-              "fullName": "B12999: rP46ceba728fee: (stable) Fix an issue",
-              "status": "open"
+            'B12999': {
+              'phid': 'PHID-HMBB-zeg6ru5vnd4fbp744s5f',
+              'uri': 'https://example.com/B12999',
+              'typeName': 'Buildable',
+              'type': 'HMBB',
+              'name': 'B12999',
+              'fullName': 'B12999: rP46ceba728fee: (stable) Fix an issue',
+              'status': 'open'
             }
           } })
 
@@ -1129,14 +1129,14 @@ describe 'hubot-phabs module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/phid.lookup')
           .reply(200, { result: {
-            "B12999": {
-              "phid": "PHID-HMBB-zeg6ru5vnd4fbp744s5f",
-              "uri": "https://example.com/B12999",
-              "typeName": "Buildable",
-              "type": "HMBB",
-              "name": "B12999",
-              "fullName": "B12999: rP46ceba728fee: (stable) Fix an issue",
-              "status": "closed"
+            'B12999': {
+              'phid': 'PHID-HMBB-zeg6ru5vnd4fbp744s5f',
+              'uri': 'https://example.com/B12999',
+              'typeName': 'Buildable',
+              'type': 'HMBB',
+              'name': 'B12999',
+              'fullName': 'B12999: rP46ceba728fee: (stable) Fix an issue',
+              'status': 'closed'
             }
           } })
 
@@ -1176,14 +1176,14 @@ describe 'hubot-phabs module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/phid.lookup')
           .reply(200, { result: {
-            "Q434": {
-              "phid": "PHID-QUES-j22mqmbhb3mbcd2it7zs",
-              "uri": "https://example.com/Q434",
-              "typeName": "Ponder Question",
-              "type": "QUES",
-              "name": "Q434",
-              "fullName": "Q434: Width in wiki pages",
-              "status": "open"
+            'Q434': {
+              'phid': 'PHID-QUES-j22mqmbhb3mbcd2it7zs',
+              'uri': 'https://example.com/Q434',
+              'typeName': 'Ponder Question',
+              'type': 'QUES',
+              'name': 'Q434',
+              'fullName': 'Q434: Width in wiki pages',
+              'status': 'open'
             }
           } })
 
@@ -1205,14 +1205,14 @@ describe 'hubot-phabs module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/phid.lookup')
           .reply(200, { result: {
-            "Q434": {
-              "phid": "PHID-QUES-j22mqmbhb3mbcd2it7zs",
-              "uri": "https://example.com/Q434",
-              "typeName": "Ponder Question",
-              "type": "QUES",
-              "name": "Q434",
-              "fullName": "Q434: Width in wiki pages",
-              "status": "closed"
+            'Q434': {
+              'phid': 'PHID-QUES-j22mqmbhb3mbcd2it7zs',
+              'uri': 'https://example.com/Q434',
+              'typeName': 'Ponder Question',
+              'type': 'QUES',
+              'name': 'Q434',
+              'fullName': 'Q434: Width in wiki pages',
+              'status': 'closed'
             }
           } })
 
@@ -1227,6 +1227,81 @@ describe 'hubot-phabs module', ->
         hubot 'whatever about http://example.com/Q434 or something'
         it 'gives information about the question, without uri', ->
           expect(hubotResponse()).to.eql 'Q434: Width in wiki pages (closed)'
+
+  # ---------------------------------------------------------------------------------
+  context 'someone talks about a legalpad', ->
+    context 'when the legalpad is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: { } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about L424242 or something', ->
+        hubot 'whatever about L424242 or something'
+        it "warns the user that this legalpad doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops L424242 was not found.'
+
+    context 'when it is an existing legalpad without a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            'L38': {
+              'phid': 'PHID-LEGD-chmhkotszvqaucdrvh5t',
+              'uri': 'https://example.com/L38',
+              'typeName': 'Legalpad Document',
+              'type': 'LEGD',
+              'name': 'L38 Test',
+              'fullName': 'L38 Test',
+              'status': 'open'
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about L38 or something', ->
+        hubot 'whatever about L38 or something'
+        it 'gives information about the legalpad, including uri', ->
+          expect(hubotResponse()).to.eql 'https://example.com/L38 - Test'
+      context 'whatever about http://example.com/L38 or something', ->
+        hubot 'whatever about http://example.com/L38 or something'
+        it 'gives information about the legalpad, without uri', ->
+          expect(hubotResponse()).to.eql 'L38 Test'
+
+    context 'when it is an existing legalpad with a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            'L38': {
+              'phid': 'PHID-LEGD-chmhkotszvqaucdrvh5t',
+              'uri': 'https://example.com/L38',
+              'typeName': 'Legalpad Document',
+              'type': 'LEGD',
+              'name': 'L38 Test',
+              'fullName': 'L38 Test',
+              'status': 'closed'
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about L38 or something', ->
+        hubot 'whatever about L38 or something'
+        it 'gives information about the legalpad, including uri', ->
+          expect(hubotResponse()).to.eql 'https://example.com/L38 - Test (closed)'
+      context 'whatever about http://example.com/L38 or something', ->
+        hubot 'whatever about http://example.com/L38 or something'
+        it 'gives information about the legalpad, without uri', ->
+          expect(hubotResponse()).to.eql 'L38 Test (closed)'
 
   # ---------------------------------------------------------------------------------
   context 'someone talks about a commit', ->
