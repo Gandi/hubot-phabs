@@ -198,7 +198,7 @@ module.exports = (robot) ->
 
   robot.hear new RegExp(
     "(?:.+|^)(?:(#{process.env.PHABRICATOR_URL})/?| |^)" +
-    '(?:(T|F|P|M|B)([0-9]+)|(r[A-Z]+[a-f0-9]{10,}))'
+    '(?:(T|F|P|M|B|Q)([0-9]+)|(r[A-Z]+[a-f0-9]{10,}))'
   ), (msg) ->
     url = msg.match[1]
     type = msg.match[2] ? msg.match[4]
@@ -244,7 +244,7 @@ module.exports = (robot) ->
               msg.send "#{type}#{id} - #{body['result'][key]['title']}#{lang}"
             else
               msg.send "#{body['result'][key]['uri']} - #{body['result'][key]['title']}#{lang}"
-      when /^M|B$/.test type
+      when /^M|B|Q$/.test type
         phab.genericInfo msg, "#{type}#{id}", (body) ->
           if Object.keys(body['result']).length < 1
             msg.send "oops #{type}#{id} was not found."

@@ -1154,6 +1154,81 @@ describe 'hubot-phabs module', ->
           expect(hubotResponse()).to.eql 'B12999: rP46ceba728fee: (stable) Fix an issue (closed)'
 
   # ---------------------------------------------------------------------------------
+  context 'someone talks about a question', ->
+    context 'when the question is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: { } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about Q424242 or something', ->
+        hubot 'whatever about Q424242 or something'
+        it "warns the user that this question doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops Q424242 was not found.'
+
+    context 'when it is an existing question without a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            "Q434": {
+              "phid": "PHID-QUES-j22mqmbhb3mbcd2it7zs",
+              "uri": "https://example.com/Q434",
+              "typeName": "Ponder Question",
+              "type": "QUES",
+              "name": "Q434",
+              "fullName": "Q434: Width in wiki pages",
+              "status": "open"
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about Q434 or something', ->
+        hubot 'whatever about Q434 or something'
+        it 'gives information about the question, including uri', ->
+          expect(hubotResponse()).to.eql 'https://example.com/Q434 - Width in wiki pages'
+      context 'whatever about http://example.com/Q434 or something', ->
+        hubot 'whatever about http://example.com/Q434 or something'
+        it 'gives information about the question, without uri', ->
+          expect(hubotResponse()).to.eql 'Q434: Width in wiki pages'
+
+    context 'when it is an existing question with a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            "Q434": {
+              "phid": "PHID-QUES-j22mqmbhb3mbcd2it7zs",
+              "uri": "https://example.com/Q434",
+              "typeName": "Ponder Question",
+              "type": "QUES",
+              "name": "Q434",
+              "fullName": "Q434: Width in wiki pages",
+              "status": "closed"
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about Q434 or something', ->
+        hubot 'whatever about Q434 or something'
+        it 'gives information about the question, including uri', ->
+          expect(hubotResponse()).to.eql 'https://example.com/Q434 - Width in wiki pages (closed)'
+      context 'whatever about http://example.com/Q434 or something', ->
+        hubot 'whatever about http://example.com/Q434 or something'
+        it 'gives information about the question, without uri', ->
+          expect(hubotResponse()).to.eql 'Q434: Width in wiki pages (closed)'
+
+  # ---------------------------------------------------------------------------------
   context 'someone talks about a commit', ->
     context 'when the commit is unknown', ->
       beforeEach ->
