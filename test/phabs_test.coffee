@@ -1304,6 +1304,81 @@ describe 'hubot-phabs module', ->
           expect(hubotResponse()).to.eql 'L38 Test (closed)'
 
   # ---------------------------------------------------------------------------------
+  context 'someone talks about a vote', ->
+    context 'when the vote is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: { } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about V424242 or something', ->
+        hubot 'whatever about V424242 or something'
+        it "warns the user that this vote doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops V424242 was not found.'
+
+    context 'when it is an existing vote without a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            'V30': {
+              'phid': 'PHID-POLL-hqztsdcva3jkucu4mmv2',
+              'uri': 'https://example.com/V30',
+              'typeName': 'Slowvote Poll',
+              'type': 'POLL',
+              'name': 'V30',
+              'fullName': 'V30: This is a poll',
+              'status': 'open'
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about V30 or something', ->
+        hubot 'whatever about V30 or something'
+        it 'gives information about the vote, including uri', ->
+          expect(hubotResponse()).to.eql 'https://example.com/V30 - This is a poll'
+      context 'whatever about http://example.com/V30 or something', ->
+        hubot 'whatever about http://example.com/V30 or something'
+        it 'gives information about the vote, without uri', ->
+          expect(hubotResponse()).to.eql 'V30: This is a poll'
+
+    context 'when it is an existing vote with a status closed', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            'V30': {
+              'phid': 'PHID-POLL-hqztsdcva3jkucu4mmv2',
+              'uri': 'https://example.com/V30',
+              'typeName': 'Slowvote Poll',
+              'type': 'POLL',
+              'name': 'V30',
+              'fullName': 'V30: This is a poll',
+              'status': 'closed'
+            }
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about V30 or something', ->
+        hubot 'whatever about V30 or something'
+        it 'gives information about the vote, including uri', ->
+          expect(hubotResponse()).to.eql 'https://example.com/V30 - This is a poll (closed)'
+      context 'whatever about http://example.com/V30 or something', ->
+        hubot 'whatever about http://example.com/V30 or something'
+        it 'gives information about the vote, without uri', ->
+          expect(hubotResponse()).to.eql 'V30: This is a poll (closed)'
+
+  # ---------------------------------------------------------------------------------
   context 'someone talks about a commit', ->
     context 'when the commit is unknown', ->
       beforeEach ->

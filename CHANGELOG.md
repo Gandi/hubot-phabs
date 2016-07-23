@@ -10,6 +10,7 @@ Hubot-phabs Changelog
   rP46ceba728fee8a775e2ddf0cdae332a0679413a4 or rP46ceba728fee
 - add recognition for Harbormaster kind of object (builds)
 - add recognition for Ponder kind of object (questions)
+- add recognition for Legalpad kind of object
 
 ### 1.0.5 - 2016-07-22
 - add some more alternatives for changing statuses and priorities
