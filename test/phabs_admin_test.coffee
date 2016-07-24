@@ -419,3 +419,60 @@ describe 'phabs_admin module', ->
         it 'should say that the alias already exists', ->
           expect(hubotResponse())
             .to.eql "Sorry, I don't know the alias 'pwp'."
+
+  # ---------------------------------------------------------------------------------
+  context 'user wants to add a feed to a project', ->
+
+    context 'but the feed already exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            feeds: [
+              '#dev'
+            ]
+          },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'Bug Report',
+          bug: 'Bug Report'
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad bug feed to #dev', ->
+        hubot 'phad bug feed to #dev'
+        it 'should say that the alias was forgotten', ->
+          expect(hubotResponse())
+            .to.eql "The feed from 'bug' to '#dev' already exist."
+
+    context 'and the feed do not already exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            feeds: [ ]
+          },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'Bug Report',
+          bug: 'Bug Report'
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad bug feed to #dev', ->
+        hubot 'phad bug feed to #dev'
+        it 'should say that the alias already exists', ->
+          expect(hubotResponse())
+            .to.eql "Ok, 'bug' is now feeding '#dev'."
+          expect(room.robot.brain.data.phabricator.projects['Bug Report'].feeds)
+            .to.include '#dev'
