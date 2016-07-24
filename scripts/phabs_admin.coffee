@@ -39,13 +39,13 @@ module.exports = (robot) ->
   robot.respond (/phad (.+) info$/), (msg) ->
     project = msg.match[1]
     phab.withProject msg, project, (projectData) ->
-      response = "#{project} is #{projectData.name}"
+      response = "'#{project}' is '#{projectData.name}'"
       if projectData.aliases? and projectData.aliases.length > 0
         response += " (aka #{projectData.aliases.join(', ')})"
       else
         response += ', with no alias'
       if projectData.feeds? and projectData.feeds.length > 0
-        response += " announced on #{projectData.feeds.join(', ')}"
+        response += ", announced on #{projectData.feeds.join(', ')}"
       else
         response += ', with no feed.'
       msg.send response

@@ -176,7 +176,7 @@ describe 'phabs_admin module', ->
           hubot 'phad Bug Report info'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql 'Bug Report is Bug Report, with no alias, with no feed.'
+              .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed."
           it 'should remember the phid from asking to phabricator', ->
             expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
@@ -233,7 +233,8 @@ describe 'phabs_admin module', ->
         context 'phad Bug Report info', ->
           hubot 'phad Bug Report info'
           it 'should reply with proper info', ->
-            expect(hubotResponse()).to.eql 'Bug Report is Bug Report, with no alias, with no feed.'
+            expect(hubotResponse())
+              .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed."
           it 'should remember the phid from asking to phabricator', ->
             expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
@@ -297,7 +298,33 @@ describe 'phabs_admin module', ->
         hubot 'phad project with phid info'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql 'project with phid is project with phid (aka bugs, bug), with no feed.'
+            .to.eql "'project with phid' is 'project with phid' (aka bugs, bug), with no feed."
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    context 'when project has phid recorded, and feeds', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': { },
+          'project with phid': {
+            phid: 'PHID-PROJ-1234567',
+            feeds: [ '#dev' ]
+          },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'Bug Report',
+          bug: 'Bug Report'
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad project with phid info', ->
+        hubot 'phad project with phid info'
+        it 'should reply with proper info', ->
+          expect(hubotResponse())
+            .to.eql "'project with phid' is 'project with phid', with no alias, announced on #dev"
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     context 'when project has phid recorded, and aliases, and is called by an alias', ->
@@ -320,7 +347,7 @@ describe 'phabs_admin module', ->
         hubot 'phad bug info'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql 'bug is Bug Report (aka bugs, bug), with no feed.'
+            .to.eql "'bug' is 'Bug Report' (aka bugs, bug), with no feed."
 
   # ---------------------------------------------------------------------------------
   context 'user wants to create an alias for a project', ->
