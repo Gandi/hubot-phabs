@@ -258,13 +258,14 @@ describe 'phabs module', ->
 
   # ---------------------------------------------------------------------------------
   context 'user creates a new task, ', ->
-    context 'phab new something blah blah', ->
-      hubot 'phab new something blah blah'
-      it 'fails to comply if the project is not registered by PHABRICATOR_PROJECTS', ->
-        expect(hubotResponse()).to.eql 'Command incomplete.'
 
     context 'a task without description, ', ->
       beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/user.query')
@@ -273,6 +274,7 @@ describe 'phabs module', ->
           .reply(200, { result: { object: { id: 42 } } })
 
       afterEach ->
+        room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
       context 'when user is doing it for the first time and has no email recorded', ->
@@ -293,6 +295,11 @@ describe 'phabs module', ->
 
     context 'a task with description, ', ->
       beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/user.query')
@@ -301,6 +308,7 @@ describe 'phabs module', ->
           .reply(200, { result: { object: { id: 42 } } })
 
       afterEach ->
+        room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
       context 'when user is known and his phid is in the brain', ->
@@ -311,6 +319,11 @@ describe 'phabs module', ->
 
     context 'phab new proj1 a task', ->
       beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/user.query')
@@ -319,6 +332,7 @@ describe 'phabs module', ->
           .reply(200, { error_info: 'Something went wrong' })
 
       afterEach ->
+        room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
       context 'when something goes wrong on phabricator side', ->
@@ -329,6 +343,11 @@ describe 'phabs module', ->
 
     context 'phab new proj2 a task', ->
       beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj2': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/user.query')
@@ -337,6 +356,7 @@ describe 'phabs module', ->
           .reply(200, { result: { object: { id: 24 } } })
 
       afterEach ->
+        room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
       context 'when user is known and his phid is in the brain', ->
@@ -347,6 +367,11 @@ describe 'phabs module', ->
 
     context 'implicit re-use of the object id', ->
       beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj2': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/user.query')
@@ -362,6 +387,7 @@ describe 'phabs module', ->
             } })
 
       afterEach ->
+        room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
       context 'when user is known and his phid is in the brain', ->
@@ -370,6 +396,7 @@ describe 'phabs module', ->
         it 'replies with the object id', ->
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
           expect(hubotResponse(3)).to.eql 'T24 has status open, priority Low, owner user_with_phid'
+
   # ---------------------------------------------------------------------------------
   context 'someone creates a new paste', ->
     context 'something goes wrong', ->

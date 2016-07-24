@@ -45,11 +45,11 @@ module.exports = (robot) ->
 
   #   hubot phab new <project> <name of the task> - creates a new task
   robot.respond (/ph(?:ab)? new ([-_a-zA-Z0-9]+) ([^=]*)(?: = (.*))?$/), (msg) ->
-    column = phabColumns[msg.match[1]]
+    project = msg.match[1]
     name = msg.match[2]
     description = msg.match[3]
-    if column?
-      phab.createTask msg, column, name, description, (body) ->
+    phab.withProject msg, project, (projectData) ->
+      phab.createTask msg, projectData.phid, name, description, (body) ->
         if body['error_info']?
           msg.send "#{body['error_info']}"
         else
@@ -57,8 +57,6 @@ module.exports = (robot) ->
           url = process.env.PHABRICATOR_URL + "/T#{id}"
           phab.recordPhid msg, id
           msg.send "Task T#{id} created = #{url}"
-    else
-      msg.send 'Command incomplete.'
 
   #   hubot phab paste <name of the paste> - creates a new paste
   robot.respond /ph(?:ab)? paste (.*)$/, (msg) ->
