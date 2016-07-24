@@ -97,26 +97,46 @@ class Phabricator
           }
         cb json_body
 
+
   withProject: (msg, project, cb) ->
-    data = msg.robot.data.phabricator
-    if data[project]?
-      projectData = data[project]
+    if @data.projects[project]?
+      projectData = @data.projects[project]
+      projectData.name = project
     else
-      for a, p of data.aliases
-        if a is project and data[p]?
-          projectData = data[p]
+      for a, p of @data.aliases
+        if p is project and @data[p]?
+          projectData = @data[p]
+          projectData.name = p
           break
     if projectData?
-      if projectData.phid
+      projectData.aliases = []
+      for a, p of @data.aliases
+        if p is project
+          projectData.aliases.push a
+      if projectData.phid?
         cb projectData
       else
         query = { 'names[0]': project }
         @phabGet msg, query, 'project.query', (json_body) ->
-          if Object.keys(json_body.data).length > 0
-            projectData.phid = Object.keys(json_body.data)[0]
+          if Object.keys(json_body.result.data).length > 0
+            projectData.phid = Object.keys(json_body.result.data)[0]
             cb projectData
           else
             msg.send "Sorry, #{project} not found."
+    else
+      data = @data
+      query = { 'names[0]': project }
+      @phabGet msg, query, 'project.query', (json_body) ->
+        if Object.keys(json_body.result.data).length > 0
+          phid = Object.keys(json_body.result.data)[0]
+          data.projects[project] = { phid: phid }
+          projectData = {
+            name: json_body.result.data[phid].name,
+            aliases: [ ]
+          }
+          cb projectData
+        else
+          msg.send "Project #{project} not found."
 
 
   withUser: (msg, user, cb) ->
