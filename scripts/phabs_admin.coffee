@@ -28,12 +28,15 @@ path = require 'path'
 module.exports = (robot) ->
 
   phab = new Phabricator robot, process.env
-  data = robot.brain.data.phabricator
+  data = robot.brain.data['phabricator']
 
 
   #   hubot phad projects
   robot.respond (/phad projects$/), (msg) ->
-    msg.send "Known Projects: #{Object.keys(data.projects).join(', ')}"
+    if Object.keys(data.projects).length > 0
+      msg.send "Known Projects: #{Object.keys(data.projects).join(', ')}"
+    else
+      msg.send 'There is no project.'
 
 
   #   hubot phad <project> info
