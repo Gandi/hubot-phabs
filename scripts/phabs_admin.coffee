@@ -51,7 +51,7 @@ module.exports = (robot) ->
       msg.send response
 
   #   hubot phad <project> alias <alias>
-  robot.respond (/phad (.+) alias (.+)$/), (msg) ->
+  robot.respond (/phad (.+) a(?:lia)?s (.+)$/), (msg) ->
     project = msg.match[1]
     alias = msg.match[2]
     if data.aliases[alias]

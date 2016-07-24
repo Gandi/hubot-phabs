@@ -28,12 +28,6 @@ Phabricator = require '../lib/phabricator'
 moment = require 'moment'
 path = require 'path'
 
-phabColumns = { }
-if process.env.PHABRICATOR_PROJECTS isnt undefined
-  for list in process.env.PHABRICATOR_PROJECTS.split(',')
-    [code, label] = list.split ':'
-    phabColumns[label] = code
-
 module.exports = (robot) ->
   phab = new Phabricator robot, process.env
 
@@ -72,15 +66,12 @@ module.exports = (robot) ->
 
   #   hubot phab count <project> - counts how many tasks a project has
   robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+)/), (msg) ->
-    column = phabColumns[msg.match[1]]
-    if column?
-      phab.listTasks msg, column, (body) ->
+    phab.withProject msg, msg.match[1], (projectData) ->
+      phab.listTasks msg, projectData.phid, (body) ->
         if Object.keys(body['result']).length is 0
-          msg.send "#{msg.match[1]} has no tasks."
+          msg.send "#{projectData.name} has no tasks."
         else
-          msg.send "#{msg.match[1]} has #{Object.keys(body['result']).length} tasks."
-    else
-      msg.send 'Command incomplete.'
+          msg.send "#{projectData.name} has #{Object.keys(body['result']).length} tasks."
 
   #   hubot phab Txx - gives information about task Txxx
   robot.respond /ph(?:ab)?(?: T([0-9]+) ?)?$/, (msg) ->

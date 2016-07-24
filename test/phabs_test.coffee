@@ -435,13 +435,14 @@ describe 'phabs module', ->
 
   # ---------------------------------------------------------------------------------
   context 'user asks to count tasks in a project or column', ->
-    context 'phab count something', ->
-      hubot 'phab count something'
-      it 'fails to comply if the project is not registered by PHABRICATOR_PROJECTS', ->
-        expect(hubotResponse()).to.eql 'Command incomplete.'
 
     context 'phab count proj1', ->
       beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.query')
@@ -452,6 +453,7 @@ describe 'phabs module', ->
             } })
 
       afterEach ->
+        room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
       context 'when user is known and his phid is in the brain', ->
@@ -462,12 +464,18 @@ describe 'phabs module', ->
 
     context 'phab count proj1', ->
       beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.query')
           .reply(200, { result: { } })
 
       afterEach ->
+        room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
       context 'when user is known and his phid is in the brain', ->

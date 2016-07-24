@@ -29,14 +29,9 @@ Configuration
 
 - `PHABRICATOR_URL` - main url of your Phabricator instance
 - `PHABRICATOR_API_KEY` - api key for the bot user
-- `PHABRICATOR_PROJECTS` - list of projects, with this format: `PHID-PROJ-xxx:name,PHID-PCOL-xxx:another`
 - `PHABRICATOR_BOT_PHID` - the phid for the bot user (so we can remove him from tasks he creates)
 
-The declarative list of projects is declared that way because name of projects can be long sometimes, and we want to use a short name for irc/slack commands. 
-
-If a PHID-PROJ-xxx is given, it will target the project, and if a dashboard exist, put the task in the default column.
-
-If a PHID-PCOL-xxx is given, it will target the column in whatever project this column is. Finding PHID-PCOL-xxx is tricky, you can only find columns PHIDs if there are items in it. You can use the [`columns.py`](columns.py) script for discovery.
+Requests can be done on arbitrary projects. Those projects can use aliases, like short names, interchangeably, for convenience.
 
 Commands
 --------------
@@ -60,10 +55,9 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
           <task url> - <task title>
         NOTE: this call will record this Task id associated to you for 5 minutes
 
-    .phab new <project-or-column> <task title>
-    .phab new <project-or-column> <task title> = <description>
-        creates a new task in the list of the ones defined in cactus configuration
-        Supported projects are listed by the PHABRICATOR_PROJECTS env var.
+    .phab new <project> <task title>
+    .phab new <project> <task title> = <description>
+        creates a new task in an arbitrary project. A project alias can also be used.
         The new task will be created in the default column of the project board.
         the issuer of the command will be added in the list of subscribers for the
         newly created task.
@@ -134,16 +128,19 @@ As an experiment, I moved some configuration variables to the brain. They are ma
         gives info about <project>
 
     .phad <project> alias <alias>
+    .phad <project> as <alias>
         adds an alias <alias> to <project>. Aliases are unique 
 
     .phad forget <alias>
         removes the alias <alias>
 
     .phad <project> feed to <room>
+    .phad <project> feeds <room>
         creates a feed for <project> to <room>.
         Feeds are comming from feed.http-hooks
 
     .phad <project> remove from <room>
+    .phad <project> remove <room>
         remove a feed
 
 
