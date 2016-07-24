@@ -12,7 +12,7 @@ expect = require('chai').use(require('sinon-chai')).expect
 
 room = null
 
-describe 'hubot-phabs module', ->
+describe 'phabs_admin module', ->
 
   hubotHear = (message, userName = 'momo', tempo = 40) ->
     beforeEach (done) ->

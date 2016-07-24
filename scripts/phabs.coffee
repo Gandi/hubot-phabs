@@ -10,13 +10,18 @@
 #   PHABRICATOR_BOT_PHID
 #
 # Commands:
+#   hubot phab list projects - list known projects according to configuration
+#   hubot phab version - give the version of hubot-phabs loaded
 #   hubot phab new <project> <name of the task> - creates a new task
+#   hubot phab paste <name of the paste> - creates a new paste
+#   hubot phab count <project> - counts how many tasks a project has
+#   hubot phab Txx - gives information about task Txxx
+#   hubot phab Txx is <status> - modifies task Txxx status
+#   hubot phab Txx is <priority> - modifies task Txxx priority
 #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
 #   hubot phab <user> - checks if user is known or not
 #   hubot phab me as <email> - makes caller known with <email>
 #   hubot phab <user> = <email> - associates user to email
-#   hubot phab list projects - list known projects according to configuration
-#   hubot phab version - give the version of hubot-phabs loaded
 #
 # Author:
 #   mose
@@ -34,17 +39,17 @@ if process.env.PHABRICATOR_PROJECTS isnt undefined
 module.exports = (robot) ->
   phab = new Phabricator robot, process.env
 
-
+  #   hubot phab list projects - list known projects according to configuration
   robot.respond (/ph(?:ab)? list projects$/), (msg) ->
     msg.send "Known Projects: #{Object.keys(phabColumns).join(', ')}"
 
-
-  robot.respond /ph(?:ab)? version/, (msg) ->
+  #   hubot phab version - give the version of hubot-phabs loaded
+  robot.respond /ph(?:ab)? version$/, (msg) ->
     pkg = require path.join __dirname, '..', 'package.json'
     msg.send "hubot-phabs module is version #{pkg.version}"
     msg.finish()
 
-
+  #   hubot phab new <project> <name of the task> - creates a new task
   robot.respond (/ph(?:ab)? new ([-_a-zA-Z0-9]+) ([^=]*)(?: = (.*))?$/), (msg) ->
     column = phabColumns[msg.match[1]]
     name = msg.match[2]
@@ -61,6 +66,7 @@ module.exports = (robot) ->
     else
       msg.send 'Command incomplete.'
 
+  #   hubot phab paste <name of the paste> - creates a new paste
   robot.respond /ph(?:ab)? paste (.*)$/, (msg) ->
     title = msg.match[1]
     phab.createPaste msg, title, (body) ->
@@ -72,7 +78,7 @@ module.exports = (robot) ->
         phab.recordPhid msg, id
         msg.send "Paste P#{id} created = edit on #{url}"
 
-
+  #   hubot phab count <project> - counts how many tasks a project has
   robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+)/), (msg) ->
     column = phabColumns[msg.match[1]]
     if column?
@@ -84,7 +90,7 @@ module.exports = (robot) ->
     else
       msg.send 'Command incomplete.'
 
-
+  #   hubot phab Txx - gives information about task Txxx
   robot.respond /ph(?:ab)?(?: T([0-9]+) ?)?$/, (msg) ->
     id = msg.match[1] ? phab.retrievePhid(msg)
     unless id?
@@ -103,7 +109,7 @@ module.exports = (robot) ->
                    "priority #{priority}, owner #{owner.name}"
     msg.finish()
 
-
+  #   hubot phab Txx is <status> - modifies task Txxx status
   robot.respond new RegExp(
     "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.statuses).join('|')})$"
   ), (msg) ->
@@ -120,7 +126,7 @@ module.exports = (robot) ->
         msg.send "Ok, T#{id} now has status #{body['result']['statusName']}."
     msg.finish()
 
-
+  #   hubot phab Txx is <priority> - modifies task Txxx priority
   robot.respond new RegExp(
     "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.priorities).join('|')})$"
   ), (msg) ->
@@ -137,7 +143,7 @@ module.exports = (robot) ->
         msg.send "Ok, T#{id} now has priority #{body['result']['priority']}"
     msg.finish()
 
-
+  #   hubot phab <user> - checks if user is known or not
   robot.respond /ph(?:ab)? ([^ ]*)$/, (msg) ->
     name = msg.match[1]
     assignee = robot.brain.userForName(name)
@@ -147,14 +153,14 @@ module.exports = (robot) ->
     phab.withUser msg, assignee, (userPhid) ->
       msg.send "Hey I know #{name}, he's #{userPhid}"
 
-
+  #   hubot phab me as <email> - makes caller known with <email>
   robot.respond /ph(?:ab)? me as (.*@.*)$/, (msg) ->
     email = msg.match[1]
     msg.message.user.email_address = email
     robot.brain.save()
     msg.send "Okay, I'll remember your email is #{email}"
 
-
+  #   hubot phab <user> = <email> - associates user to email
   robot.respond /ph(?:ab)? ([^ ]*) *?= *?([^ ]*@.*)$/, (msg) ->
     who = msg.match[1]
     email = msg.match[2]
@@ -165,6 +171,7 @@ module.exports = (robot) ->
     assignee.email_address = email
     msg.send "Okay, I'll remember #{who} email as #{email}"
 
+  #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
   robot.respond new RegExp(
     'ph(?:ab)?(?: assign)? (?:([^ ]+)(?: (?:to|on) (T)([0-9]+))?|(?:T([0-9]+) )?(?:to|on) ([^ ]+))$'
   ), (msg) ->
