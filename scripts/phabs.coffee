@@ -6,11 +6,9 @@
 # Configuration:
 #   PHABRICATOR_URL
 #   PHABRICATOR_API_KEY
-#   PHABRICATOR_PROJECTS
 #   PHABRICATOR_BOT_PHID
 #
 # Commands:
-#   hubot phab list projects - list known projects according to configuration
 #   hubot phab version - give the version of hubot-phabs loaded
 #   hubot phab new <project> <name of the task> - creates a new task
 #   hubot phab paste <name of the paste> - creates a new paste
@@ -38,10 +36,6 @@ if process.env.PHABRICATOR_PROJECTS isnt undefined
 
 module.exports = (robot) ->
   phab = new Phabricator robot, process.env
-
-  #   hubot phab list projects - list known projects according to configuration
-  robot.respond (/ph(?:ab)? list projects$/), (msg) ->
-    msg.send "Known Projects: #{Object.keys(phabColumns).join(', ')}"
 
   #   hubot phab version - give the version of hubot-phabs loaded
   robot.respond /ph(?:ab)? version$/, (msg) ->

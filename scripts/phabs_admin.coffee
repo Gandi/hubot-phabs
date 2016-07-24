@@ -74,6 +74,7 @@ module.exports = (robot) ->
     project = msg.match[1]
     room = msg.match[2]
     phab.withProject msg, project, (projectData) ->
+      projectData.feeds ?= [ ]
       if room in projectData.feeds
         msg.send "The feed from '#{project}' to '#{room}' already exist."
       else
@@ -82,13 +83,14 @@ module.exports = (robot) ->
         msg.send "Ok, '#{project}' is now feeding '#{room}'."
 
   #   hubot phad <project> remove from <room>
-  robot.respond (/phad (.+) remove from (.+)$/), (msg) ->
+  robot.respond (/phad (.+) remove (?:from )?(.+)$/), (msg) ->
     project = msg.match[1]
     room = msg.match[2]
     phab.withProject msg, project, (projectData) ->
+      projectData.feeds ?= [ ]
       if room in projectData.feeds
         idx = data.projects[projectData.name].feeds.indexOf room
-        data.projects[projectData.name].feeds.slice(idx, 1)
+        data.projects[projectData.name].feeds.splice(idx, 1)
         msg.send "Ok, The feed from '#{project}' to '#{room}' was removed."
       else
         msg.send "Sorry, '#{project}' is not feeding '#{room}'."

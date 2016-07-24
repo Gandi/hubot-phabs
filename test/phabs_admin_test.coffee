@@ -534,7 +534,7 @@ describe 'phabs_admin module', ->
           expect(hubotResponse())
             .to.eql "Ok, The feed from 'bug' to '#dev' was removed."
           expect(room.robot.brain.data.phabricator.projects['Bug Report'].feeds)
-            .to.include '#dev'
+            .not.to.include '#dev'
 
     context 'but the feed do not already exists', ->
       beforeEach ->

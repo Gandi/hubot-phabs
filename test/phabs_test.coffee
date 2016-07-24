@@ -71,15 +71,6 @@ describe 'phabs module', ->
         expect(hubotResponse()).to.match /hubot-phabs module is version [0-9]+\.[0-9]+\.[0-9]+/
 
   # ---------------------------------------------------------------------------------
-  context 'user requests the list of known projects', ->
-
-    context 'phab list projects', ->
-      hubot 'phab list projects'
-      it 'should reply the list of known projects according to PHABRICATOR_PROJECTS', ->
-        expect(hubotResponseCount()).to.eql 2
-        expect(hubotResponse()).to.eql 'Known Projects: proj1, proj2'
-
-  # ---------------------------------------------------------------------------------
   context 'user asks for task info', ->
 
     context 'task id is provided', ->
