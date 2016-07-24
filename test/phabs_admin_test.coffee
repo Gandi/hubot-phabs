@@ -369,3 +369,53 @@ describe 'phabs_admin module', ->
         it 'should say that the alias already exists', ->
           expect(hubotResponse())
             .to.eql "Ok, 'project with phid'' will be known as 'pwp'."
+
+  # ---------------------------------------------------------------------------------
+  context 'user wants to remove an alias', ->
+
+    context 'when the alias exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'Bug Report',
+          bug: 'Bug Report'
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad forget bug', ->
+        hubot 'phad forget bug'
+        it 'should say that the alias was forgotten', ->
+          expect(hubotResponse())
+            .to.eql "Ok, the alias 'bug' is forgotten."
+        it 'should have really forgotten the alias', ->
+          expect(room.robot.brain.data.phabricator.aliases['bug'])
+            .to.be.undefined
+
+    context 'when the alias does not exists yet', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'Bug Report',
+          bug: 'Bug Report'
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad forget pwp', ->
+        hubot 'phad forget pwp'
+        it 'should say that the alias already exists', ->
+          expect(hubotResponse())
+            .to.eql "Sorry, I don't know the alias 'pwp'."
