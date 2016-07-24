@@ -270,11 +270,11 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad unknown info', ->
-          hubot 'phad unknown info'
+        context 'phad Bug Report info', ->
+          hubot 'phad Bug Report info'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql 'Project unknown not found.'
+              .to.eql 'Sorry, Bug Report not found.'
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     context 'when project has phid recorded, and aliases', ->
