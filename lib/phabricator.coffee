@@ -227,14 +227,10 @@ class Phabricator
           'transactions[2][type]': 'subscribers.add',
           'transactions[2][value][0]': "#{userPhid}",
           'transactions[3][type]': 'subscribers.remove',
-          'transactions[3][value][0]': "#{bot_phid}"
+          'transactions[3][value][0]': "#{bot_phid}",
+          'transactions[4][type]': 'projects.add',
+          'transactions[4][value][]': "#{phid}"
         }
-        if phid.match /PHID-PROJ-/
-          query['transactions[4][type]'] = 'projects.add'
-          query['transactions[4][value][]'] = "#{phid}"
-        else
-          query['transactions[4][type]'] = 'column'
-          query['transactions[4][value]'] = "#{phid}"
         if description?
           query['transactions[5][type]'] = 'description'
           query['transactions[5][value]'] = "#{description}"
