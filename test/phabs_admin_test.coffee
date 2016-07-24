@@ -446,7 +446,7 @@ describe 'phabs_admin module', ->
 
       context 'phad bug feed to #dev', ->
         hubot 'phad bug feed to #dev'
-        it 'should say that the alias was forgotten', ->
+        it 'should say that the feed is already there', ->
           expect(hubotResponse())
             .to.eql "The feed from 'bug' to '#dev' already exist."
 
@@ -471,8 +471,65 @@ describe 'phabs_admin module', ->
 
       context 'phad bug feed to #dev', ->
         hubot 'phad bug feed to #dev'
-        it 'should say that the alias already exists', ->
+        it 'should say that the feed was created', ->
           expect(hubotResponse())
             .to.eql "Ok, 'bug' is now feeding '#dev'."
           expect(room.robot.brain.data.phabricator.projects['Bug Report'].feeds)
             .to.include '#dev'
+
+  # ---------------------------------------------------------------------------------
+  context 'user wants to remove a feed from a project', ->
+
+    context 'and the feed exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            feeds: [
+              '#dev'
+            ]
+          },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'Bug Report',
+          bug: 'Bug Report'
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad bug remove from #dev', ->
+        hubot 'phad bug remove from #dev'
+        it 'should say that the feed was removed', ->
+          expect(hubotResponse())
+            .to.eql "Ok, The feed from 'bug' to '#dev' was removed."
+          expect(room.robot.brain.data.phabricator.projects['Bug Report'].feeds)
+            .to.include '#dev'
+
+    context 'but the feed do not already exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            feeds: [ ]
+          },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'Bug Report',
+          bug: 'Bug Report'
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad bug remove from #dev', ->
+        hubot 'phad bug remove from #dev'
+        it 'should say that the feed could not be removed', ->
+          expect(hubotResponse())
+            .to.eql "Sorry, 'bug' is not feeding '#dev'."
