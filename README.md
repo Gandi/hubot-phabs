@@ -125,6 +125,28 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
     .phab version
         displays the version of hubot-phabs that is installed
 
+As an experiment, I moved some configuration variables to the brain. They are managed by the phabs_admin module, driven with the `.phad` command. 
+
+    .phad projects
+        lists projects listed in brain
+
+    .phad <project> info
+        gives info about <project>
+
+    .phad <project> alias <alias>
+        adds an alias <alias> to <project>. Aliases are unique 
+
+    .phad forget <alias>
+        removes the alias <alias>
+
+    .phad <project> feed to <room>
+        creates a feed for <project> to <room>.
+        Feeds are comming from feed.http-hooks
+
+    .phad <project> remove from <room>
+        remove a feed
+
+
 Testing
 ----------------
 
