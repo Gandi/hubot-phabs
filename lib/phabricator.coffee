@@ -127,7 +127,8 @@ class Phabricator
       data = @data
       query = { 'names[0]': project }
       @phabGet msg, query, 'project.query', (json_body) ->
-        if Object.keys(json_body.result.data).length > 0
+        if (typeof json_body.result.data is 'array') or 
+            Object.keys(json_body.result.data).length > 0
           phid = Object.keys(json_body.result.data)[0]
           data.projects[project] = { phid: phid }
           projectData = {
