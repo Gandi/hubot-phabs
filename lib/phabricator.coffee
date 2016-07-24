@@ -104,14 +104,14 @@ class Phabricator
       projectData.name = project
     else
       for a, p of @data.aliases
-        if p is project and @data[p]?
-          projectData = @data[p]
+        if a is project and @data.projects[p]?
+          projectData = @data.projects[p]
           projectData.name = p
           break
     if projectData?
       projectData.aliases = []
       for a, p of @data.aliases
-        if p is project
+        if p is projectData.name
           projectData.aliases.push a
       if projectData.phid?
         cb projectData

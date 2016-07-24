@@ -259,3 +259,26 @@ describe 'phabs_admin module', ->
         it 'should reply with proper info', ->
           expect(hubotResponse())
             .to.eql 'project with phid is project with phid (aka bugs, bug), with no feed.'
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    context 'when project has phid recorded, and aliases, and is called by an alias', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'Bug Report',
+          bug: 'Bug Report'
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad bug info', ->
+        hubot 'phad bug info'
+        it 'should reply with proper info', ->
+          expect(hubotResponse())
+            .to.eql 'bug is Bug Report (aka bugs, bug), with no feed.'
