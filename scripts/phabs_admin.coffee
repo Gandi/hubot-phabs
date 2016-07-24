@@ -30,14 +30,12 @@ module.exports = (robot) ->
   phab = new Phabricator robot, process.env
   data = robot.brain.data['phabricator']
 
-
   #   hubot phad projects
   robot.respond (/phad projects$/), (msg) ->
     if Object.keys(data.projects).length > 0
       msg.send "Known Projects: #{Object.keys(data.projects).join(', ')}"
     else
       msg.send 'There is no project.'
-
 
   #   hubot phad <project> info
   robot.respond (/phad (.+) info$/), (msg) ->
@@ -58,23 +56,11 @@ module.exports = (robot) ->
   robot.respond (/phad (.+) alias (.+)$/), (msg) ->
     project = msg.match[1]
     alias = msg.match[2]
-    if data.projects.aliases[alias]
-      msg.send "This alias already exist for project '#{data.projects.aliases[alias]}'."
+    if data.aliases[alias]
+      msg.send "The alias '#{alias}' already exists for project '#{data.aliases[alias]}'."
     else
-      data.projects.aliases[alias] = project
-      msg.send "Ok, #{project} will be known as #{alias}'."
-
-
-  #   hubot phad <project> alias <alias>
-  robot.respond (/phad (.+) alias (.+)$/), (msg) ->
-    project = msg.match[1]
-    alias = msg.match[2]
-    if data.projects.aliases[alias]
-      msg.send "This alias already exist for project '#{data.projects.aliases[alias]}'."
-    else
-      data.projects.aliases[alias] = project
-      msg.send "Ok, #{project} will be known as #{alias}'."
-
+      data.aliases[alias] = project
+      msg.send "Ok, '#{project}'' will be known as '#{alias}'."
 
   #   hubot phad <project> aliases
   robot.respond (/phad (.+) aliases$/), (msg) ->
@@ -84,7 +70,6 @@ module.exports = (robot) ->
       if projectData.aliases?
         response += " (aka #{projectData.aliases.join(', ')})"
 
-
   #   hubot phad forget <alias>
   robot.respond (/phad forget (.+)$/), (msg) ->
     alias = msg.match[1]
@@ -93,7 +78,6 @@ module.exports = (robot) ->
       msg.send "Ok, the alias #{alias} is forgotten."
     else
       msg.send "Sorry, I don't know the alias #{alias}"
-
 
   #   hubot phad <project> feed to <room>
   robot.respond (/phad (.+) feeds?(?: to)? (.+)$/), (msg) ->
@@ -106,8 +90,7 @@ module.exports = (robot) ->
         data[projectData.name].feeds.push room
         msg.send "Ok, #{project} is now feeding #{room}."
 
-
-#   hubot phad <project> remove from <room>
+  #   hubot phad <project> remove from <room>
   robot.respond (/phad (.+) remove from (.+)$/), (msg) ->
     project = msg.match[1]
     room = msg.match[2]
@@ -118,7 +101,6 @@ module.exports = (robot) ->
         msg.send "Ok, The feed from #{project} to #{room} was removed."
       else
         msg.send "Sorry, #{project} is not feeding #{room}."
-
 
   #   hubot phad <project> feeds
   robot.respond (/phad (.+) feeds$/), (msg) ->
