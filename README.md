@@ -57,10 +57,11 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
 
     .phab new <project> <task title>
     .phab new <project> <task title> = <description>
-        creates a new task in an arbitrary project. A project alias can also be used.
+        creates a new task in an arbitrary project. 
+        A project alias can also be used.
         The new task will be created in the default column of the project board.
-        the issuer of the command will be added in the list of subscribers for the
-        newly created task.
+        The issuer of the command will be added in the list of subscribers
+        for the newly created task.
         The <description> is optional, and will be used as description if provided
         NOTE: this call will record this Task id associated to you for 5 minutes
 
@@ -70,13 +71,12 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
     .phab Txxx
     .phab
         gives the status, priority and owner of the task xxx
-        NOTE: you don't need to specify the Txx if you have one in your 5 minutes memory
+        NOTE: this call will record this Task id associated to you for 5 minutes
 
     .phab Txxx is open
     .phab Txxx broken
     .phab low
         changes status or priority for task Txxx. the 'is' is optional.
-        NOTE: you don't need to specify the Txx if you have one in your 5 minutes memory
         Available statuses are:
         - open, opened                     -> open
         - resolved, resolve, closed, close -> resolved
@@ -90,6 +90,7 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
         - normal                  -> Normal
         - low                     -> Low
         - wish, wishlist          -> Whishlist
+        NOTE: this call will record this Task id associated to you for 5 minutes
 
     .phab assign T123 to <someone>
     .phab assign <someone> to T123
@@ -97,18 +98,22 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
     .phab T123 on <someone>
     .phab <someone> on T123
     .phab on <someone>
-        assigns the given task to a user (or the given user to the task, which is exactly the same).
-        the 'to' and 'on' conjunctions are inter-changeable.
-        NOTE: you don't need to specify the Txx if you have one in your 5 minutes memory
+        assigns the given task to a user (or the given user to the task, 
+        which is exactly the same). 
+        The 'to' and 'on' conjunctions are inter-changeable.
+        NOTE: this call will record this Task id associated to you for 5 minutes
 
     .phab <someone>
-        will check is <someone> is linked to his phabricator account (using email address)
+        will check is <someone> is linked to his phabricator account 
+        (using email address)
 
     .phab me as <email@example.com>
-        registers your email in the bot. You need to specify the email address registered in Phabricator
+        registers your email in the bot. You need to specify the email address 
+        registered in Phabricator
 
     .phab <someone> = <email@example.com>
-        registers email for another user, follows the same concept as .phab me as ..
+        registers email for another user, follows the same concept as 
+        .phab me as ..
 
     .phab list projects
         will list known projects and columns according to configuration param
