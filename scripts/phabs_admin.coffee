@@ -54,6 +54,7 @@ module.exports = (robot) ->
   robot.respond (/phad (.+) a(?:lia)?s (.+)$/), (msg) ->
     project = msg.match[1]
     alias = msg.match[2]
+    data.projects[project] ?= { }
     if data.aliases[alias]
       msg.send "The alias '#{alias}' already exists for project '#{data.aliases[alias]}'."
     else

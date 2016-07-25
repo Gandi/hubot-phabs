@@ -1,0 +1,15 @@
+{
+  "storyID": "7297",
+  "storyType": "PhabricatorApplicationTransactionFeedStory",
+  "storyData": {
+    "objectPHID": "PHID-TASK-sx2g66opn67h4yfl7wk6",
+    "transactionPHIDs": {
+      "PHID-XACT-TASK-fkyairn5ltzbzkj": "PHID-XACT-TASK-fkyairn5ltzbzkj",
+      "PHID-XACT-TASK-dh5r5rtwa5hpfia": "PHID-XACT-TASK-dh5r5rtwa5hpfia"
+    }
+  },
+  "storyAuthorPHID": "PHID-USER-qzoqvowxnb5k5screlji",
+  "storyText": "mose triaged T2569: setup webhooks as \"High\" priority.",
+  "epoch": "1469085410"
+}
+

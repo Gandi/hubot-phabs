@@ -1,0 +1,13 @@
+{
+  "storyID": "7373",
+  "storyType": "PhabricatorApplicationTransactionFeedStory",
+  "storyData": {
+    "objectPHID": "PHID-PSTE-m4pqx64n2dtrwplk7qkh",
+    "transactionPHIDs": {
+      "PHID-XACT-PSTE-zmss7ubkaq5pzor": "PHID-XACT-PSTE-zmss7ubkaq5pzor"
+    }
+  },
+  "storyAuthorPHID": "PHID-USER-7p4d4k6v4csqx7gcxcbw",
+  "storyText": "ash created P6 new test paste.",
+  "epoch": "1469408232"
+}

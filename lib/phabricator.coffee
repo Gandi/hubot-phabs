@@ -97,6 +97,30 @@ class Phabricator
           }
         cb json_body
 
+  withFeed: (robot, payload, cb) ->
+    if /^PHID-TASK-/.test payload.storyData.objectPHID
+      query = {
+        'constraints[phids][0]': payload.storyData.objectPHID,
+        'attachments[projects]': 1
+      }
+      data = @data
+      @phabGet robot, query, 'maniphest.search', (json_body) ->
+        console.log json_body.result.data[0].attachments
+        announces = {
+          message: payload.storyText
+        }
+        announces.rooms = []
+        for phid of json_body.result.data[0].attachments.projects.projectPHIDs
+          for name, project of data.projects
+            if phid is project.phid
+              project.feeds ?= [ ]
+              for room of project.feeds
+                if announces.rooms.indexOf room is -1
+                  announces.rooms.push room
+        console.log announces
+
+    else
+      console.log 'This is not a task.'
 
   withProject: (msg, project, cb) ->
     if @data.projects[project]?
@@ -116,7 +140,7 @@ class Phabricator
       if projectData.phid?
         cb projectData
       else
-        query = { 'names[0]': project }
+        query = { 'names[0]': projectData.name }
         @phabGet msg, query, 'project.query', (json_body) ->
           if Object.keys(json_body.result.data).length > 0
             projectData.phid = Object.keys(json_body.result.data)[0]
