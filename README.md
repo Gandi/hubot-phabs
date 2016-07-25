@@ -155,6 +155,8 @@ A http endpoint is open for receiving feeds from `feed.http-hooks` as explained 
 
 You can use the `.phad` commands to associate Projects to rooms. Each Feed Story will then be dispatched on one or several rooms according to the project the task belongs to. This only works with Tasks (for now).
 
+The feed has an optional way to limit the IP of the sender, by setting the HUBOT_AUTHORIZED_IP_REGEXP env variable. It's a limited soft protection, if you really need a heavy secure protection, do something on your network for it.
+
 Testing
 ----------------
 

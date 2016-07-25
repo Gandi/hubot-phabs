@@ -12,6 +12,7 @@ Hubot-phabs Changelog
 - added phabs_feeds to open a webhook endpoint for `feed.http-hooks`
   and announce tasks changes on specified channels 
   (configured via the .phad commands)
+- add an optional ip control over the http endpoitn
 
 ### 1.1.0 - 2016-07-23
 - sort out dependencies 

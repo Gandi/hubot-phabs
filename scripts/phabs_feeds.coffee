@@ -26,7 +26,13 @@ module.exports = (robot) ->
   data = robot.brain.data['phabricator']
 
   robot.router.post "/#{robot.name}/phabs/feeds", (req, res) ->
-    phab.withFeed robot, req.body, (announce) ->
-      for room of announce.rooms
-        robot.messageRoom announce.rooms[room], announce.message
-    res.status(200).end()
+    ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    # undefined gives /(?:)/
+    ipre = new RegExp(process.env.HUBOT_AUTHORIZED_IP_REGEXP)
+    if ipre.test(ip) and req.body.storyID?
+      phab.withFeed robot, req.body, (announce) ->
+        for room of announce.rooms
+          robot.messageRoom announce.rooms[room], announce.message
+      res.status(200).end()
+    else
+      res.status(401).end 'Unauthorized.'
