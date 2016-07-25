@@ -395,7 +395,7 @@ describe 'phabs_admin module', ->
         hubot 'phad project with phid alias pwp'
         it 'should say that the alias already exists', ->
           expect(hubotResponse())
-            .to.eql "Ok, 'project with phid'' will be known as 'pwp'."
+            .to.eql "Ok, 'project with phid' will be known as 'pwp'."
 
   # ---------------------------------------------------------------------------------
   context 'user wants to remove an alias', ->

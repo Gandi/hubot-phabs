@@ -59,7 +59,7 @@ module.exports = (robot) ->
       msg.send "The alias '#{alias}' already exists for project '#{data.aliases[alias]}'."
     else
       data.aliases[alias] = project
-      msg.send "Ok, '#{project}'' will be known as '#{alias}'."
+      msg.send "Ok, '#{project}' will be known as '#{alias}'."
 
   #   hubot phad forget <alias>
   robot.respond (/phad forget (.+)$/), (msg) ->
