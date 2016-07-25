@@ -132,19 +132,19 @@ class Phabricator
           projectData = @data.projects[p]
           projectData.name = p
           break
+    aliases = []
     if projectData?
-      projectData.aliases = []
       for a, p of @data.aliases
         if p is projectData.name
-          projectData.aliases.push a
+          aliases.push a
       if projectData.phid?
-        cb projectData
+        cb { aliases: aliases, data: projectData }
       else
         query = { 'names[0]': projectData.name }
         @phabGet msg, query, 'project.query', (json_body) ->
           if Object.keys(json_body.result.data).length > 0
             projectData.phid = Object.keys(json_body.result.data)[0]
-            cb projectData
+            cb { aliases: aliases, data: projectData }
           else
             msg.send "Sorry, #{project} not found."
     else
@@ -155,10 +155,9 @@ class Phabricator
           phid = Object.keys(json_body.result.data)[0]
           data.projects[project] = { phid: phid }
           projectData = {
-            name: json_body.result.data[phid].name,
-            aliases: [ ]
+            name: json_body.result.data[phid].name
           }
-          cb projectData
+          cb { aliases: aliases, data: projectData }
         else
           msg.send "Project #{project} not found."
 

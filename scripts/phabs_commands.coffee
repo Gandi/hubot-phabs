@@ -67,11 +67,11 @@ module.exports = (robot) ->
   #   hubot phab count <project> - counts how many tasks a project has
   robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+)/), (msg) ->
     phab.withProject msg, msg.match[1], (projectData) ->
-      phab.listTasks msg, projectData.phid, (body) ->
+      phab.listTasks msg, projectData.data.phid, (body) ->
         if Object.keys(body['result']).length is 0
-          msg.send "#{projectData.name} has no tasks."
+          msg.send "#{projectData.data.name} has no tasks."
         else
-          msg.send "#{projectData.name} has #{Object.keys(body['result']).length} tasks."
+          msg.send "#{projectData.data.name} has #{Object.keys(body['result']).length} tasks."
 
   #   hubot phab Txx - gives information about task Txxx
   robot.respond /ph(?:ab)?(?: T([0-9]+) ?)?$/, (msg) ->

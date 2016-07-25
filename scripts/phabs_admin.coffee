@@ -39,13 +39,13 @@ module.exports = (robot) ->
   robot.respond (/phad (.+) info$/), (msg) ->
     project = msg.match[1]
     phab.withProject msg, project, (projectData) ->
-      response = "'#{project}' is '#{projectData.name}'"
+      response = "'#{project}' is '#{projectData.data.name}'"
       if projectData.aliases? and projectData.aliases.length > 0
         response += " (aka #{projectData.aliases.join(', ')})"
       else
         response += ', with no alias'
-      if projectData.feeds? and projectData.feeds.length > 0
-        response += ", announced on #{projectData.feeds.join(', ')}"
+      if projectData.data.feeds? and projectData.data.feeds.length > 0
+        response += ", announced on #{projectData.data.feeds.join(', ')}"
       else
         response += ', with no feed.'
       msg.send response
@@ -75,12 +75,12 @@ module.exports = (robot) ->
     project = msg.match[1]
     room = msg.match[2]
     phab.withProject msg, project, (projectData) ->
-      projectData.feeds ?= [ ]
-      if room in projectData.feeds
+      projectData.data.feeds ?= [ ]
+      if room in projectData.data.feeds
         msg.send "The feed from '#{project}' to '#{room}' already exist."
       else
-        data.projects[projectData.name].feeds ?= [ ]
-        data.projects[projectData.name].feeds.push room
+        data.projects[projectData.data.name].feeds ?= [ ]
+        data.projects[projectData.data.name].feeds.push room
         msg.send "Ok, '#{project}' is now feeding '#{room}'."
 
   #   hubot phad <project> remove from <room>
@@ -88,10 +88,10 @@ module.exports = (robot) ->
     project = msg.match[1]
     room = msg.match[2]
     phab.withProject msg, project, (projectData) ->
-      projectData.feeds ?= [ ]
-      if room in projectData.feeds
-        idx = data.projects[projectData.name].feeds.indexOf room
-        data.projects[projectData.name].feeds.splice(idx, 1)
+      projectData.data.feeds ?= [ ]
+      if room in projectData.data.feeds
+        idx = data.projects[projectData.data.name].feeds.indexOf room
+        data.projects[projectData.data.name].feeds.splice(idx, 1)
         msg.send "Ok, The feed from '#{project}' to '#{room}' was removed."
       else
         msg.send "Sorry, '#{project}' is not feeding '#{room}'."
