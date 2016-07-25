@@ -9,6 +9,9 @@ Hubot-phabs Changelog
   As a side effect columns are not considered useful anymore, new tasks will 
   go in teh default column of the project. wokring with columns may come back 
   asd dashboards are still under fast development on phabricator side
+- added phabs_feeds to open a webhook endpoint for `feed.http-hooks`
+  and announce tasks changes on specified channels 
+  (configured via the .phad commands)
 
 ### 1.1.0 - 2016-07-23
 - sort out dependencies 

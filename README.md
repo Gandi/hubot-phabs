@@ -143,6 +143,12 @@ As an experiment, I moved some configuration variables to the brain. They are ma
     .phad <project> remove <room>
         remove a feed
 
+Feeds
+----------------
+
+A http endpoint is open for receiving feeds from `feed.http-hooks` as explained in https://secure.phabricator.com/T5462
+
+You can use the `.phad` commands to associate Projects to rooms. Each Feed Story will then be dispatched on one or several rooms according to the project the task belongs to. This only works with Tasks (for now).
 
 Testing
 ----------------
