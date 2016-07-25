@@ -118,9 +118,9 @@ class Phabricator
               for room of project.feeds
                 if announces.rooms.indexOf(project.feeds[room]) is -1
                   announces.rooms.push project.feeds[room]
-        console.log announces
-    else
-      console.log 'This is not a task.'
+        cb announces
+    # else
+    #   console.log 'This is not a task.'
 
   withProject: (msg, project, cb) ->
     if @data.projects[project]?

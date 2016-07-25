@@ -28,5 +28,5 @@ module.exports = (robot) ->
   robot.router.post "/#{robot.name}/phabs/feeds", (req, res) ->
     phab.withFeed robot, req.body, (announce) ->
       for room of announce.rooms
-        robot.messageRoom room, announce.message
+        robot.messageRoom announce.rooms[room], announce.message
     res.status(200).end()
