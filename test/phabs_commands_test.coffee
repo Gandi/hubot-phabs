@@ -32,7 +32,6 @@ describe 'phabs_commands module', ->
     process.env.PHABRICATOR_URL = 'http://example.com'
     process.env.PHABRICATOR_API_KEY = 'xxx'
     process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
-    process.env.PHABRICATOR_PROJECTS = 'PHID-PROJ-xxx:proj1,PHID-PCOL-yyy:proj2'
     room = helper.createRoom { httpd: false }
     room.robot.brain.userForId 'user', {
       name: 'user'
@@ -55,7 +54,6 @@ describe 'phabs_commands module', ->
     delete process.env.PHABRICATOR_URL
     delete process.env.PHABRICATOR_API_KEY
     delete process.env.PHABRICATOR_BOT_PHID
-    delete process.env.PHABRICATOR_PROJECTS
 
   # ---------------------------------------------------------------------------------
   context 'user wants to know hubot-phabs version', ->
