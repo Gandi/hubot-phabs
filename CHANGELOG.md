@@ -2,7 +2,8 @@ Hubot-phabs Changelog
 ==========================
 
 ### 1.2.1 - wip
-- add an optional ip control over the http endpoitn
+- add an optional ip control over the http endpoint
+- fix some cases where the bot was giving double-replies
 
 ### 1.2.0 - 2016-07-25
 - add admin function `.phad` for managing parameteres about projects

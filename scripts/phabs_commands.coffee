@@ -132,9 +132,11 @@ module.exports = (robot) ->
     assignee = robot.brain.userForName(name)
     unless assignee
       msg.send "Sorry, I have no idea who #{name} is. Did you mistype it?"
+      msg.finish()
       return
     phab.withUser msg, assignee, (userPhid) ->
       msg.send "Hey I know #{name}, he's #{userPhid}"
+    msg.finish()
 
   #   hubot phab me as <email> - makes caller known with <email>
   robot.respond /ph(?:ab)? me as (.*@.*)$/, (msg) ->
@@ -142,6 +144,7 @@ module.exports = (robot) ->
     msg.message.user.email_address = email
     robot.brain.save()
     msg.send "Okay, I'll remember your email is #{email}"
+    msg.finish()
 
   #   hubot phab <user> = <email> - associates user to email
   robot.respond /ph(?:ab)? ([^ ]*) *?= *?([^ ]*@.*)$/, (msg) ->
@@ -150,9 +153,11 @@ module.exports = (robot) ->
     assignee = robot.brain.userForName(who)
     unless assignee
       msg.send "Sorry I have no idea who #{who} is. Did you mistype it?"
+      msg.finish()
       return
     assignee.email_address = email
     msg.send "Okay, I'll remember #{who} email as #{email}"
+    msg.finish()
 
   #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
   robot.respond new RegExp(
