@@ -475,7 +475,7 @@ describe 'phabs_admin module', ->
         hubot 'phad bug feed to #dev'
         it 'should say that the feed is already there', ->
           expect(hubotResponse())
-            .to.eql "The feed from 'bug' to '#dev' already exist."
+            .to.eql "The feed from 'Bug Report' to '#dev' already exist."
 
     context 'and the feed do not already exists', ->
       beforeEach ->
@@ -500,7 +500,7 @@ describe 'phabs_admin module', ->
         hubot 'phad bug feed to #dev'
         it 'should say that the feed was created', ->
           expect(hubotResponse())
-            .to.eql "Ok, 'bug' is now feeding '#dev'."
+            .to.eql "Ok, 'Bug Report' is now feeding '#dev'."
           expect(room.robot.brain.data.phabricator.projects['Bug Report'].feeds)
             .to.include '#dev'
 
@@ -532,7 +532,7 @@ describe 'phabs_admin module', ->
         hubot 'phad bug remove from #dev'
         it 'should say that the feed was removed', ->
           expect(hubotResponse())
-            .to.eql "Ok, The feed from 'bug' to '#dev' was removed."
+            .to.eql "Ok, The feed from 'Bug Report' to '#dev' was removed."
           expect(room.robot.brain.data.phabricator.projects['Bug Report'].feeds)
             .not.to.include '#dev'
 
@@ -559,4 +559,4 @@ describe 'phabs_admin module', ->
         hubot 'phad bug remove from #dev'
         it 'should say that the feed could not be removed', ->
           expect(hubotResponse())
-            .to.eql "Sorry, 'bug' is not feeding '#dev'."
+            .to.eql "Sorry, 'Bug Report' is not feeding '#dev'."

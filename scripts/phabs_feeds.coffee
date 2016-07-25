@@ -16,6 +16,9 @@
 # Author:
 #   mose
 
+# curl -XPOST -H "Content-Type: application/json" -d @test/samples/payload2 \
+# http://localhost:8080/Hubot/phabs/feeds
+
 Phabricator = require '../lib/phabricator'
 module.exports = (robot) ->
 
