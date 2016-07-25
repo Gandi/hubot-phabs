@@ -1,7 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.2.0 - wip
+### 1.2.1 - wip
+- add an optional ip control over the http endpoitn
+
+### 1.2.0 - 2016-07-25
 - add admin function `.phad` for managing parameteres about projects
 - split files for better code readability
 - make project phid guessing rely on phad memory rather than env variable
@@ -12,7 +15,6 @@ Hubot-phabs Changelog
 - added phabs_feeds to open a webhook endpoint for `feed.http-hooks`
   and announce tasks changes on specified channels 
   (configured via the .phad commands)
-- add an optional ip control over the http endpoitn
 
 ### 1.1.0 - 2016-07-23
 - sort out dependencies 
