@@ -38,7 +38,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab new <project> <name of the task> - creates a new task
-  robot.respond (/ph(?:ab)? new ([-_a-zA-Z0-9]+) ([^=]*)(?: = (.*))?$/), (msg) ->
+  robot.respond (/ph(?:ab)? new ([-_a-zA-Z0-9]+) ([^=]+)(?: = (.*))?$/), (msg) ->
     project = msg.match[1]
     name = msg.match[2]
     description = msg.match[3]
@@ -185,3 +185,16 @@ module.exports = (robot) ->
     else
       msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
     msg.finish()
+
+  #   hubot phab <project> search terms - searches for terms in project
+  robot.respond /ph(?:ab)? ([^ ]+) (.*)$/, (msg) ->
+    project = msg.match[1]
+    terms = msg.match[2]
+    phab.withProject msg, project, (projectData) ->
+      phab.searchTask msg, projectData.data.phid, terms, (payload) ->
+        # console.log payload.result.data
+        for t of payload.result.data
+          task = payload.result.data[t]
+          msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
+    msg.finish()
+

@@ -26,7 +26,7 @@ module.exports = (robot) ->
   data = robot.brain.data['phabricator']
 
   robot.router.post "/#{robot.name}/phabs/feeds", (req, res) ->
-    ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    ip = req.headers['x-forwarded-for'] or req.connection.remoteAddress
     # undefined gives /(?:)/
     ipre = new RegExp(process.env.HUBOT_AUTHORIZED_IP_REGEXP)
     if ipre.test(ip) and req.body.storyID?

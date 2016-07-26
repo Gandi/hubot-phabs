@@ -97,6 +97,7 @@ class Phabricator
           }
         cb json_body
 
+
   withFeed: (robot, payload, cb) ->
     # console.log payload
     if /^PHID-TASK-/.test payload.storyData.objectPHID
@@ -234,6 +235,20 @@ class Phabricator
       @phabGet msg, query, 'phid.lookup', (json_body) ->
         cb json_body
 
+
+  searchTask: (msg, phid, terms, cb) ->
+    if @ready(msg) is true
+      query = {
+        'constraints[fulltext]': terms,
+        'constraints[statuses][0]': 'open',
+        'constraints[projects][0]': phid,
+        'order': 'newest',
+        'limit': 3
+      }
+      console.log query
+      @phabGet msg, query, 'maniphest.search', (json_body) ->
+        cb json_body
+   
 
   createTask: (msg, phid, title, description, cb) ->
     if @ready(msg) is true
