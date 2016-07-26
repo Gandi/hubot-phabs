@@ -51,6 +51,7 @@ module.exports = (robot) ->
           url = process.env.PHABRICATOR_URL + "/T#{id}"
           phab.recordPhid msg, id
           msg.send "Task T#{id} created = #{url}"
+    msg.finish()
 
   #   hubot phab paste <name of the paste> - creates a new paste
   robot.respond /ph(?:ab)? paste (.*)$/, (msg) ->
@@ -63,6 +64,7 @@ module.exports = (robot) ->
         url = process.env.PHABRICATOR_URL + "/paste/edit/#{id}"
         phab.recordPhid msg, id
         msg.send "Paste P#{id} created = edit on #{url}"
+    msg.finish()
 
   #   hubot phab count <project> - counts how many tasks a project has
   robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+)/), (msg) ->
@@ -72,6 +74,7 @@ module.exports = (robot) ->
           msg.send "#{projectData.data.name} has no tasks."
         else
           msg.send "#{projectData.data.name} has #{Object.keys(body['result']).length} tasks."
+    msg.finish()
 
   #   hubot phab Txx - gives information about task Txxx
   robot.respond /ph(?:ab)?(?: T([0-9]+) ?)?$/, (msg) ->
@@ -187,7 +190,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab <project> search terms - searches for terms in project
-  robot.respond /ph(?:ab)? ([^ ]+) (.*)$/, (msg) ->
+  robot.respond /ph(?:ab)? ([^ ]+) (.+)$/, (msg) ->
     project = msg.match[1]
     terms = msg.match[2]
     phab.withProject msg, project, (projectData) ->

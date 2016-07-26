@@ -26,7 +26,7 @@ describe 'phabs_commands module', ->
     room.messages[i]?[1]
 
   hubotResponseCount = ->
-    room.messages.length
+    room.messages?.length
 
   beforeEach ->
     process.env.PHABRICATOR_URL = 'http://example.com'
@@ -849,126 +849,126 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
   # ---------------------------------------------------------------------------------
-  # context 'user searches through tasks', ->
+  context 'user searches through tasks', ->
 
-  #   context 'there is some results', ->
-  #     beforeEach ->
-  #       room.robot.brain.data.phabricator.projects = {
-  #         'proj3': {
-  #           phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
-  #         }
-  #       }
-  #       do nock.disableNetConnect
-  #       nock(process.env.PHABRICATOR_URL)
-  #         .get('/api/maniphest.search')
-  #         .reply(200, { result: {
-  #           'data': [
-  #             {
-  #               'id': 2490,
-  #               'type': 'TASK',
-  #               'phid': 'PHID-TASK-p5tbi3vbcffx3mpbxhwr',
-  #               'fields': {
-  #                 'name': 'Bad configuration parsing on pypo v2 / policy1-d',
-  #                 'authorPHID': 'PHID-USER-7p4d4k6v4csqx7gcxcbw',
-  #                 'ownerPHID': null,
-  #                 'status': {
-  #                   'value': 'open',
-  #                   'name': 'Open',
-  #                   'color': null
-  #                 },
-  #                 'priority': {
-  #                   'value': 90,
-  #                   'subpriority': 0,
-  #                   'name': 'Needs Triage',
-  #                   'color': 'violet'
-  #                 },
-  #                 'points': null,
-  #                 'spacePHID': null,
-  #                 'dateCreated': 1468339539,
-  #                 'dateModified': 1469535704,
-  #                 'policy': {
-  #                   'view': 'users',
-  #                   'edit': 'users'
-  #                 }
-  #               },
-  #               'attachments': { }
-  #             },
-  #             {
-  #               'id': 2080,
-  #               'type': 'TASK',
-  #               'phid': 'PHID-TASK-ext-55d324653c69b5351ff64d0a',
-  #               'fields': {
-  #                 'name': 'Use a dedicated VM for gandi* backup.',
-  #                 'authorPHID': 'PHID-USER-hqnae6h2h7fyhln3kqkd',
-  #                 'ownerPHID': null,
-  #                 'status': {
-  #                   'value': 'open',
-  #                   'name': 'Open',
-  #                   'color': null
-  #                 },
-  #                 'priority': {
-  #                   'value': 90,
-  #                   'subpriority': 0,
-  #                   'name': 'Needs Triage',
-  #                   'color': 'violet'
-  #                 },
-  #                 'points': null,
-  #                 'spacePHID': null,
-  #                 'dateCreated': 1439900773,
-  #                 'dateModified': 1467045532,
-  #                 'policy': {
-  #                   'view': 'users',
-  #                   'edit': 'users'
-  #                 }
-  #               },
-  #               'attachments': { }
-  #             },
-  #             {
-  #               'id': 2078,
-  #               'type': 'TASK',
-  #               'phid': 'PHID-TASK-ext-55e53abba4d0c58648fdfab6',
-  #               'fields': {
-  #                 'name': 'H and D.root-servers IP change',
-  #                 'authorPHID': 'PHID-USER-syykf4ieymsc73z6tie7',
-  #                 'ownerPHID': null,
-  #                 'status': {
-  #                   'value': 'open',
-  #                   'name': 'Open',
-  #                   'color': null
-  #                 },
-  #                 'priority': {
-  #                   'value': 90,
-  #                   'subpriority': 0,
-  #                   'name': 'Needs Triage',
-  #                   'color': 'violet'
-  #                 },
-  #                 'points': null,
-  #                 'spacePHID': null,
-  #                 'dateCreated': 1441086139,
-  #                 'dateModified': 1468252093,
-  #                 'policy': {
-  #                   'view': 'users',
-  #                   'edit': 'users'
-  #                 }
-  #               },
-  #               'attachments': { }
-  #             }
-  #           ],
-  #           'maps': { },
-  #           'query': {
-  #             'queryKey': 'rwQ6luYqjZF0'
-  #           },
-  #           'cursor': {
-  #             'limit': 3,
-  #             'after': '2078',
-  #             'before': null,
-  #             'order': 'newest'
-  #           }
-  #         } })
+    context 'there is some results', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj3': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.search')
+          .reply(200, { result: {
+            'data': [
+              {
+                'id': 2490,
+                'type': 'TASK',
+                'phid': 'PHID-TASK-p5tbi3vbcffx3mpbxhwr',
+                'fields': {
+                  'name': 'Bad configuration parsing on pypo v2 / policy1-d',
+                  'authorPHID': 'PHID-USER-7p4d4k6v4csqx7gcxcbw',
+                  'ownerPHID': null,
+                  'status': {
+                    'value': 'open',
+                    'name': 'Open',
+                    'color': null
+                  },
+                  'priority': {
+                    'value': 90,
+                    'subpriority': 0,
+                    'name': 'Needs Triage',
+                    'color': 'violet'
+                  },
+                  'points': null,
+                  'spacePHID': null,
+                  'dateCreated': 1468339539,
+                  'dateModified': 1469535704,
+                  'policy': {
+                    'view': 'users',
+                    'edit': 'users'
+                  }
+                },
+                'attachments': { }
+              },
+              {
+                'id': 2080,
+                'type': 'TASK',
+                'phid': 'PHID-TASK-ext-55d324653c69b5351ff64d0a',
+                'fields': {
+                  'name': 'Use a dedicated VM for gandi* backup.',
+                  'authorPHID': 'PHID-USER-hqnae6h2h7fyhln3kqkd',
+                  'ownerPHID': null,
+                  'status': {
+                    'value': 'open',
+                    'name': 'Open',
+                    'color': null
+                  },
+                  'priority': {
+                    'value': 90,
+                    'subpriority': 0,
+                    'name': 'Needs Triage',
+                    'color': 'violet'
+                  },
+                  'points': null,
+                  'spacePHID': null,
+                  'dateCreated': 1439900773,
+                  'dateModified': 1467045532,
+                  'policy': {
+                    'view': 'users',
+                    'edit': 'users'
+                  }
+                },
+                'attachments': { }
+              },
+              {
+                'id': 2078,
+                'type': 'TASK',
+                'phid': 'PHID-TASK-ext-55e53abba4d0c58648fdfab6',
+                'fields': {
+                  'name': 'H and D.root-servers IP change',
+                  'authorPHID': 'PHID-USER-syykf4ieymsc73z6tie7',
+                  'ownerPHID': null,
+                  'status': {
+                    'value': 'open',
+                    'name': 'Open',
+                    'color': null
+                  },
+                  'priority': {
+                    'value': 90,
+                    'subpriority': 0,
+                    'name': 'Needs Triage',
+                    'color': 'violet'
+                  },
+                  'points': null,
+                  'spacePHID': null,
+                  'dateCreated': 1441086139,
+                  'dateModified': 1468252093,
+                  'policy': {
+                    'view': 'users',
+                    'edit': 'users'
+                  }
+                },
+                'attachments': { }
+              }
+            ],
+            'maps': { },
+            'query': {
+              'queryKey': 'rwQ6luYqjZF0'
+            },
+            'cursor': {
+              'limit': 3,
+              'after': '2078',
+              'before': null,
+              'order': 'newest'
+            }
+          } })
 
-  #     afterEach ->
-  #       room.robot.brain.data.phabricator = { }
-  #       nock.cleanAll()
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
 
       # context 'phab proj1 gitlab', ->
       #   hubot 'phab proj1 gitlab'

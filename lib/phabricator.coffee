@@ -243,9 +243,9 @@ class Phabricator
         'constraints[statuses][0]': 'open',
         'constraints[projects][0]': phid,
         'order': 'newest',
-        'limit': 3
+        'limit': '3'
       }
-      console.log query
+      # console.log query
       @phabGet msg, query, 'maniphest.search', (json_body) ->
         cb json_body
    
