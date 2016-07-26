@@ -30,13 +30,15 @@ Configuration
 - `PHABRICATOR_URL` - main url of your Phabricator instance
 - `PHABRICATOR_API_KEY` - api key for the bot user
 - `PHABRICATOR_BOT_PHID` - the phid for the bot user (so we can remove him from tasks he creates)
+- `HUBOT_AUTHORIZED_IP_REGEXP` - an optional configuration var to limit access to the webhook feeds endpoint
 
-Requests can be done on arbitrary projects. Those projects can use aliases, like short names, interchangeably, for convenience.
 
 Commands
 --------------
 
 Commands prefixed by `.phab` are here taking in account we use the `.` as hubot prefix, just replace it with your prefix if it is different. Also, `phab` can be shortened to `ph` in the commands.
+
+Requests can be done on arbitrary projects. Their PHID will be retrieved at first call and cached in hubot brain. Those projects can use aliases, like short names, interchangeably, for convenience (set them up using the `.phad` command).
 
     something about https://phabricator.example.com/T2#17207
     just talking about T123. did you see that one?
@@ -155,7 +157,7 @@ A http endpoint is open for receiving feeds from `feed.http-hooks` as explained 
 
 You can use the `.phad` commands to associate Projects to rooms. Each Feed Story will then be dispatched on one or several rooms according to the project the task belongs to. This only works with Tasks (for now).
 
-The feed has an optional way to limit the IP of the sender, by setting the HUBOT_AUTHORIZED_IP_REGEXP env variable. It's a limited soft protection, if you really need a heavy secure protection, do something on your network for it.
+The feed has an optional way to limit the IP of the sender, by setting the HUBOT_AUTHORIZED_IP_REGEXP env variable. If this variable is not set, there is not access control. It's a limited soft protection, if you really need a heavy secure protection, do something on your network for it.
 
 Testing
 ----------------
