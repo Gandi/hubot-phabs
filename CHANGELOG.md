@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.2.2 - 2016-07-27
+- fix task creation
+- add search on tasks
+
 ### 1.2.1 - 2016-07-26
 - add an optional ip control over the http endpoint
 - fix some cases where the bot was giving double-replies

@@ -66,7 +66,8 @@ class Phabricator
 
 
   phabGet: (msg, query, endpoint, cb) ->
-    query['api.token'] = @apikey
+    query['api.token'] = process.env.PHABRICATOR_API_KEY
+    # console.log query
     body = querystring.stringify(query)
     msg.http(process.env.PHABRICATOR_URL)
       .path("api/#{endpoint}")

@@ -43,7 +43,8 @@ module.exports = (robot) ->
     name = msg.match[2]
     description = msg.match[3]
     phab.withProject msg, project, (projectData) ->
-      phab.createTask msg, projectData.phid, name, description, (body) ->
+      phab.createTask msg, projectData.data.phid, name, description, (body) ->
+        # console.log body
         if body['error_info']?
           msg.send "#{body['error_info']}"
         else
