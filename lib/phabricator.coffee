@@ -208,6 +208,18 @@ class Phabricator
       cb { name: 'nobody' }
 
 
+  withPermission: (msg, user, group, cb) ->
+    if group is 'phuser' and process.env.PHABRICATOR_TRUSTED_USERS is 'y'
+      isAuthorized = true
+    else
+      isAuthorized = msg.robot.auth?.hasRole(user, [group, 'phadmin']) or
+                     msg.robot.auth?.isAdmin(user)
+    if msg.robot.auth? and not isAuthorized
+      msg.reply "You don't have permission to do that."
+    else
+      cb()
+
+
   taskInfo: (msg, id, cb) ->
     if @ready(msg) is true
       query = { 'task_id': id }
