@@ -3,6 +3,7 @@ Hubot-phabs Changelog
 
 ### 1.2.3 - wip
 - improve search result feedbacks
+- fix full test coverage for feeds and search
 
 ### 1.2.2 - 2016-07-27
 - fix task creation

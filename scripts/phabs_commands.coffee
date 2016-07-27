@@ -202,5 +202,5 @@ module.exports = (robot) ->
           for task in payload.result.data
             msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
           if payload.result.cursor.after?
-            msg.send "... and there is more."
+            msg.send '... and there is more.'
     msg.finish()

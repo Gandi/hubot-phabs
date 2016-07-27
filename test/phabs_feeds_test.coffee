@@ -67,7 +67,7 @@ describe 'phabs_feeds module', ->
         "epoch": "1469408232"
       }'
       room.robot.http('http://localhost:8080')
-        .path('/Hubot/phabs/feeds')
+        .path('/hubot/phabs/feeds')
         .post(postData) (err, res, payload) ->
           done()
 
@@ -84,7 +84,7 @@ describe 'phabs_feeds module', ->
         'Bug Report': {
           phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
           feeds: [
-            "room1"
+            'room1'
           ]
         },
         'project with phid': { phid: 'PHID-PROJ-1234567' },
@@ -139,7 +139,7 @@ describe 'phabs_feeds module', ->
               }
             }
           ],
-          'maps': {},
+          'maps': { },
           'query': {
             'queryKey': 'XQHShcroSRib'
           },
@@ -166,7 +166,7 @@ describe 'phabs_feeds module', ->
         "epoch": "1469085410"
       }'
       room.robot.http('http://localhost:8080')
-        .path('/Hubot/phabs/feeds')
+        .path('/hubot/phabs/feeds')
         .post(postData) (err, res, payload) ->
           done()
 
@@ -185,7 +185,7 @@ describe 'phabs_feeds module', ->
         'Bug Report': {
           phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
           feeds: [
-            "room1"
+            'room1'
           ]
         },
         'project with phid': { phid: 'PHID-PROJ-1234567' },
@@ -240,7 +240,7 @@ describe 'phabs_feeds module', ->
               }
             }
           ],
-          'maps': {},
+          'maps': { },
           'query': {
             'queryKey': 'XQHShcroSRib'
           },
@@ -267,7 +267,7 @@ describe 'phabs_feeds module', ->
         "epoch": "1469085410"
       }'
       room.robot.http('http://localhost:8080')
-        .path('/Hubot/phabs/feeds')
+        .path('/hubot/phabs/feeds')
         .post(postData) (err, res, payload) ->
           done()
 
