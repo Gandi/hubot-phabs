@@ -1,9 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.2.3 - wip
+### 1.2.3 - 2016-07-27
 - improve search result feedbacks
 - fix full test coverage for feeds and search
+- fix the case when adding an alias to an alias with .phad
 
 ### 1.2.2 - 2016-07-27
 - fix task creation

@@ -35,6 +35,14 @@ module.exports = (robot) ->
     else
       msg.send 'There is no project.'
 
+  robot.respond (/phad (.+) del$/), (msg) ->
+    project = msg.match[1]
+    if data.projects[project]?
+      delete data.projects[project]
+      msg.send "#{project} erased from memory."
+    else
+      msg.send "#{project} not found in memory."
+
   #   hubot phad <project> info
   robot.respond (/phad (.+) info$/), (msg) ->
     project = msg.match[1]
@@ -54,12 +62,12 @@ module.exports = (robot) ->
   robot.respond (/phad (.+) a(?:lia)?s (.+)$/), (msg) ->
     project = msg.match[1]
     alias = msg.match[2]
-    data.projects[project] ?= { }
-    if data.aliases[alias]
-      msg.send "The alias '#{alias}' already exists for project '#{data.aliases[alias]}'."
-    else
-      data.aliases[alias] = project
-      msg.send "Ok, '#{project}' will be known as '#{alias}'."
+    phab.withProject msg, project, (projectData) ->
+      if data.aliases[alias]?
+        msg.send "The alias '#{alias}' already exists for project '#{data.aliases[alias]}'."
+      else
+        data.aliases[alias] = projectData.data.name
+        msg.send "Ok, '#{projectData.data.name}' will be known as '#{alias}'."
 
   #   hubot phad forget <alias>
   robot.respond (/phad forget (.+)$/), (msg) ->

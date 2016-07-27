@@ -31,8 +31,8 @@ module.exports = (robot) ->
     ipre = new RegExp(process.env.HUBOT_AUTHORIZED_IP_REGEXP)
     if ipre.test(ip) and req.body.storyID?
       phab.withFeed robot, req.body, (announce) ->
-        for room of announce.rooms
-          robot.messageRoom announce.rooms[room], announce.message
+        for room in announce.rooms
+          robot.messageRoom room, announce.message
       res.status(200).end()
     else
       res.status(401).end 'Unauthorized.'
