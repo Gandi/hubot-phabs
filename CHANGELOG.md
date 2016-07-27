@@ -1,6 +1,8 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.2.4 - wip
+
 ### 1.2.3 - 2016-07-27
 - improve search result feedbacks
 - fix full test coverage for feeds and search
