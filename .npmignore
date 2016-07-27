@@ -1,9 +1,11 @@
-columns.py
 .codeclimate.yml
 .travis.yml
 .git
 .gitignore
+coverage/
+test/
+Makefile
 coffeelint.json
+columns.py
 npm-debug.log
-coverage
 coffee-coverage.js
