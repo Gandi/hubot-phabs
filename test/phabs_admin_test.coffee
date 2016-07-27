@@ -82,6 +82,36 @@ describe 'phabs_admin module', ->
           expect(hubotResponse()).to.eql 'Known Projects: project1, project2, project3'
 
   # ---------------------------------------------------------------------------------
+  context 'user wants to delete a project', ->
+
+    context 'when there is no project registered yet', ->
+      context 'phad project1 del', ->
+        hubot 'phad project1 del'
+        it 'should reply that this project is unknown', ->
+          expect(hubotResponse()).to.eql 'project1 not found in memory.'
+
+    context 'when there is a project registered under that name', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'project1': { },
+          'project2': { },
+          'project3': { },
+        }
+        room.robot.brain.data.phabricator.aliases =  { }
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      context 'phad project1 delete', ->
+        hubot 'phad project1 delete'
+        it 'should reply that this project was forgotten', ->
+          expect(hubotResponse()).to.eql 'project1 erased from memory.'
+          expect(Object.keys(room.robot.brain.data.phabricator.projects).length)
+            .to.eql 2
+          expect(room.robot.brain.data.phabricator.projects['project1'])
+            .to.eql undefined
+
+  # ---------------------------------------------------------------------------------
   context 'user wants to know info for a project', ->
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

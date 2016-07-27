@@ -10,6 +10,7 @@
 #
 # Commands:
 #   hubot phad projects
+#   hubot phad <project> delete
 #   hubot phad <project> info
 #   hubot phad <project> alias <alias>
 #   hubot phad forget <alias>
@@ -35,7 +36,8 @@ module.exports = (robot) ->
     else
       msg.send 'There is no project.'
 
-  robot.respond (/phad (.+) del$/), (msg) ->
+  #   hubot phad <project> delete
+  robot.respond (/phad (.+) del(?:ete)?$/), (msg) ->
     project = msg.match[1]
     if data.projects[project]?
       delete data.projects[project]

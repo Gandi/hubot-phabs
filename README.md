@@ -137,6 +137,10 @@ As an experiment, I moved some configuration variables to the brain. They are ma
     .phad projects
         lists projects listed in brain
 
+    .phad <project> delete
+        removes information about <projects> from the brain
+        (useful when a project is deleted or renamed in phabricator)
+
     .phad <project> info
         gives info about <project>
 
