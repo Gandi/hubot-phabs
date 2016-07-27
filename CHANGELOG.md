@@ -3,6 +3,7 @@ Hubot-phabs Changelog
 
 ### 1.2.4 - wip
 - document and test the `.phad <project> delete` command
+- add an optional usage of hubot-auth
 
 ### 1.2.3 - 2016-07-27
 - improve search result feedbacks
