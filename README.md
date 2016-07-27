@@ -57,6 +57,12 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
           <task url> - <task title>
         NOTE: this call will record this Task id associated to you for 5 minutes
 
+    .phab <project> search terms
+        will grab the 3 newest matches in tasks matching search terms.
+        note that there are some special rules:
+        - non-alphanumeric chars will be mess up
+        - the match is done on full-words: test won't match tests
+
     .phab new <project> <task title>
     .phab new <project> <task title> = <description>
         creates a new task in an arbitrary project. 

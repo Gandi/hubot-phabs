@@ -196,9 +196,11 @@ module.exports = (robot) ->
     terms = msg.match[2]
     phab.withProject msg, project, (projectData) ->
       phab.searchTask msg, projectData.data.phid, terms, (payload) ->
-        # console.log payload.result.data
-        for t of payload.result.data
-          task = payload.result.data[t]
-          msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
+        if payload.result.data.length is 0
+          msg.send "There is no task matching '#{terms}' in project '#{projectData.data.name}'."
+        else
+          for task in payload.result.data
+            msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
+          if payload.result.cursor.after?
+            msg.send "... and there is more."
     msg.finish()
-
