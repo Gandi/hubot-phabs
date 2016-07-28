@@ -1,6 +1,8 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.2.5 - wip
+
 ### 1.2.4 - 2016-07-28
 - document and test the `.phad <project> delete` command
 - add an optional usage of hubot-auth (see readme for extensive explanation)
