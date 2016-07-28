@@ -1,9 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.2.4 - wip
+### 1.2.4 - 2016-07-28
 - document and test the `.phad <project> delete` command
-- add an optional usage of hubot-auth
+- add an optional usage of hubot-auth (see readme for extensive explanation)
+- fixed some cases where phab commands could not be called in private
 
 ### 1.2.3 - 2016-07-27
 - improve search result feedbacks
@@ -19,13 +20,13 @@ Hubot-phabs Changelog
 - fix some cases where the bot was giving double-replies
 
 ### 1.2.0 - 2016-07-25
-- add admin function `.phad` for managing parameteres about projects
+- add admin function `.phad` for managing parameters about projects
 - split files for better code readability
 - make project phid guessing rely on phad memory rather than env variable
   PHABRICATOR_PROJECTS is now useless. 
   As a side effect columns are not considered useful anymore, new tasks will 
-  go in teh default column of the project. wokring with columns may come back 
-  asd dashboards are still under fast development on phabricator side
+  go in the default column of the project. working with columns may come back 
+  as dashboards are still under fast development on phabricator side
 - added phabs_feeds to open a webhook endpoint for `feed.http-hooks`
   and announce tasks changes on specified channels 
   (configured via the .phad commands)
@@ -61,7 +62,7 @@ Hubot-phabs Changelog
 
 ### 1.0.0 - 2016-07-19
 - add a .phab version command
-- add a .phab count proj to count number of tasks in a paroject
+- add a .phab count proj to count number of tasks in a project
 - write full code coverage for further tests implementation
 - make project alias can use numbers, underscores and dashes
 - fixing various error management cases (lovely tests)
@@ -90,4 +91,4 @@ Hubot-phabs Changelog
 - fix objects output, and filesize for Files
 
 ### 0.1.0 - 2016-07-13
-- inital extraction from Gandi codebase
+- initial extraction from Gandi codebase

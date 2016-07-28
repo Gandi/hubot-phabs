@@ -7,6 +7,7 @@
 #  PHABRICATOR_URL
 #  PHABRICATOR_API_KEY
 #  PHABRICATOR_BOT_PHID
+#  PHABRICATOR_TRUSTED_USERS
 #
 # Author:
 #   mose
@@ -171,7 +172,7 @@ class Phabricator
       else
         email = user.email_address or user.pagerdutyEmail
         unless email
-          if msg.message.user.name is user.name
+          if msg.envelope.user.name is user.name
             msg.send "Sorry, I can't figure out your email address :( " +
                      'Can you tell me with `.phab me as you@yourdomain.com`?'
           else
@@ -268,12 +269,12 @@ class Phabricator
       bot_phid = @bot_phid
       phabGet = @phabGet
       adapter = msg.robot.adapterName
-      @withUser msg, msg.message.user, (userPhid) ->
+      @withUser msg, msg.envelope.user, (userPhid) ->
         query = {
           'transactions[0][type]': 'title',
           'transactions[0][value]': "#{title}",
           'transactions[1][type]': 'comment',
-          'transactions[1][value]': "(created by #{msg.message.user.name} on #{adapter})",
+          'transactions[1][value]': "(created by #{msg.envelope.user.name} on #{adapter})",
           'transactions[2][type]': 'subscribers.add',
           'transactions[2][value][0]': "#{userPhid}",
           'transactions[3][type]': 'subscribers.remove',
@@ -294,12 +295,12 @@ class Phabricator
       bot_phid = @bot_phid
       phabGet = @phabGet
       adapter = msg.robot.adapterName
-      @withUser msg, msg.message.user, (userPhid) ->
+      @withUser msg, msg.envelope.user, (userPhid) ->
         query = {
           'transactions[0][type]': 'title',
           'transactions[0][value]': "#{title}",
           'transactions[1][type]': 'text',
-          'transactions[1][value]': "(created by #{msg.message.user.name} on #{adapter})",
+          'transactions[1][value]': "(created by #{msg.envelope.user.name} on #{adapter})",
           'transactions[2][type]': 'subscribers.add',
           'transactions[2][value][0]': "#{userPhid}",
           'transactions[3][type]': 'subscribers.remove',
@@ -310,14 +311,14 @@ class Phabricator
 
 
   recordPhid: (msg, id) ->
-    msg.message.user.lastTask = moment().utc()
-    msg.message.user.lastPhid = id
+    msg.envelope.user.lastTask = moment().utc()
+    msg.envelope.user.lastPhid = id
 
 
   retrievePhid: (msg) ->
-    expires_at = moment(msg.message.user.lastTask).add(5, 'minutes')
-    if msg.message.user.lastPhid? and moment().utc().isBefore(expires_at)
-      msg.message.user.lastPhid
+    expires_at = moment(msg.envelope.user.lastTask).add(5, 'minutes')
+    if msg.envelope.user.lastPhid? and moment().utc().isBefore(expires_at)
+      msg.envelope.user.lastPhid
     else
       null
 
@@ -327,7 +328,7 @@ class Phabricator
       query = {
         'id': id,
         'status': @statuses[status],
-        'comments': "status set to #{@statuses[status]} by #{msg.message.user.name}"
+        'comments': "status set to #{@statuses[status]} by #{msg.envelope.user.name}"
       }
       @phabGet msg, query, 'maniphest.update', (json_body) ->
         cb json_body
@@ -338,7 +339,7 @@ class Phabricator
       query = {
         'id': id,
         'priority': @priorities[priority],
-        'comments': "priority set to #{@priorities[priority]} by #{msg.message.user.name}"
+        'comments': "priority set to #{@priorities[priority]} by #{msg.envelope.user.name}"
       }
       @phabGet msg, query, 'maniphest.update', (json_body) ->
         cb json_body
