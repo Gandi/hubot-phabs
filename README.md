@@ -77,12 +77,14 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         if it's not in an url it will reply with
           <task url> - <task title>
         NOTE: this call will record this Task id associated to you for 5 minutes
+        permission: all
 
     .phab <project> search terms
         will grab the 3 newest matches in tasks matching search terms.
         note that there are some special rules:
         - non-alphanumeric chars will be mess up
         - the match is done on full-words: test won't match tests
+        permission: all
 
     .phab new <project> <task title>
     .phab new <project> <task title> = <description>
@@ -93,14 +95,17 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         for the newly created task.
         The <description> is optional, and will be used as description if provided
         NOTE: this call will record this Task id associated to you for 5 minutes
+        permission: phuser, phadmin
 
     .phab paste <new paste title>
         creates a new paste and provide the link to edit it
+        permission: phuser, phadmin
 
     .phab Txxx
     .phab
         gives the status, priority and owner of the task xxx
         NOTE: this call will record this Task id associated to you for 5 minutes
+        permission: all
 
     .phab Txxx is open
     .phab Txxx broken
@@ -120,6 +125,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         - low                     -> Low
         - wish, wishlist          -> Whishlist
         NOTE: this call will record this Task id associated to you for 5 minutes
+        permission: phuser, phadmin
 
     .phab assign T123 to <someone>
     .phab assign <someone> to T123
@@ -131,55 +137,65 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         which is exactly the same). 
         The 'to' and 'on' conjunctions are inter-changeable.
         NOTE: this call will record this Task id associated to you for 5 minutes
+        permission: phuser, phadmin
 
     .phab <someone>
         will check is <someone> is linked to his phabricator account 
         (using email address)
+        permission: phuser, phadmin
 
     .phab me as <email@example.com>
         registers your email in the bot. You need to specify the email address 
         registered in Phabricator
+        permission: phuser, phadmin
 
     .phab <someone> = <email@example.com>
         registers email for another user, follows the same concept as 
         .phab me as ..
-
-    .phab list projects
-        will list known projects and columns according to configuration param
+        permission: phadmin
 
     .phab count <project>
         return the number of tasks in the given <project>
+        permission: all
 
     .phab version
         displays the version of hubot-phabs that is installed
+        permission: all
 
 As an experiment, I moved some configuration variables to the brain. They are managed by the phabs_admin module, driven with the `.phad` command. 
 
     .phad projects
         lists projects listed in brain
+        permission: all
 
     .phad <project> delete
         removes information about <projects> from the brain
         (useful when a project is deleted or renamed in phabricator)
+        permission: phadmin
 
     .phad <project> info
         gives info about <project>
+        permission: all
 
     .phad <project> alias <alias>
     .phad <project> as <alias>
         adds an alias <alias> to <project>. Aliases are unique 
+        permission: phadmin
 
     .phad forget <alias>
         removes the alias <alias>
+        permission: phadmin
 
     .phad <project> feed to <room>
     .phad <project> feeds <room>
         creates a feed for <project> to <room>.
         Feeds are comming from feed.http-hooks
+        permission: phadmin
 
     .phad <project> remove from <room>
     .phad <project> remove <room>
         remove a feed
+        permission: phadmin
 
 Feeds
 ----------------
