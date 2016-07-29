@@ -131,7 +131,7 @@ module.exports = (robot) ->
         if body['error_info']?
           msg.send "oops T#{id} #{body['error_info']}"
         else
-          msg.send "Ok, T#{id} now has priority #{body['result']['priority']}"
+          msg.send "Ok, T#{id} now has priority #{priority}"
     msg.finish()
 
   #   hubot phab <user> - checks if user is known or not

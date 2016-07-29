@@ -350,11 +350,17 @@ class Phabricator
   updatePriority: (msg, id, priority, cb) ->
     if @ready(msg) is true
       query = {
-        'id': id,
-        'priority': @priorities[priority],
-        'comments': "priority set to #{@priorities[priority]} by #{msg.envelope.user.name}"
+        'objectIdentifier': id,
+        'transactions[0][type]': 'priority',
+        'transactions[0][value]': @priorities[priority],
+        'transactions[1][type]': 'subscribers.remove',
+        'transactions[1][value][0]': "#{@bot_phid}",
+        'transactions[2][type]': 'owner',
+        'transactions[2][value]': msg.envelope.user.phid,
+        'transactions[3][type]': 'comment',
+        'transactions[3][value]': "priority set to #{priority} by #{msg.envelope.user.name}"
       }
-      @phabGet msg, query, 'maniphest.update', (json_body) ->
+      @phabGet msg, query, 'maniphest.edit', (json_body) ->
         cb json_body
 
 
