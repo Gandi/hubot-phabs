@@ -271,12 +271,13 @@ class Phabricator
       bot_phid = @bot_phid
       phabGet = @phabGet
       adapter = msg.robot.adapterName
-      @withUser msg, msg.envelope.user, (userPhid) ->
+      user = msg.robot.brain.userForName msg.envelope.user.name
+      @withUser msg, user, (userPhid) ->
         query = {
           'transactions[0][type]': 'title',
           'transactions[0][value]': "#{title}",
           'transactions[1][type]': 'comment',
-          'transactions[1][value]': "(created by #{msg.envelope.user.name} on #{adapter})",
+          'transactions[1][value]': "(created by #{user.name} on #{adapter})",
           'transactions[2][type]': 'subscribers.add',
           'transactions[2][value][0]': "#{userPhid}",
           'transactions[3][type]': 'subscribers.remove',
@@ -297,12 +298,13 @@ class Phabricator
       bot_phid = @bot_phid
       phabGet = @phabGet
       adapter = msg.robot.adapterName
-      @withUser msg, msg.envelope.user, (userPhid) ->
+      user = @robot.brain.userForName msg.envelope.user.name
+      @withUser msg, user, (userPhid) ->
         query = {
           'transactions[0][type]': 'title',
           'transactions[0][value]': "#{title}",
           'transactions[1][type]': 'text',
-          'transactions[1][value]': "(created by #{msg.envelope.user.name} on #{adapter})",
+          'transactions[1][value]': "(created by #{user.name} on #{adapter})",
           'transactions[2][type]': 'subscribers.add',
           'transactions[2][value][0]': "#{userPhid}",
           'transactions[3][type]': 'subscribers.remove',
