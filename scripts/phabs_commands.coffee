@@ -151,7 +151,8 @@ module.exports = (robot) ->
   robot.respond /ph(?:ab)? me as (.*@.*)$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       email = msg.match[1]
-      msg.message.user.email_address = email
+      assignee = robot.brain.userForName(msg.envelope.user.name)
+      assignee.email_address = email
       robot.brain.save()
       msg.send "Okay, I'll remember your email is #{email}"
     msg.finish()

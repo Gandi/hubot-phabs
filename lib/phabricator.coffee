@@ -211,6 +211,7 @@ class Phabricator
 
 
   withPermission: (msg, user, group, cb) ->
+    user = @robot.brain.userForName user.name
     if group is 'phuser' and process.env.PHABRICATOR_TRUSTED_USERS is 'y'
       isAuthorized = true
     else

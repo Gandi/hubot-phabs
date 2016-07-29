@@ -2,6 +2,7 @@ Hubot-phabs Changelog
 ==========================
 
 ### 1.2.5 - wip
+- finaly really ensure all commands will work in private messages to bot
 
 ### 1.2.4 - 2016-07-28
 - document and test the `.phad <project> delete` command
