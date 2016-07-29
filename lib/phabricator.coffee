@@ -150,6 +150,7 @@ class Phabricator
             cb { aliases: aliases, data: projectData }
           else
             msg.send "Sorry, #{project} not found."
+            msg.finish()
     else
       data = @data
       query = { 'names[0]': project }
@@ -163,6 +164,7 @@ class Phabricator
           cb { aliases: aliases, data: projectData }
         else
           msg.send "Project #{project} not found."
+          msg.finish()
 
 
   withUser: (msg, user, cb) ->
@@ -219,6 +221,7 @@ class Phabricator
                      msg.robot.auth?.isAdmin(user)
     if msg.robot.auth? and not isAuthorized
       msg.reply "You don't have permission to do that."
+      msg.finish()
     else
       cb()
 
@@ -330,11 +333,17 @@ class Phabricator
   updateStatus: (msg, id, status, cb) ->
     if @ready(msg) is true
       query = {
-        'id': id,
-        'status': @statuses[status],
-        'comments': "status set to #{@statuses[status]} by #{msg.envelope.user.name}"
+        'objectIdentifier': id,
+        'transactions[0][type]': 'status',
+        'transactions[0][value]': @statuses[status],
+        'transactions[1][type]': 'subscribers.remove',
+        'transactions[1][value][0]': "#{@bot_phid}",
+        'transactions[2][type]': 'owner',
+        'transactions[2][value]': msg.envelope.user.phid,
+        'transactions[3][type]': 'comment',
+        'transactions[3][value]': "status set to #{status} by #{msg.envelope.user.name}"
       }
-      @phabGet msg, query, 'maniphest.update', (json_body) ->
+      @phabGet msg, query, 'maniphest.edit', (json_body) ->
         cb json_body
 
 

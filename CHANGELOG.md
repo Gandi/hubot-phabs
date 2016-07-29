@@ -3,6 +3,8 @@ Hubot-phabs Changelog
 
 ### 1.2.5 - wip
 - finaly really ensure all commands will work in private messages to bot
+- fix the order of requires to avoid double-matches
+- changes status modification to use maniphest.edit with a transaction
 
 ### 1.2.4 - 2016-07-28
 - document and test the `.phad <project> delete` command

@@ -487,8 +487,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/maniphest.update')
-          .reply(200, { error_info: 'No such Maniphest task exists.' })
+          .get('/api/maniphest.edit')
+          .reply(200, { error_info: 'No object exists with ID "4456874864".' })
 
       afterEach ->
         nock.cleanAll()
@@ -496,7 +496,7 @@ describe 'phabs_commands module', ->
       context 'phab T424242 is open', ->
         hubot 'phab T424242 is open'
         it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
+          expect(hubotResponse()).to.eql 'oops T424242 No object exists with ID "4456874864".'
 
     context 'when the task is present', ->
 
@@ -513,8 +513,8 @@ describe 'phabs_commands module', ->
             } })
           .get('/api/user.query')
           .reply(200, { result: [{ userName: 'toto' }] })
-          .get('/api/maniphest.update')
-          .reply(200, { result: { statusName: 'Open' } })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
 
         afterEach ->
           nock.cleanAll()
@@ -523,21 +523,21 @@ describe 'phabs_commands module', ->
           hubot 'phab T42', 'user_with_phid'
           hubot 'phab is open', 'user_with_phid'
           it 'reports the status as open', ->
-            expect(hubotResponse(3)).to.eql 'Ok, T42 now has status Open.'
+            expect(hubotResponse(3)).to.eql 'Ok, T42 now has status open.'
 
         context 'phab open', ->
           hubot 'phab T42', 'user_with_phid'
           hubot 'phab open', 'user_with_phid'
           it 'reports the status as open', ->
-            expect(hubotResponse(3)).to.eql 'Ok, T42 now has status Open.'
+            expect(hubotResponse(3)).to.eql 'Ok, T42 now has status open.'
 
 
       context 'phab T42 is open', ->
         beforeEach ->
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/maniphest.update')
-            .reply(200, { result: { statusName: 'Open' } })
+            .get('/api/maniphest.edit')
+            .reply(200, { result: { object: { id: 42 } } })
 
         afterEach ->
           nock.cleanAll()
@@ -550,14 +550,14 @@ describe 'phabs_commands module', ->
         context 'phab T42 is open', ->
           hubot 'phab T42 is open'
           it 'reports the status as open', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status open.'
 
       context 'phab T42 open', ->
         beforeEach ->
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/maniphest.update')
-            .reply(200, { result: { statusName: 'Open' } })
+            .get('/api/maniphest.edit')
+            .reply(200, { result: { object: { id: 42 } } })
 
         afterEach ->
           nock.cleanAll()
@@ -565,14 +565,14 @@ describe 'phabs_commands module', ->
         context 'phab T42 open', ->
           hubot 'phab T42 open'
           it 'reports the status as open', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has status Open.'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status open.'
 
       context 'phab T42 resolved', ->
         beforeEach ->
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/maniphest.update')
-            .reply(200, { result: { statusName: 'Resolved' } })
+            .get('/api/maniphest.edit')
+            .reply(200, { result: { object: { id: 42 } } })
 
         afterEach ->
           nock.cleanAll()
@@ -580,14 +580,14 @@ describe 'phabs_commands module', ->
         context 'phab T42 resolved', ->
           hubot 'phab T42 resolved'
           it 'reports the status as resolved', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has status Resolved.'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status resolved.'
 
       context 'phab T42 wontfix', ->
         beforeEach ->
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/maniphest.update')
-            .reply(200, { result: { statusName: 'Wontfix' } })
+            .get('/api/maniphest.edit')
+            .reply(200, { result: { object: { id: 42 } } })
 
         afterEach ->
           nock.cleanAll()
@@ -595,14 +595,14 @@ describe 'phabs_commands module', ->
         context 'phab T42 wontfix', ->
           hubot 'phab T42 wontfix'
           it 'reports the status as wontfix', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has status Wontfix.'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status wontfix.'
 
       context 'phab T42 invalid', ->
         beforeEach ->
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/maniphest.update')
-            .reply(200, { result: { statusName: 'Invalid' } })
+            .get('/api/maniphest.edit')
+            .reply(200, { result: { object: { id: 42 } } })
 
         afterEach ->
           nock.cleanAll()
@@ -610,13 +610,13 @@ describe 'phabs_commands module', ->
         context 'phab T42 invalid', ->
           hubot 'phab T42 invalid'
           it 'reports the status as invalid', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has status Invalid.'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status invalid.'
 
       context 'phab T42 spite', ->
         beforeEach ->
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/maniphest.update')
+            .get('/api/maniphest.edit')
             .reply(200, { result: { statusName: 'Spite' } })
 
         afterEach ->
@@ -625,14 +625,14 @@ describe 'phabs_commands module', ->
         context 'phab T42 spite', ->
           hubot 'phab T42 spite'
           it 'reports the status as spite', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has status Spite.'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status spite.'
 
   # ---------------------------------------------------------------------------------
   context 'error: non json', ->
     beforeEach ->
       do nock.disableNetConnect
       nock(process.env.PHABRICATOR_URL)
-        .get('/api/maniphest.update')
+        .get('/api/maniphest.edit')
         .reply(200, '<body></body>', { 'Content-type': 'text/html' })
 
     afterEach ->
@@ -647,7 +647,7 @@ describe 'phabs_commands module', ->
     beforeEach ->
       do nock.disableNetConnect
       nock(process.env.PHABRICATOR_URL)
-        .get('/api/maniphest.update')
+        .get('/api/maniphest.edit')
         .replyWithError({ 'message': 'something awful happened', 'code': 'AWFUL_ERROR' })
 
     afterEach ->
@@ -662,7 +662,7 @@ describe 'phabs_commands module', ->
     beforeEach ->
       do nock.disableNetConnect
       nock(process.env.PHABRICATOR_URL)
-        .get('/api/maniphest.update')
+        .get('/api/maniphest.edit')
         .reply(400)
 
     afterEach ->

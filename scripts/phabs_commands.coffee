@@ -113,7 +113,7 @@ module.exports = (robot) ->
         if body['error_info']?
           msg.send "oops T#{id} #{body['error_info']}"
         else
-          msg.send "Ok, T#{id} now has status #{body['result']['statusName']}."
+          msg.send "Ok, T#{id} now has status #{phab.statuses[status]}."
     msg.finish()
 
   #   hubot phab Txx is <priority> - modifies task Txxx priority
@@ -195,6 +195,7 @@ module.exports = (robot) ->
               msg.send "#{body['error_info']}"
             else
               msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
+            msg.finish()
       else
         msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
     msg.finish()
