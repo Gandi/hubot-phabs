@@ -55,7 +55,7 @@ There are mainly 3 permissions groups:
     - assign a task to someone
     - set an email or check other users
 
-If you set the variable `PHABRICATOR_TRUSTED_USERS` to `y`, then the 'not in any group' users can access all the features reserved for the `phuser` group.  
+If you set the variable `PHABRICATOR_TRUSTED_USERS` to `y`, then the 'not in any group' users can access all the features reserved for the `phuser` group. Typically the `phuser` role is designed to be used on public irc or gitter channels, but is not needed in closed slack channels.
 
 Commands
 --------------
