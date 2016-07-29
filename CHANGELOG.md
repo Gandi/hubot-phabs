@@ -2,6 +2,8 @@ Hubot-phabs Changelog
 ==========================
 
 ### 1.2.5 - wip
+
+### 1.2.5 - 2016-07-29
 - finaly really ensure all commands will work in private messages to bot
 - fix the order of requires to avoid double-matches
 - changes status modification to use maniphest.edit with a transaction
