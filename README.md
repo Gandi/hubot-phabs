@@ -30,18 +30,21 @@ Configuration
 - `PHABRICATOR_URL` - main url of your Phabricator instance
 - `PHABRICATOR_API_KEY` - api key for the bot user
 - `PHABRICATOR_BOT_PHID` - the phid for the bot user (so we can remove him from tasks he creates)
-- `PHABRICATOR_TRUSTED_USERS` - an optional variable, which, if set to 'y', bypasses the requirement of belonging to `phuser` group for restricted commands
 - `HUBOT_AUTHORIZED_IP_REGEXP` - an optional configuration var to limit access to the webhook feeds endpoint
+
+and if you use `hubot-auth`
+- `HUBOT_AUTH_ADMIN` - hardcoded list of hubot admins
+- `PHABRICATOR_TRUSTED_USERS` - if set to 'y', bypasses the requirement of belonging to `phuser` group for  commands restricted to users. Makes sense in places where all users are internal or invited-only and trustable.
 
 Permission system
 -------------------
 
 By default every action is usable by any user. But you can follow the optional permission system by using the `hubot-auth` module.
 
-There are mainly 2 permissions groups:
+There are mainly 3 permissions groups:
 
-- `admin` group, for which everything is permitted
-- `phadmin` group, required for which everything is permitted as well
+- `admin` group, for which everything is permitted everywhere
+- `phadmin` group, required for which everything is permitted on `.phab` and `.phad` commands
 - `phuser` group, which cannot use 
     - the `.phad` command except `.phad projects`
     - the `.phab user = email` command
