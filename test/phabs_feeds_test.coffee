@@ -4,11 +4,11 @@ Helper = require('hubot-test-helper')
 
 # helper loads a specific script if it's a file
 helper = new Helper('../scripts/phabs_feeds.coffee')
+Phabricator = require '../lib/phabricator'
 
 nock = require('nock')
 sinon = require('sinon')
 expect = require('chai').use(require('sinon-chai')).expect
-http = require('http')
 
 room = null
 
@@ -45,6 +45,7 @@ describe 'phabs_feeds module', ->
       phid: 'PHID-USER-123456789'
     }
 
+
   afterEach ->
     delete process.env.PHABRICATOR_URL
     delete process.env.PHABRICATOR_API_KEY
@@ -52,8 +53,8 @@ describe 'phabs_feeds module', ->
 
   # ---------------------------------------------------------------------------------
   context 'it is not a task', ->
-    beforeEach (done) ->
-      postData = '{
+    beforeEach ->
+      @postData = '{
         "storyID": "7373",
         "storyType": "PhabricatorApplicationTransactionFeedStory",
         "storyData": {
@@ -66,20 +67,24 @@ describe 'phabs_feeds module', ->
         "storyText": "ash created P6 new test paste.",
         "epoch": "1469408232"
       }'
-      room.robot.http('http://localhost:8080')
-        .path('/hubot/phabs/feeds')
-        .post(postData) (err, res, payload) ->
-          done()
 
     afterEach ->
       room.destroy()
 
     it 'should not react', ->
-      expect(hubotResponseCount()).to.eql 0
+      expected = {
+        message: 'mose triaged T2569: setup webhooks as High priority.',
+        rooms: [ ]
+      }
+      phab = new Phabricator room.robot, process.env
+      phab.withFeed room.robot, JSON.parse(@postData), (announce) ->
+        # should not be called
+        expect(true).to.eql false
+        done()
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   context 'it is a task but is not in any feed', ->
-    beforeEach (done) ->
+    beforeEach ->
       room.robot.brain.data.phabricator.projects = {
         'Bug Report': {
           phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
@@ -151,7 +156,7 @@ describe 'phabs_feeds module', ->
           }
         } })
 
-      postData = '{
+      @postData = '{
         "storyID": "7297",
         "storyType": "PhabricatorApplicationTransactionFeedStory",
         "storyData": {
@@ -162,25 +167,27 @@ describe 'phabs_feeds module', ->
           }
         },
         "storyAuthorPHID": "PHID-USER-qzoqvowxnb5k5screlji",
-        "storyText": "mose triaged T2569: setup webhooks as \"High\" priority.",
+        "storyText": "mose triaged T2569: setup webhooks as High priority.",
         "epoch": "1469085410"
       }'
-      room.robot.http('http://localhost:8080')
-        .path('/hubot/phabs/feeds')
-        .post(postData) (err, res, payload) ->
-          done()
-
 
     afterEach ->
       room.robot.brain.data.phabricator = { }
       room.destroy()
 
-    it 'should not react', ->
-      expect(hubotResponseCount()).to.eql 0
+    it 'should not react', (done) ->
+      expected = {
+        message: 'mose triaged T2569: setup webhooks as High priority.',
+        rooms: [ ]
+      }
+      phab = new Phabricator room.robot, process.env
+      phab.withFeed room.robot, JSON.parse(@postData), (announce) ->
+        expect(announce).to.eql expected
+        done()
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   context 'it is a task and it is in one feed', ->
-    beforeEach (done) ->
+    beforeEach ->
       room.robot.brain.data.phabricator.projects = {
         'Bug Report': {
           phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
@@ -252,7 +259,7 @@ describe 'phabs_feeds module', ->
           }
         } })
 
-      postData = '{
+      @postData = '{
         "storyID": "7297",
         "storyType": "PhabricatorApplicationTransactionFeedStory",
         "storyData": {
@@ -263,18 +270,20 @@ describe 'phabs_feeds module', ->
           }
         },
         "storyAuthorPHID": "PHID-USER-qzoqvowxnb5k5screlji",
-        "storyText": "mose triaged T2569: setup webhooks as \"High\" priority.",
+        "storyText": "mose triaged T2569: setup webhooks as High priority.",
         "epoch": "1469085410"
       }'
-      room.robot.http('http://localhost:8080')
-        .path('/hubot/phabs/feeds')
-        .post(postData) (err, res, payload) ->
-          done()
-
 
     afterEach ->
       room.robot.brain.data.phabricator = { }
       room.destroy()
 
-    it 'should announce it to the appropriate room', ->
-      expect(hubotResponseCount()).to.eql 0
+    it 'should announce it to the appropriate room', (done) ->
+      expected = {
+        message: 'mose triaged T2569: setup webhooks as High priority.',
+        rooms: [ 'room1' ]
+      }
+      phab = new Phabricator room.robot, process.env
+      phab.withFeed room.robot, JSON.parse(@postData), (announce) ->
+        expect(announce).to.eql expected
+        done()

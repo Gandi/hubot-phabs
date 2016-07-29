@@ -113,13 +113,14 @@ class Phabricator
           message: payload.storyText
         }
         announces.rooms = []
-        for phid in json_body.result.data[0].attachments.projects.projectPHIDs
-          for name, project of data.projects
-            if project.phid? and phid is project.phid
-              project.feeds ?= [ ]
-              for room in project.feeds
-                if announces.rooms.indexOf(room) is -1
-                  announces.rooms.push room
+        if json_body.result.data?
+          for phid in json_body.result.data[0].attachments.projects.projectPHIDs
+            for name, project of data.projects
+              if project.phid? and phid is project.phid
+                project.feeds ?= [ ]
+                for room in project.feeds
+                  if announces.rooms.indexOf(room) is -1
+                    announces.rooms.push room
         cb announces
     # else
     #   console.log 'This is not a task.'
