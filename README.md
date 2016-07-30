@@ -113,7 +113,9 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab Txxx is open
     .phab Txxx broken
     .phab low
-        changes status or priority for task Txxx. the 'is' is optional.
+    .phab low = this is a reason
+        Changes status or priority for task Txxx. the 'is' is optional.
+        If the optional '=' is used, it will add a comment to that change
         Available statuses are:
         - open, opened                     -> open
         - resolved, resolve, closed, close -> resolved

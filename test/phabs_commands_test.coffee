@@ -627,6 +627,21 @@ describe 'phabs_commands module', ->
           it 'reports the status as spite', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status spite.'
 
+      context 'phab T42 spite = what a crazy idea', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.edit')
+            .reply(200, { result: { object: { id: 42 } } })
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab T42 spite = what a crazy idea', ->
+          hubot 'phab T42 spite = what a crazy idea'
+          it 'reports the status as spite', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status spite.'
+
   # ---------------------------------------------------------------------------------
   context 'error: non json', ->
     beforeEach ->
@@ -739,6 +754,21 @@ describe 'phabs_commands module', ->
           hubot 'phab T42 unknown'
           it 'reports the priority to be Unbreak Now!', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority unknown'
+
+      context 'phab T42 is none = maintainer left', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.edit')
+            .reply(200, { result: { object: { id: 42 } } })
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab T42 none = maintainer left', ->
+          hubot 'phab T42 none = maintainer left'
+          it 'reports the priority to be Unbreak Now!', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority none'
 
       context 'phab T42 is urgent', ->
         beforeEach ->

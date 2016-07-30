@@ -100,7 +100,8 @@ module.exports = (robot) ->
 
   #   hubot phab Txx is <status> - modifies task Txxx status
   robot.respond new RegExp(
-    "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.statuses).join('|')})$"
+    "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.statuses).join('|')})" +
+    "(?: = (.+))?$"
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = msg.match[1] ? phab.retrievePhid(msg)
@@ -109,7 +110,8 @@ module.exports = (robot) ->
         msg.finish()
         return
       status = msg.match[2]
-      phab.updateStatus msg, id, status, (body) ->
+      comment = msg.match[3]
+      phab.updateStatus msg, id, status, comment, (body) ->
         if body['error_info']?
           msg.send "oops T#{id} #{body['error_info']}"
         else
@@ -118,7 +120,8 @@ module.exports = (robot) ->
 
   #   hubot phab Txx is <priority> - modifies task Txxx priority
   robot.respond new RegExp(
-    "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.priorities).join('|')})$"
+    "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.priorities).join('|')})" +
+    "(?: = (.+))?$"
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = msg.match[1] ? phab.retrievePhid(msg)
@@ -127,7 +130,8 @@ module.exports = (robot) ->
         msg.finish()
         return
       priority = msg.match[2]
-      phab.updatePriority msg, id, priority, (body) ->
+      comment = msg.match[3]
+      phab.updatePriority msg, id, priority, comment, (body) ->
         if body['error_info']?
           msg.send "oops T#{id} #{body['error_info']}"
         else

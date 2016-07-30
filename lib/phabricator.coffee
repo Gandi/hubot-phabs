@@ -332,7 +332,7 @@ class Phabricator
       null
 
 
-  updateStatus: (msg, id, status, cb) ->
+  updateStatus: (msg, id, status, comment, cb) ->
     if @ready(msg) is true
       query = {
         'objectIdentifier': id,
@@ -342,14 +342,17 @@ class Phabricator
         'transactions[1][value][0]': "#{@bot_phid}",
         'transactions[2][type]': 'owner',
         'transactions[2][value]': msg.envelope.user.phid,
-        'transactions[3][type]': 'comment',
-        'transactions[3][value]': "status set to #{status} by #{msg.envelope.user.name}"
+        'transactions[3][type]': 'comment'
       }
+      if comment?
+        query['transactions[3][value]'] = "#{comment} (#{msg.envelope.user.name})"
+      else
+        query['transactions[3][value]'] = "status set to #{status} by #{msg.envelope.user.name}"
       @phabGet msg, query, 'maniphest.edit', (json_body) ->
         cb json_body
 
 
-  updatePriority: (msg, id, priority, cb) ->
+  updatePriority: (msg, id, priority, comment, cb) ->
     if @ready(msg) is true
       query = {
         'objectIdentifier': id,
@@ -359,9 +362,12 @@ class Phabricator
         'transactions[1][value][0]': "#{@bot_phid}",
         'transactions[2][type]': 'owner',
         'transactions[2][value]': msg.envelope.user.phid,
-        'transactions[3][type]': 'comment',
-        'transactions[3][value]': "priority set to #{priority} by #{msg.envelope.user.name}"
+        'transactions[3][type]': 'comment'
       }
+      if comment?
+        query['transactions[3][value]'] = "#{comment} (#{msg.envelope.user.name})"
+      else
+        query['transactions[3][value]'] = "priority set to #{priority} by #{msg.envelope.user.name}"
       @phabGet msg, query, 'maniphest.edit', (json_body) ->
         cb json_body
 
