@@ -181,11 +181,13 @@ class Phabricator
           else
             msg.send "Sorry, I can't figure #{user.name} email address. " +
                      "Can you help me with .phab #{user.name} = <email>"
+          msg.finish()
           return
         query = { 'emails[0]': email }
         @phabGet msg, query, 'user.query', (json_body) ->
           unless json_body['result']['0']?
             msg.send "Sorry, I cannot find #{email} :("
+            msg.finish()
             return
           user.phid = json_body['result']['0']['phid']
           cb user.phid

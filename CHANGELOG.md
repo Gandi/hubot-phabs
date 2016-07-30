@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.2.5 - wip
+### 1.2.6 - 2016-07-30
 - changes priority modification to use maniphest.edit with a transaction
 - remove bot from subscribers when task assignment is changed
 
