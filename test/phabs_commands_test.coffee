@@ -884,6 +884,44 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
   # ---------------------------------------------------------------------------------
+  context 'user adds a comment on a task', ->
+
+    context 'task is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.edit')
+          .reply(200, { error_info: 'No such Maniphest task exists.' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 + some comment', ->
+        hubot 'phab T424242 + some comment'
+        it 'warns the user that the task does not exist', ->
+          expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
+
+    context 'task is known', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { id: 42 } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab + some comment', ->
+        hubot 'phab + some comment'
+        it 'warns the user that there is no active task in memory', ->
+          expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
+
+      context 'phab T24 + some comment', ->
+        hubot 'phab T24 + some comment'
+        it 'gives a feedback that the comment was added', ->
+          expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
+
+  # ---------------------------------------------------------------------------------
   context 'user searches through tasks', ->
 
     context 'there is 2 results', ->

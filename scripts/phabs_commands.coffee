@@ -13,10 +13,11 @@
 #   hubot phab new <project> <name of the task> - creates a new task
 #   hubot phab paste <name of the paste> - creates a new paste
 #   hubot phab count <project> - counts how many tasks a project has
-#   hubot phab Txx - gives information about task Txxx
-#   hubot phab Txx is <status> - modifies task Txxx status
-#   hubot phab Txx is <priority> - modifies task Txxx priority
-#   hubot phab assign Txx to <user> - assigns task Txxx to comeone
+#   hubot phab Txx - gives information about task Txx
+#   hubot phab Txx + <some comment> - add a comment to task Txx
+#   hubot phab Txx is <status> - modifies task Txx status
+#   hubot phab Txx is <priority> - modifies task Txx priority
+#   hubot phab assign Txx to <user> - assigns task Txx to comeone
 #   hubot phab <user> - checks if user is known or not
 #   hubot phab me as <email> - makes caller known with <email>
 #   hubot phab <user> = <email> - associates user to email
@@ -98,10 +99,27 @@ module.exports = (robot) ->
                    "priority #{priority}, owner #{owner.name}"
     msg.finish()
 
+  #   hubot phab Txx + <some comment> - add a comment to task Txx
+  robot.respond /ph(?:ab)?(?: T([0-9]+))? \+ (.+)$/, (msg) ->
+    phab.withPermission msg, msg.envelope.user, 'phuser', ->
+      id = msg.match[1] ? phab.retrievePhid(msg)
+      unless id?
+        msg.send "Sorry, you don't have any task active right now."
+        msg.finish()
+        return
+      comment = msg.match[2]
+      phab.addComment msg, id, comment, (body) ->
+        if body['error_info']?
+          msg.send "oops T#{id} #{body['error_info']}"
+        else
+          msg.send "Ok. Added comment \"#{comment}\" to T#{id}."
+    msg.finish()
+
+
   #   hubot phab Txx is <status> - modifies task Txxx status
   robot.respond new RegExp(
     "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.statuses).join('|')})" +
-    "(?: = (.+))?$"
+    '(?: = (.+))?$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = msg.match[1] ? phab.retrievePhid(msg)
@@ -121,7 +139,7 @@ module.exports = (robot) ->
   #   hubot phab Txx is <priority> - modifies task Txxx priority
   robot.respond new RegExp(
     "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.priorities).join('|')})" +
-    "(?: = (.+))?$"
+    '(?: = (.+))?$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = msg.match[1] ? phab.retrievePhid(msg)

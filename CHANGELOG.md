@@ -3,6 +3,7 @@ Hubot-phabs Changelog
 
 ### 1.2.7 - wip
 - add a way to add comment on status and priority changes
+- add a way to add comments to a task
 
 ### 1.2.6 - 2016-07-30
 - changes priority modification to use maniphest.edit with a transaction

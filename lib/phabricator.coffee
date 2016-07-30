@@ -332,6 +332,19 @@ class Phabricator
       null
 
 
+  addComment: (msg, id, comment, cb) ->
+    if @ready(msg) is true
+      query = {
+        'objectIdentifier': id,
+        'transactions[0][type]': 'comment',
+        'transactions[0][value]': "#{comment} (#{msg.envelope.user.name})",
+        'transactions[1][type]': 'subscribers.remove',
+        'transactions[1][value][0]': "#{@bot_phid}"
+      }
+      @phabGet msg, query, 'maniphest.edit', (json_body) ->
+        cb json_body
+
+
   updateStatus: (msg, id, status, comment, cb) ->
     if @ready(msg) is true
       query = {

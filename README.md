@@ -110,6 +110,11 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         NOTE: this call will record this Task id associated to you for 5 minutes
         permission: all
 
+    .phab Txxx + <some comment>
+    .phab + <some comment>
+        adds a comment to task Txxx (or the one in short memory).
+        permission: phuser, phadmin
+
     .phab Txxx is open
     .phab Txxx broken
     .phab low
