@@ -3,6 +3,7 @@ Hubot-phabs Changelog
 
 ### 1.2.5 - wip
 - changes priority modification to use maniphest.edit with a transaction
+- remove bot from subscribers when task assignment is changed
 
 ### 1.2.5 - 2016-07-29
 - finaly really ensure all commands will work in private messages to bot

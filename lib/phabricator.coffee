@@ -369,7 +369,9 @@ class Phabricator
       query = {
         'objectIdentifier': "T#{tid}",
         'transactions[0][type]': 'owner',
-        'transactions[0][value]': "#{userphid}"
+        'transactions[0][value]': "#{userphid}",
+        'transactions[1][type]': 'subscribers.remove',
+        'transactions[1][value][0]': "#{@bot_phid}"
       }
       @phabGet msg, query, 'maniphest.edit', (json_body) ->
         cb json_body
