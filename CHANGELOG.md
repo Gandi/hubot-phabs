@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.2.7 - wip
+### 1.2.7 - 2016-07-31
 - add a way to add comment on status and priority changes
 - add a way to add comments to a task
 
