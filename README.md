@@ -29,7 +29,6 @@ Configuration
 
 - `PHABRICATOR_URL` - main url of your Phabricator instance
 - `PHABRICATOR_API_KEY` - api key for the bot user
-- `PHABRICATOR_BOT_PHID` - the phid for the bot user (so we can remove him from tasks he creates)
 - `HUBOT_AUTHORIZED_IP_REGEXP` - an optional configuration var to limit access to the webhook feeds endpoint
 
 and if you use `hubot-auth`
