@@ -48,11 +48,11 @@ class Phabricator
   constructor: (@robot, env) ->
     @url = env.PHABRICATOR_URL
     @apikey = env.PHABRICATOR_API_KEY
-    @bot_phid = env.PHABRICATOR_BOT_PHID
     storageLoaded = =>
       @data = @robot.brain.data.phabricator ||= {
         projects: { },
-        aliases: { }
+        aliases: { },
+        bot_phid: env.PHABRICATOR_BOT_PHID
       }
       @robot.logger.debug 'Phabricator Data Loaded: ' + JSON.stringify(@data, null, 2)
     @robot.brain.on 'loaded', storageLoaded
@@ -99,8 +99,15 @@ class Phabricator
           }
         cb json_body
 
+  withBotPHID: (robot, cb) =>
+    if @data.bot_phid
+      cb @data.bot_phid
+    else
+      @phabGet robot, '', 'user.whoami', (json_body) =>
+        @data.bot_phid = json_body.result.phid
+        cb @data.bot_phid
 
-  withFeed: (robot, payload, cb) ->
+  withFeed: (robot, payload, cb) =>
     # console.log payload
     if /^PHID-TASK-/.test payload.storyData.objectPHID
       query = {
@@ -125,7 +132,7 @@ class Phabricator
     else
       cb { rooms: [ ] }
 
-  withProject: (msg, project, cb) ->
+  withProject: (msg, project, cb) =>
     if @data.projects[project]?
       projectData = @data.projects[project]
       projectData.name = project
@@ -167,7 +174,7 @@ class Phabricator
           msg.finish()
 
 
-  withUser: (msg, user, cb) ->
+  withUser: (msg, user, cb) =>
     if @ready(msg) is true
       id = user.phid
       if id
@@ -193,7 +200,7 @@ class Phabricator
           cb user.phid
 
 
-  withUserByPhid: (robot, phid, cb) ->
+  withUserByPhid: (robot, phid, cb) =>
     if phid?
       user = null
       for k of robot.brain.data.users
@@ -214,7 +221,7 @@ class Phabricator
       cb { name: 'nobody' }
 
 
-  withPermission: (msg, user, group, cb) ->
+  withPermission: (msg, user, group, cb) =>
     user = @robot.brain.userForName user.name
     if group is 'phuser' and process.env.PHABRICATOR_TRUSTED_USERS is 'y'
       isAuthorized = true
@@ -272,39 +279,35 @@ class Phabricator
 
   createTask: (msg, phid, title, description, cb) ->
     if @ready(msg) is true
-      url = @url
-      bot_phid = @bot_phid
-      phabGet = @phabGet
       adapter = msg.robot.adapterName
       user = msg.robot.brain.userForName msg.envelope.user.name
-      @withUser msg, user, (userPhid) ->
-        query = {
-          'transactions[0][type]': 'title',
-          'transactions[0][value]': "#{title}",
-          'transactions[1][type]': 'comment',
-          'transactions[1][value]': "(created by #{user.name} on #{adapter})",
-          'transactions[2][type]': 'subscribers.add',
-          'transactions[2][value][0]': "#{userPhid}",
-          'transactions[3][type]': 'subscribers.remove',
-          'transactions[3][value][0]': "#{bot_phid}",
-          'transactions[4][type]': 'projects.add',
-          'transactions[4][value][]': "#{phid}"
-        }
-        if description?
-          query['transactions[5][type]'] = 'description'
-          query['transactions[5][value]'] = "#{description}"
-        phabGet msg, query, 'maniphest.edit', (json_body) ->
-          cb json_body
+      @withUser msg, user, (userPhid) =>
+        @withBotPHID msg, (bot_phid) =>
+          query = {
+            'transactions[0][type]': 'title',
+            'transactions[0][value]': "#{title}",
+            'transactions[1][type]': 'comment',
+            'transactions[1][value]': "(created by #{user.name} on #{adapter})",
+            'transactions[2][type]': 'subscribers.add',
+            'transactions[2][value][0]': "#{userPhid}",
+            'transactions[3][type]': 'subscribers.remove',
+            'transactions[3][value][0]': "#{bot_phid}",
+            'transactions[4][type]': 'projects.add',
+            'transactions[4][value][]': "#{phid}"
+          }
+          if description?
+            query['transactions[5][type]'] = 'description'
+            query['transactions[5][value]'] = "#{description}"
+          @phabGet msg, query, 'maniphest.edit', (json_body) ->
+            cb json_body
 
 
   createPaste: (msg, title, cb) ->
     if @ready(msg) is true
-      url = @url
-      bot_phid = @bot_phid
-      phabGet = @phabGet
+      bot_phid = msg.robot.brain.data.phabricator.bot_phid
       adapter = msg.robot.adapterName
       user = @robot.brain.userForName msg.envelope.user.name
-      @withUser msg, user, (userPhid) ->
+      @withUser msg, user, (userPhid) =>
         query = {
           'transactions[0][type]': 'title',
           'transactions[0][value]': "#{title}",
@@ -315,7 +318,7 @@ class Phabricator
           'transactions[3][type]': 'subscribers.remove',
           'transactions[3][value][0]': "#{bot_phid}"
         }
-        phabGet msg, query, 'paste.edit', (json_body) ->
+        @phabGet msg, query, 'paste.edit', (json_body) ->
           cb json_body
 
 
@@ -339,7 +342,7 @@ class Phabricator
         'transactions[0][type]': 'comment',
         'transactions[0][value]': "#{comment} (#{msg.envelope.user.name})",
         'transactions[1][type]': 'subscribers.remove',
-        'transactions[1][value][0]': "#{@bot_phid}"
+        'transactions[1][value][0]': "#{msg.robot.brain.data.phabricator.bot_phid}"
       }
       @phabGet msg, query, 'maniphest.edit', (json_body) ->
         cb json_body
@@ -352,7 +355,7 @@ class Phabricator
         'transactions[0][type]': 'status',
         'transactions[0][value]': @statuses[status],
         'transactions[1][type]': 'subscribers.remove',
-        'transactions[1][value][0]': "#{@bot_phid}",
+        'transactions[1][value][0]': "#{msg.robot.brain.data.phabricator.bot_phid}",
         'transactions[2][type]': 'owner',
         'transactions[2][value]': msg.envelope.user.phid,
         'transactions[3][type]': 'comment'
@@ -372,7 +375,7 @@ class Phabricator
         'transactions[0][type]': 'priority',
         'transactions[0][value]': @priorities[priority],
         'transactions[1][type]': 'subscribers.remove',
-        'transactions[1][value][0]': "#{@bot_phid}",
+        'transactions[1][value][0]': "#{msg.robot.brain.data.phabricator.bot_phid}",
         'transactions[2][type]': 'owner',
         'transactions[2][value]': msg.envelope.user.phid,
         'transactions[3][type]': 'comment'

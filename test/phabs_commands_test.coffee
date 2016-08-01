@@ -13,6 +13,70 @@ expect = require('chai').use(require('sinon-chai')).expect
 
 room = null
 
+# ---------------------------------------------------------------------------------
+describe 'phabs_commands module with no bot_phid', ->
+
+  hubotHear = (message, userName = 'momo', tempo = 40) ->
+    beforeEach (done) ->
+      room.user.say userName, message
+      setTimeout (done), tempo
+
+  hubot = (message, userName = 'momo') ->
+    hubotHear "@hubot #{message}", userName
+
+  hubotResponse = (i = 1) ->
+    room.messages[i]?[1]
+
+  hubotResponseCount = ->
+    room.messages?.length - 1
+
+  beforeEach ->
+    process.env.PHABRICATOR_URL = 'http://example.com'
+    process.env.PHABRICATOR_API_KEY = 'xxx'
+    room = helper.createRoom { httpd: false }
+    room.robot.brain.userForId 'user_with_phid', {
+      name: 'user_with_phid',
+      phid: 'PHID-USER-123456789'
+    }
+    room.receive = (userName, message) ->
+      new Promise (resolve) =>
+        @messages.push [userName, message]
+        user = room.robot.brain.userForId userName
+        @robot.receive(new Hubot.TextMessage(user, message), resolve)
+
+  afterEach ->
+    delete process.env.PHABRICATOR_URL
+    delete process.env.PHABRICATOR_API_KEY
+
+  context 'user creates a new task, ', ->
+
+    context 'a task without description, ', ->
+      beforeEach ->
+        delete process.env.PHABRICATOR_BOT_PHID
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.query')
+          .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+          .get('/api/user.whoami')
+          .reply(200, { result: [ { phid: 'PHID-USER-123456789' } ] })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'phab new proj1 a task', 'user_with_phid'
+        it 'replies with the object id', ->
+          expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
+
+# ---------------------------------------------------------------------------------
 describe 'phabs_commands module', ->
 
   hubotHear = (message, userName = 'momo', tempo = 40) ->

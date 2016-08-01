@@ -15,7 +15,6 @@ describe 'Phabricator lib', ->
       delete process.env.PHABRICATOR_URL
       delete process.env.PHABRICATOR_API_KEY
       delete process.env.PHABRICATOR_BOT_PHID
-      delete process.env.PHABRICATOR_LISTS_INCOMING
       @room = helper.createRoom { httpd: false }
 
     describe '.ready', ->
@@ -40,7 +39,6 @@ describe 'Phabricator lib', ->
       process.env.PHABRICATOR_URL = 'http://example.com'
       process.env.PHABRICATOR_API_KEY = 'xxx'
       process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
-      process.env.PHABRICATOR_PROJECTS = 'PHID-PROJ-xxx:proj1,PHID-PROJ-yyy:proj2'
       room = helper.createRoom { httpd: false }
       @phab = new Phabricator room.robot, process.env
       @msg = sinon.spy()
@@ -50,13 +48,11 @@ describe 'Phabricator lib', ->
       delete process.env.PHABRICATOR_URL
       delete process.env.PHABRICATOR_API_KEY
       delete process.env.PHABRICATOR_BOT_PHID
-      delete process.env.PHABRICATOR_PROJECTS
 
     describe 'new', ->
       it 'should initialize vars', ->
         expect(@phab.url).to.eql(process.env.PHABRICATOR_URL)
         expect(@phab.apikey).to.eql(process.env.PHABRICATOR_API_KEY)
-        expect(@phab.bot_phid).to.eql(process.env.PHABRICATOR_BOT_PHID)
 
     describe '.ready', ->
       it 'should be ready', ->

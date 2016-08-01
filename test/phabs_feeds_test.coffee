@@ -393,4 +393,3 @@ describe 'phabs_feeds module', ->
 
       it 'responds with status 200', ->
         expect(@response.statusCode).to.equal 200
-
