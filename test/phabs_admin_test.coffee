@@ -6,8 +6,9 @@ Hubot = require('../node_modules/hubot')
 # helper loads a specific script if it's a file
 helper = new Helper('../scripts/phabs_admin.coffee')
 
-nock = require('nock')
-sinon = require('sinon')
+path   = require 'path'
+nock = require 'nock'
+sinon = require 'sinon'
 expect = require('chai').use(require('sinon-chai')).expect
 
 room = null
@@ -423,7 +424,7 @@ describe 'phabs_admin module', ->
 
       context 'phad project with phid alias pwp', ->
         hubot 'phad project with phid alias pwp'
-        it 'should say that the alias already exists', ->
+        it 'should say that the alias was created', ->
           expect(hubotResponse())
             .to.eql "Ok, 'project with phid' will be known as 'pwp'."
 
@@ -590,3 +591,88 @@ describe 'phabs_admin module', ->
         it 'should say that the feed could not be removed', ->
           expect(hubotResponse())
             .to.eql "Sorry, 'Bug Report' is not feeding '#dev'."
+
+  # ---------------------------------------------------------------------------------
+  context 'permissions system', ->
+    beforeEach ->
+      process.env.HUBOT_AUTH_ROLES = 'admin=admin_user phadmin=phadmin_user phuser=phuser_user'
+      room.robot.loadFile path.resolve('node_modules/hubot-auth/src'), 'auth.coffee'
+      room.robot.brain.userForId 'admin_user', {
+        name: 'admin_user',
+        phid: 'PHID-USER-123456789'
+      }
+      room.robot.brain.userForId 'phadmin_user', {
+        name: 'phadmin_user',
+        phid: 'PHID-USER-123456789'
+      }
+      room.robot.brain.userForId 'phuser_user', {
+        name: 'phuser_user',
+        phid: 'PHID-USER-123456789'
+      }
+
+    context 'user wants to create an alias for a project', ->
+      context 'and user is admin', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
+            'project with phid': { phid: 'PHID-PROJ-1234567' },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'Bug Report',
+            bug: 'Bug Report'
+          }
+          do nock.disableNetConnect
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'phad project with phid alias pwp', ->
+          hubot 'phad project with phid alias pwp', 'admin_user'
+          it 'should say that the alias was created', ->
+            expect(hubotResponse())
+              .to.eql "Ok, 'project with phid' will be known as 'pwp'."
+
+      context 'and user is phadmin', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
+            'project with phid': { phid: 'PHID-PROJ-1234567' },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'Bug Report',
+            bug: 'Bug Report'
+          }
+          do nock.disableNetConnect
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'phad project with phid alias pwp', ->
+          hubot 'phad project with phid alias pwp', 'phadmin_user'
+          it 'should say that the alias was created', ->
+            expect(hubotResponse())
+              .to.eql "Ok, 'project with phid' will be known as 'pwp'."
+
+      context 'and user is phuser', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
+            'project with phid': { phid: 'PHID-PROJ-1234567' },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'Bug Report',
+            bug: 'Bug Report'
+          }
+          do nock.disableNetConnect
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'phad project with phid alias pwp', ->
+          hubot 'phad project with phid alias pwp', 'phuser_user'
+          it 'should say that the alias was created', ->
+            expect(hubotResponse())
+              .to.eql "@phuser_user You don't have permission to do that."
