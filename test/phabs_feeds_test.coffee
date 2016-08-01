@@ -6,9 +6,11 @@ Helper = require('hubot-test-helper')
 helper = new Helper('../scripts/phabs_feeds.coffee')
 Phabricator = require '../lib/phabricator'
 
-nock = require('nock')
-sinon = require('sinon')
-expect = require('chai').use(require('sinon-chai')).expect
+http        = require('http')
+nock        = require('nock')
+sinon       = require('sinon')
+expect      = require('chai').use(require('sinon-chai')).expect
+querystring = require('querystring')
 
 room = null
 
@@ -78,9 +80,7 @@ describe 'phabs_feeds module', ->
       }
       phab = new Phabricator room.robot, process.env
       phab.withFeed room.robot, JSON.parse(@postData), (announce) ->
-        # should not be called
-        expect(true).to.eql false
-        done()
+        expect(announce.rooms).to.eql [ ]
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   context 'it is a task but is not in any feed', ->
@@ -287,3 +287,110 @@ describe 'phabs_feeds module', ->
       phab.withFeed room.robot, JSON.parse(@postData), (announce) ->
         expect(announce).to.eql expected
         done()
+
+  # ---------------------------------------------------------------------------------
+  context 'test the http responses', ->
+    afterEach ->
+      room.destroy()
+
+    context 'with invalid payload', ->
+      beforeEach (done) ->
+        do nock.enableNetConnect
+        process.env.EXPRESS_PORT = 8080
+        options = {
+          host: 'localhost',
+          port: 8080,
+          path: '/hubot/phabs/feeds',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+        data = querystring.stringify({ })
+        req = http.request options, (@response) => done()
+        req.write(data)
+        req.end()
+
+      it 'responds with status 401', ->
+        expect(@response.statusCode).to.equal 401
+
+    context 'with valid payload', ->
+      beforeEach (done) ->
+        do nock.enableNetConnect
+        process.env.EXPRESS_PORT = 8080
+        options = {
+          host: 'localhost',
+          port: 8080,
+          path: '/hubot/phabs/feeds',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+        data = '{ "storyID": "1", "storyData": { "objectPHID": "PHID-TASK-12" }}'
+        req = http.request options, (@response) => done()
+        req.write(data)
+        req.end()
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            feeds: [
+              'room1'
+            ]
+          },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'Bug Report',
+          bug: 'Bug Report'
+        }
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.search')
+          .query({
+            'constraints[phids][0]': 'PHID-TASK-12',
+            'attachments[projects]': '1',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': [
+              {
+                'id': 2569,
+                'type': 'TASK',
+                'phid': 'PHID-TASK-12',
+                'fields': {
+                  'name': 'setup webhooks',
+                  'authorPHID': 'PHID-USER-7p4d4k6v4csqx7gcxcbw',
+                  'ownerPHID': 'PHID-USER-bniykos45qldfh7yumsl',
+                  'status': {
+                    'value': 'resolved',
+                    'name': 'Resolved',
+                    'color': null
+                  }
+                },
+                'attachments': {
+                  'projects': {
+                    'projectPHIDs': [
+                      'PHID-PROJ-123456ss7'
+                    ]
+                  }
+                }
+              }
+            ],
+            'maps': { },
+            'query': {
+              'queryKey': 'XQHShcroSRib'
+            },
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null,
+              'order': null
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      it 'responds with status 200', ->
+        expect(@response.statusCode).to.equal 200
+
