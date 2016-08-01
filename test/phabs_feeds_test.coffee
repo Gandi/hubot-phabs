@@ -370,7 +370,7 @@ describe 'phabs_feeds module', ->
                 'attachments': {
                   'projects': {
                     'projectPHIDs': [
-                      'PHID-PROJ-123456ss7'
+                      'PHID-PROJ-1234567'
                     ]
                   }
                 }
