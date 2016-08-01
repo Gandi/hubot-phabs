@@ -673,6 +673,6 @@ describe 'phabs_admin module', ->
 
         context 'phad project with phid alias pwp', ->
           hubot 'phad project with phid alias pwp', 'phuser_user'
-          it 'should say that the alias was created', ->
+          it 'warns the user that he has no permission to use that command', ->
             expect(hubotResponse())
               .to.eql "@phuser_user You don't have permission to do that."

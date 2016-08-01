@@ -6,8 +6,9 @@ Hubot = require('../node_modules/hubot')
 # helper loads a specific script if it's a file
 helper = new Helper('../scripts/phabs_commands.coffee')
 
-nock = require('nock')
-sinon = require('sinon')
+path   = require 'path'
+nock   = require 'nock'
+sinon  = require 'sinon'
 expect = require('chai').use(require('sinon-chai')).expect
 
 room = null
@@ -1188,3 +1189,53 @@ describe 'phabs_commands module', ->
         it 'gives a message that there is no result', ->
           expect(hubotResponse()).to.eql "There is no task matching 'gitlab' in project 'proj3'."
           expect(hubotResponseCount()).to.eql 1
+
+  # ---------------------------------------------------------------------------------
+  context 'permissions system', ->
+    beforeEach ->
+      process.env.HUBOT_AUTH_ROLES = 'admin=admin_user phadmin=phadmin_user phuser=phuser_user'
+      room.robot.loadFile path.resolve('node_modules/hubot-auth/src'), 'auth.coffee'
+      room.robot.brain.userForId 'admin_user', {
+        name: 'admin_user',
+        phid: 'PHID-USER-123456789'
+      }
+      room.robot.brain.userForId 'phadmin_user', {
+        name: 'phadmin_user',
+        phid: 'PHID-USER-123456789'
+      }
+      room.robot.brain.userForId 'phuser_user', {
+        name: 'phuser_user',
+        phid: 'PHID-USER-123456789'
+      }
+
+    context 'user wants to create comment on a task', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { id: 42 } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'and user is admin', ->
+        hubot 'phab T24 + some comment', 'admin_user'
+        it 'gives a feedback that the comment was added', ->
+          expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
+
+      context 'and user is phuser', ->
+        hubot 'phab T24 + some comment', 'phuser_user'
+        it 'gives a feedback that the comment was added', ->
+          expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
+
+      context 'and user is not in phabs groups', ->
+        hubot 'phab T24 + some comment', 'user_with_phid'
+        it 'warns the user that he has no permission to use that command', ->
+          expect(hubotResponse()).to.eql '@user_with_phid You don\'t have permission to do that.'
+
+      context 'and user is not in phabs groups, but users are trusted', ->
+        beforeEach ->
+          process.env.PHABRICATOR_TRUSTED_USERS = 'y'
+        hubot 'phab T24 + some comment', 'user_with_phid'
+        it 'warns the user that he has no permission to use that command', ->
+          expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
