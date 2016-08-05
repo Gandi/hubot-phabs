@@ -7,8 +7,8 @@ Hubot = require('../node_modules/hubot')
 helper = new Helper('../scripts/phabs_admin.coffee')
 
 path   = require 'path'
-nock = require 'nock'
-sinon = require 'sinon'
+nock   = require 'nock'
+sinon  = require 'sinon'
 expect = require('chai').use(require('sinon-chai')).expect
 
 room = null
@@ -153,7 +153,7 @@ describe 'phabs_admin module', ->
           hubot 'phad unknown info'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql 'Project unknown not found.'
+              .to.eql 'Sorry, unknown not found.'
 
       context 'and is known to phabricator', ->
         beforeEach ->

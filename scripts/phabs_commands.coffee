@@ -45,15 +45,18 @@ module.exports = (robot) ->
       name = msg.match[2]
       description = msg.match[3]
       phab.withProject msg, project, (projectData) ->
-        phab.createTask msg, projectData.data.phid, name, description, (body) ->
-          # console.log body
-          if body['error_info']?
-            msg.send "#{body['error_info']}"
-          else
-            id = body['result']['object']['id']
-            url = process.env.PHABRICATOR_URL + "/T#{id}"
-            phab.recordPhid msg, id
-            msg.send "Task T#{id} created = #{url}"
+        if projectData.error_info?
+          msg.send projectData.error_info
+        else
+          phab.createTask msg, projectData.data.phid, name, description, (body) ->
+            # console.log body
+            if body['error_info']?
+              msg.send "#{body['error_info']}"
+            else
+              id = body['result']['object']['id']
+              url = process.env.PHABRICATOR_URL + "/T#{id}"
+              phab.recordPhid msg, id
+              msg.send "Task T#{id} created = #{url}"
     msg.finish()
 
   #   hubot phab paste <name of the paste> - creates a new paste
@@ -73,11 +76,14 @@ module.exports = (robot) ->
   #   hubot phab count <project> - counts how many tasks a project has
   robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+)/), (msg) ->
     phab.withProject msg, msg.match[1], (projectData) ->
-      phab.listTasks msg, projectData.data.phid, (body) ->
-        if Object.keys(body['result']).length is 0
-          msg.send "#{projectData.data.name} has no tasks."
-        else
-          msg.send "#{projectData.data.name} has #{Object.keys(body['result']).length} tasks."
+      if projectData.error_info?
+        msg.send projectData.error_info
+      else
+        phab.listTasks msg, projectData.data.phid, (body) ->
+          if Object.keys(body['result']).length is 0
+            msg.send "#{projectData.data.name} has no tasks."
+          else
+            msg.send "#{projectData.data.name} has #{Object.keys(body['result']).length} tasks."
     msg.finish()
 
   #   hubot phab Txx - gives information about task Txxx
@@ -227,12 +233,15 @@ module.exports = (robot) ->
     project = msg.match[1]
     terms = msg.match[2]
     phab.withProject msg, project, (projectData) ->
-      phab.searchTask msg, projectData.data.phid, terms, (payload) ->
-        if payload.result.data.length is 0
-          msg.send "There is no task matching '#{terms}' in project '#{projectData.data.name}'."
-        else
-          for task in payload.result.data
-            msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
-          if payload.result.cursor.after?
-            msg.send '... and there is more.'
+      if projectData.error_info?
+        msg.send projectData.error_info
+      else
+        phab.searchTask msg, projectData.data.phid, terms, (payload) ->
+          if payload.result.data.length is 0
+            msg.send "There is no task matching '#{terms}' in project '#{projectData.data.name}'."
+          else
+            for task in payload.result.data
+              msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
+            if payload.result.cursor.after?
+              msg.send '... and there is more.'
     msg.finish()

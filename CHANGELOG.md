@@ -4,6 +4,7 @@ Hubot-phabs Changelog
 ### 1.2.8 - wip
 - get back on track with full test coverage
 - remove the need to set the bot phid in config
+- big refactoring to make phabricator lib easier to use by other plugins
 
 ### 1.2.7 - 2016-07-31
 - add a way to add comment on status and priority changes

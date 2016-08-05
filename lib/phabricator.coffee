@@ -59,18 +59,18 @@ class Phabricator
     storageLoaded() # just in case storage was loaded before we got here
 
 
-  ready: (msg) ->
-    msg.send 'Error: Phabricator url is not specified' if not @url
-    msg.send 'Error: Phabricator api key is not specified' if not @apikey
+  ready: ->
+    @robot.logger.error 'Error: Phabricator url is not specified' if not @url
+    @robot.logger.error 'Error: Phabricator api key is not specified' if not @apikey
     return false unless (@url and @apikey)
     true
 
 
-  phabGet: (msg, query, endpoint, cb) ->
+  phabGet: (query, endpoint, cb) =>
     query['api.token'] = process.env.PHABRICATOR_API_KEY
     # console.log query
     body = querystring.stringify(query)
-    msg.http(process.env.PHABRICATOR_URL)
+    @robot.http(process.env.PHABRICATOR_URL)
       .path("api/#{endpoint}")
       .get(body) (err, res, payload) ->
         json_body = null
@@ -99,23 +99,23 @@ class Phabricator
           }
         cb json_body
 
-  withBotPHID: (robot, cb) =>
+  withBotPHID: (cb) =>
     if @data.bot_phid
       cb @data.bot_phid
     else
-      @phabGet robot, '', 'user.whoami', (json_body) =>
+      @phabGet '', 'user.whoami', (json_body) =>
         @data.bot_phid = json_body.result.phid
         cb @data.bot_phid
 
-  withFeed: (robot, payload, cb) =>
-    # console.log payload
+  withFeed: (payload, cb) =>
+    # console.log payload.storyData
     if /^PHID-TASK-/.test payload.storyData.objectPHID
       query = {
         'constraints[phids][0]': payload.storyData.objectPHID,
         'attachments[projects]': 1
       }
       data = @data
-      @phabGet robot, query, 'maniphest.search', (json_body) ->
+      @phabGet query, 'maniphest.search', (json_body) ->
         announces = {
           message: payload.storyText
         }
@@ -132,7 +132,7 @@ class Phabricator
     else
       cb { rooms: [ ] }
 
-  withProject: (msg, project, cb) =>
+  withProject: (_, project, cb) =>
     if @data.projects[project]?
       projectData = @data.projects[project]
       projectData.name = project
@@ -151,17 +151,16 @@ class Phabricator
         cb { aliases: aliases, data: projectData }
       else
         query = { 'names[0]': projectData.name }
-        @phabGet msg, query, 'project.query', (json_body) ->
+        @phabGet query, 'project.query', (json_body) ->
           if Object.keys(json_body.result.data).length > 0
             projectData.phid = Object.keys(json_body.result.data)[0]
             cb { aliases: aliases, data: projectData }
           else
-            msg.send "Sorry, #{project} not found."
-            msg.finish()
+            cb { error_info: "Sorry, #{project} not found." }
     else
       data = @data
       query = { 'names[0]': project }
-      @phabGet msg, query, 'project.query', (json_body) ->
+      @phabGet query, 'project.query', (json_body) ->
         if json_body.result.data.length > 0 or Object.keys(json_body.result.data).length > 0
           phid = Object.keys(json_body.result.data)[0]
           data.projects[project] = { phid: phid }
@@ -170,12 +169,11 @@ class Phabricator
           }
           cb { aliases: aliases, data: projectData }
         else
-          msg.send "Project #{project} not found."
-          msg.finish()
+          cb { error_info: "Sorry, #{project} not found." }
 
 
   withUser: (msg, user, cb) =>
-    if @ready(msg) is true
+    if @ready() is true
       id = user.phid
       if id
         cb(id)
@@ -191,7 +189,7 @@ class Phabricator
           msg.finish()
           return
         query = { 'emails[0]': email }
-        @phabGet msg, query, 'user.query', (json_body) ->
+        @phabGet query, 'user.query', (json_body) ->
           unless json_body['result']['0']?
             msg.send "Sorry, I cannot find #{email} :("
             msg.finish()
@@ -200,19 +198,19 @@ class Phabricator
           cb user.phid
 
 
-  withUserByPhid: (robot, phid, cb) =>
+  withUserByPhid: (_, phid, cb) =>
     if phid?
       user = null
-      for k of robot.brain.data.users
-        thisphid = robot.brain.data.users[k].phid
+      for k of @robot.brain.data.users
+        thisphid = @robot.brain.data.users[k].phid
         if thisphid? and thisphid is phid
-          user = robot.brain.data.users[k]
+          user = @robot.brain.data.users[k]
           break
       if user?
         cb user
       else
         query = { 'phids[0]': phid }
-        @phabGet robot, query, 'user.query', (json_body) ->
+        @phabGet query, 'user.query', (json_body) ->
           if json_body['result']['0']?
             cb { name: json_body['result']['0']['userName'] }
           else
@@ -226,45 +224,45 @@ class Phabricator
     if group is 'phuser' and process.env.PHABRICATOR_TRUSTED_USERS is 'y'
       isAuthorized = true
     else
-      isAuthorized = msg.robot.auth?.hasRole(user, [group, 'phadmin']) or
-                     msg.robot.auth?.isAdmin(user)
-    if msg.robot.auth? and not isAuthorized
+      isAuthorized = @robot.auth?.hasRole(user, [group, 'phadmin']) or
+                     @robot.auth?.isAdmin(user)
+    if @robot.auth? and not isAuthorized
       msg.reply "You don't have permission to do that."
       msg.finish()
     else
       cb()
 
 
-  taskInfo: (msg, id, cb) ->
-    if @ready(msg) is true
+  taskInfo: (_, id, cb) ->
+    if @ready() is true
       query = { 'task_id': id }
-      @phabGet msg, query, 'maniphest.info', (json_body) ->
+      @phabGet query, 'maniphest.info', (json_body) ->
         cb json_body
 
 
-  fileInfo: (msg, id, cb) ->
-    if @ready(msg) is true
+  fileInfo: (_, id, cb) ->
+    if @ready() is true
       query = { 'id': id }
-      @phabGet msg, query, 'file.info', (json_body) ->
+      @phabGet query, 'file.info', (json_body) ->
         cb json_body
 
 
-  pasteInfo: (msg, id, cb) ->
-    if @ready(msg) is true
+  pasteInfo: (_, id, cb) ->
+    if @ready() is true
       query = { 'ids[0]': id }
-      @phabGet msg, query, 'paste.query', (json_body) ->
+      @phabGet query, 'paste.query', (json_body) ->
         cb json_body
 
 
-  genericInfo: (msg, name, cb) ->
-    if @ready(msg) is true
+  genericInfo: (_, name, cb) ->
+    if @ready() is true
       query = { 'names[]': name }
-      @phabGet msg, query, 'phid.lookup', (json_body) ->
+      @phabGet query, 'phid.lookup', (json_body) ->
         cb json_body
 
 
-  searchTask: (msg, phid, terms, cb) ->
-    if @ready(msg) is true
+  searchTask: (_, phid, terms, cb) ->
+    if @ready() is true
       query = {
         'constraints[fulltext]': terms,
         'constraints[statuses][0]': 'open',
@@ -273,16 +271,17 @@ class Phabricator
         'limit': '3'
       }
       # console.log query
-      @phabGet msg, query, 'maniphest.search', (json_body) ->
+      @phabGet query, 'maniphest.search', (json_body) ->
         cb json_body
    
 
   createTask: (msg, phid, title, description, cb) ->
-    if @ready(msg) is true
-      adapter = msg.robot.adapterName
-      user = msg.robot.brain.userForName msg.envelope.user.name
+    if @ready() is true
+      user = msg.envelope.user
+      adapter = @robot.adapterName
+      user = @robot.brain.userForName user.name
       @withUser msg, user, (userPhid) =>
-        @withBotPHID msg, (bot_phid) =>
+        @withBotPHID (bot_phid) =>
           query = {
             'transactions[0][type]': 'title',
             'transactions[0][value]': "#{title}",
@@ -298,15 +297,16 @@ class Phabricator
           if description?
             query['transactions[5][type]'] = 'description'
             query['transactions[5][value]'] = "#{description}"
-          @phabGet msg, query, 'maniphest.edit', (json_body) ->
+          @phabGet query, 'maniphest.edit', (json_body) ->
             cb json_body
 
 
   createPaste: (msg, title, cb) ->
-    if @ready(msg) is true
-      bot_phid = msg.robot.brain.data.phabricator.bot_phid
-      adapter = msg.robot.adapterName
-      user = @robot.brain.userForName msg.envelope.user.name
+    if @ready() is true
+      user = msg.envelope.user
+      bot_phid = @robot.brain.data.phabricator.bot_phid
+      adapter = @robot.adapterName
+      user = @robot.brain.userForName user.name
       @withUser msg, user, (userPhid) =>
         query = {
           'transactions[0][type]': 'title',
@@ -318,78 +318,83 @@ class Phabricator
           'transactions[3][type]': 'subscribers.remove',
           'transactions[3][value][0]': "#{bot_phid}"
         }
-        @phabGet msg, query, 'paste.edit', (json_body) ->
+        @phabGet query, 'paste.edit', (json_body) ->
           cb json_body
 
 
   recordPhid: (msg, id) ->
-    msg.envelope.user.lastTask = moment().utc()
-    msg.envelope.user.lastPhid = id
+    user = msg.envelope.user
+    user.lastTask = moment().utc()
+    user.lastPhid = id
 
 
   retrievePhid: (msg) ->
-    expires_at = moment(msg.envelope.user.lastTask).add(5, 'minutes')
-    if msg.envelope.user.lastPhid? and moment().utc().isBefore(expires_at)
-      msg.envelope.user.lastPhid
+    user = msg.envelope.user
+    expires_at = moment(user.lastTask).add(5, 'minutes')
+    if user.lastPhid? and moment().utc().isBefore(expires_at)
+      user.lastPhid
     else
       null
 
 
   addComment: (msg, id, comment, cb) ->
-    if @ready(msg) is true
+    if @ready() is true
+      user = msg.envelope.user
       query = {
         'objectIdentifier': id,
         'transactions[0][type]': 'comment',
-        'transactions[0][value]': "#{comment} (#{msg.envelope.user.name})",
+        'transactions[0][value]': "#{comment} (#{user.name})",
         'transactions[1][type]': 'subscribers.remove',
-        'transactions[1][value][0]': "#{msg.robot.brain.data.phabricator.bot_phid}"
+        'transactions[1][value][0]': "#{@robot.brain.data.phabricator.bot_phid}"
       }
-      @phabGet msg, query, 'maniphest.edit', (json_body) ->
+      @phabGet query, 'maniphest.edit', (json_body) ->
         cb json_body
 
 
   updateStatus: (msg, id, status, comment, cb) ->
-    if @ready(msg) is true
+    if @ready() is true
+      user = msg.envelope.user
       query = {
         'objectIdentifier': id,
         'transactions[0][type]': 'status',
         'transactions[0][value]': @statuses[status],
         'transactions[1][type]': 'subscribers.remove',
-        'transactions[1][value][0]': "#{msg.robot.brain.data.phabricator.bot_phid}",
+        'transactions[1][value][0]': "#{@robot.brain.data.phabricator.bot_phid}",
         'transactions[2][type]': 'owner',
-        'transactions[2][value]': msg.envelope.user.phid,
+        'transactions[2][value]': user.phid,
         'transactions[3][type]': 'comment'
       }
       if comment?
-        query['transactions[3][value]'] = "#{comment} (#{msg.envelope.user.name})"
+        query['transactions[3][value]'] = "#{comment} (#{user.name})"
       else
-        query['transactions[3][value]'] = "status set to #{status} by #{msg.envelope.user.name}"
-      @phabGet msg, query, 'maniphest.edit', (json_body) ->
+        query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
+      @phabGet query, 'maniphest.edit', (json_body) ->
         cb json_body
 
 
   updatePriority: (msg, id, priority, comment, cb) ->
-    if @ready(msg) is true
+    if @ready() is true
+      user = msg.envelope.user
       query = {
         'objectIdentifier': id,
         'transactions[0][type]': 'priority',
         'transactions[0][value]': @priorities[priority],
         'transactions[1][type]': 'subscribers.remove',
-        'transactions[1][value][0]': "#{msg.robot.brain.data.phabricator.bot_phid}",
+        'transactions[1][value][0]': "#{@robot.brain.data.phabricator.bot_phid}",
         'transactions[2][type]': 'owner',
-        'transactions[2][value]': msg.envelope.user.phid,
+        'transactions[2][value]': user.phid,
         'transactions[3][type]': 'comment'
       }
       if comment?
-        query['transactions[3][value]'] = "#{comment} (#{msg.envelope.user.name})"
+        query['transactions[3][value]'] = "#{comment} (#{user.name})"
       else
-        query['transactions[3][value]'] = "priority set to #{priority} by #{msg.envelope.user.name}"
-      @phabGet msg, query, 'maniphest.edit', (json_body) ->
+        query['transactions[3][value]'] = "priority set to #{priority} by #{user.name}"
+      @phabGet query, 'maniphest.edit', (json_body) ->
         cb json_body
 
 
-  assignTask: (msg, tid, userphid, cb) ->
-    if @ready(msg) is true
+  assignTask: (_, tid, userphid, cb) ->
+    if @ready() is true
       query = {
         'objectIdentifier': "T#{tid}",
         'transactions[0][type]': 'owner',
@@ -397,17 +402,17 @@ class Phabricator
         'transactions[1][type]': 'subscribers.remove',
         'transactions[1][value][0]': "#{@bot_phid}"
       }
-      @phabGet msg, query, 'maniphest.edit', (json_body) ->
+      @phabGet query, 'maniphest.edit', (json_body) ->
         cb json_body
 
 
-  listTasks: (msg, projphid, cb) ->
-    if @ready(msg) is true
+  listTasks: (_, projphid, cb) ->
+    if @ready() is true
       query = {
         'projectPHIDs[0]': "#{projphid}",
         'status': 'status-open'
       }
-      @phabGet msg, query, 'maniphest.query', (json_body) ->
+      @phabGet query, 'maniphest.query', (json_body) ->
         cb json_body
 
 

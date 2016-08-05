@@ -79,7 +79,7 @@ describe 'phabs_feeds module', ->
         rooms: [ ]
       }
       phab = new Phabricator room.robot, process.env
-      phab.withFeed room.robot, JSON.parse(@postData), (announce) ->
+      phab.withFeed JSON.parse(@postData), (announce) ->
         expect(announce.rooms).to.eql [ ]
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -181,7 +181,7 @@ describe 'phabs_feeds module', ->
         rooms: [ ]
       }
       phab = new Phabricator room.robot, process.env
-      phab.withFeed room.robot, JSON.parse(@postData), (announce) ->
+      phab.withFeed JSON.parse(@postData), (announce) ->
         expect(announce).to.eql expected
         done()
 
@@ -284,7 +284,7 @@ describe 'phabs_feeds module', ->
         rooms: [ 'room1' ]
       }
       phab = new Phabricator room.robot, process.env
-      phab.withFeed room.robot, JSON.parse(@postData), (announce) ->
+      phab.withFeed JSON.parse(@postData), (announce) ->
         expect(announce).to.eql expected
         done()
 
