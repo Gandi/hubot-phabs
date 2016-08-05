@@ -181,12 +181,12 @@ class Phabricator
         email = user.email_address or user.pagerdutyEmail
         unless email
           if from.name is user.name
-            cb { 
+            cb {
               error_info: "Sorry, I can't figure out your email address :( " +
                           'Can you tell me with `.phab me as you@yourdomain.com`?'
               }
           else
-            cb { 
+            cb {
               error_info: "Sorry, I can't figure #{user.name} email address. " +
                           "Can you help me with .phab #{user.name} = <email>"
               }
@@ -194,8 +194,8 @@ class Phabricator
           query = { 'emails[0]': email }
           @phabGet query, 'user.query', (json_body) ->
             unless json_body['result']['0']?
-              cb { 
-                error_info:  "Sorry, I cannot find #{email} :(" 
+              cb {
+                error_info: "Sorry, I cannot find #{email} :("
               }
             else
               user.phid = json_body['result']['0']['phid']

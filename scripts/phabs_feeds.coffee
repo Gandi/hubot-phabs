@@ -30,7 +30,7 @@ module.exports = (robot) ->
     # undefined gives /(?:)/
     ipre = new RegExp(process.env.HUBOT_AUTHORIZED_IP_REGEXP)
     if ipre.test(ip) and req.body.storyID?
-      phab.withFeed req.body, (announce) =>
+      phab.withFeed req.body, (announce) ->
         for room in announce.rooms
           robot.messageRoom room, announce.message
       res.status(200).end()
