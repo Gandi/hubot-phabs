@@ -261,7 +261,7 @@ class Phabricator
         cb json_body
 
 
-  searchTask: (_, phid, terms, cb) ->
+  searchTask: (phid, terms, cb) ->
     if @ready() is true
       query = {
         'constraints[fulltext]': terms,
@@ -393,7 +393,7 @@ class Phabricator
         cb json_body
 
 
-  assignTask: (_, tid, userphid, cb) ->
+  assignTask: (tid, userphid, cb) ->
     if @ready() is true
       query = {
         'objectIdentifier': "T#{tid}",
@@ -406,7 +406,7 @@ class Phabricator
         cb json_body
 
 
-  listTasks: (_, projphid, cb) ->
+  listTasks: (projphid, cb) ->
     if @ready() is true
       query = {
         'projectPHIDs[0]': "#{projphid}",

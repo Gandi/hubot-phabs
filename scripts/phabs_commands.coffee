@@ -79,7 +79,7 @@ module.exports = (robot) ->
       if projectData.error_info?
         msg.send projectData.error_info
       else
-        phab.listTasks msg, projectData.data.phid, (body) ->
+        phab.listTasks projectData.data.phid, (body) ->
           if Object.keys(body['result']).length is 0
             msg.send "#{projectData.data.name} has no tasks."
           else
@@ -218,7 +218,7 @@ module.exports = (robot) ->
       assignee = robot.brain.userForName(who)
       if assignee?
         phab.withUser msg, assignee, (userPhid) ->
-          phab.assignTask msg, id, userPhid, (body) ->
+          phab.assignTask id, userPhid, (body) ->
             if body['error_info']?
               msg.send "#{body['error_info']}"
             else
@@ -236,7 +236,7 @@ module.exports = (robot) ->
       if projectData.error_info?
         msg.send projectData.error_info
       else
-        phab.searchTask msg, projectData.data.phid, terms, (payload) ->
+        phab.searchTask projectData.data.phid, terms, (payload) ->
           if payload.result.data.length is 0
             msg.send "There is no task matching '#{terms}' in project '#{projectData.data.name}'."
           else
