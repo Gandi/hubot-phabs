@@ -49,7 +49,7 @@ module.exports = (robot) ->
   #   hubot phad <project> info
   robot.respond (/phad (.+) info$/), (msg) ->
     project = msg.match[1]
-    phab.withProject msg, project, (projectData) ->
+    phab.withProject project, (projectData) ->
       if projectData.error_info?
         msg.send projectData.error_info
       else
@@ -69,7 +69,7 @@ module.exports = (robot) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       project = msg.match[1]
       alias = msg.match[2]
-      phab.withProject msg, project, (projectData) ->
+      phab.withProject project, (projectData) ->
         if projectData.error_info?
           msg.send projectData.error_info
         else
@@ -94,7 +94,7 @@ module.exports = (robot) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       project = msg.match[1]
       room = msg.match[2]
-      phab.withProject msg, project, (projectData) ->
+      phab.withProject project, (projectData) ->
         if projectData.error_info?
           msg.send projectData.error_info
         else
@@ -111,7 +111,7 @@ module.exports = (robot) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       project = msg.match[1]
       room = msg.match[2]
-      phab.withProject msg, project, (projectData) ->
+      phab.withProject project, (projectData) ->
         if projectData.error_info?
           msg.send projectData.error_info
         else

@@ -44,7 +44,7 @@ module.exports = (robot) ->
       project = msg.match[1]
       name = msg.match[2]
       description = msg.match[3]
-      phab.withProject msg, project, (projectData) ->
+      phab.withProject project, (projectData) ->
         if projectData.error_info?
           msg.send projectData.error_info
         else
@@ -75,7 +75,7 @@ module.exports = (robot) ->
 
   #   hubot phab count <project> - counts how many tasks a project has
   robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+)/), (msg) ->
-    phab.withProject msg, msg.match[1], (projectData) ->
+    phab.withProject msg.match[1], (projectData) ->
       if projectData.error_info?
         msg.send projectData.error_info
       else
@@ -93,11 +93,11 @@ module.exports = (robot) ->
       msg.send "Sorry, you don't have any task active right now."
       msg.finish()
       return
-    phab.taskInfo msg, id, (body) ->
+    phab.taskInfo id, (body) ->
       if body['error_info']?
         msg.send "oops T#{id} #{body['error_info']}"
       else
-        phab.withUserByPhid robot, body.result.ownerPHID, (owner) ->
+        phab.withUserByPhid body.result.ownerPHID, (owner) ->
           status = body.result.status
           priority = body.result.priority
           phab.recordPhid msg, id
@@ -232,7 +232,7 @@ module.exports = (robot) ->
   robot.respond /ph(?:ab)? ([^ ]+) (.+)$/, (msg) ->
     project = msg.match[1]
     terms = msg.match[2]
-    phab.withProject msg, project, (projectData) ->
+    phab.withProject project, (projectData) ->
       if projectData.error_info?
         msg.send projectData.error_info
       else

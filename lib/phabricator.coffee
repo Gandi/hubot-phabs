@@ -132,7 +132,7 @@ class Phabricator
     else
       cb { rooms: [ ] }
 
-  withProject: (_, project, cb) =>
+  withProject: (project, cb) =>
     if @data.projects[project]?
       projectData = @data.projects[project]
       projectData.name = project
@@ -198,7 +198,7 @@ class Phabricator
           cb user.phid
 
 
-  withUserByPhid: (_, phid, cb) =>
+  withUserByPhid: (phid, cb) =>
     if phid?
       user = null
       for k of @robot.brain.data.users
@@ -233,28 +233,28 @@ class Phabricator
       cb()
 
 
-  taskInfo: (_, id, cb) ->
+  taskInfo: (id, cb) ->
     if @ready() is true
       query = { 'task_id': id }
       @phabGet query, 'maniphest.info', (json_body) ->
         cb json_body
 
 
-  fileInfo: (_, id, cb) ->
+  fileInfo: (id, cb) ->
     if @ready() is true
       query = { 'id': id }
       @phabGet query, 'file.info', (json_body) ->
         cb json_body
 
 
-  pasteInfo: (_, id, cb) ->
+  pasteInfo: (id, cb) ->
     if @ready() is true
       query = { 'ids[0]': id }
       @phabGet query, 'paste.query', (json_body) ->
         cb json_body
 
 
-  genericInfo: (_, name, cb) ->
+  genericInfo: (name, cb) ->
     if @ready() is true
       query = { 'names[]': name }
       @phabGet query, 'phid.lookup', (json_body) ->

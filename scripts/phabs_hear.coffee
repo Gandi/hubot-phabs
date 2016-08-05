@@ -37,7 +37,7 @@ module.exports = (robot) ->
     switch
       
       when 'T' is type
-        phab.taskInfo msg, id, (body) ->
+        phab.taskInfo id, (body) ->
           if body['error_info']?
             msg.send "oops #{type}#{id} #{body['error_info']}"
           else
@@ -53,7 +53,7 @@ module.exports = (robot) ->
             phab.recordPhid msg, id
       
       when 'F' is type
-        phab.fileInfo msg, id, (body) ->
+        phab.fileInfo id, (body) ->
           if body['error_info']?
             msg.send "oops #{type}#{id} #{body['error_info']}"
           else
@@ -66,7 +66,7 @@ module.exports = (robot) ->
                        "(#{body['result']['mimeType']} #{size})"
       
       when 'P' is type
-        phab.pasteInfo msg, id, (body) ->
+        phab.pasteInfo id, (body) ->
           if Object.keys(body['result']).length < 1
             msg.send "oops #{type}#{id} was not found."
           else
@@ -80,7 +80,7 @@ module.exports = (robot) ->
               msg.send "#{body['result'][key]['uri']} - #{body['result'][key]['title']}#{lang}"
       
       when /^M|B|Q|L|V$/.test type
-        phab.genericInfo msg, "#{type}#{id}", (body) ->
+        phab.genericInfo "#{type}#{id}", (body) ->
           if Object.keys(body['result']).length < 1
             msg.send "oops #{type}#{id} was not found."
           else
@@ -97,7 +97,7 @@ module.exports = (robot) ->
               return
 
       when /^r[A-Z]+[a-f0-9]{10,}$/.test type
-        phab.genericInfo msg, type, (body) ->
+        phab.genericInfo type, (body) ->
           if Object.keys(body['result']).length < 1
             msg.send "oops #{type} was not found."
           else
