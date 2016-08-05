@@ -383,6 +383,43 @@ describe 'phabs_admin module', ->
   # ---------------------------------------------------------------------------------
   context 'user wants to create an alias for a project', ->
 
+    context 'and is project is unknown to phabricator', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': { },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'project with phid',
+          bug: 'project with phid'
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/project.query')
+          .query({
+            'names[0]': 'project1',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': [ ],
+            'slugMap': [ ],
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad project1 alias bug', ->
+        hubot 'phad project1 alias bug'
+        it 'should reply with proper info', ->
+          expect(hubotResponse())
+            .to.eql 'Sorry, project1 not found.'
+
     context 'when the alias already exists', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
@@ -481,6 +518,43 @@ describe 'phabs_admin module', ->
   # ---------------------------------------------------------------------------------
   context 'user wants to add a feed to a project', ->
 
+    context 'and is project is unknown to phabricator', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': { },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'project with phid',
+          bug: 'project with phid'
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/project.query')
+          .query({
+            'names[0]': 'project1',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': [ ],
+            'slugMap': [ ],
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad project1 feed to #dev', ->
+        hubot 'phad project1 feed to #dev'
+        it 'should reply with proper info', ->
+          expect(hubotResponse())
+            .to.eql 'Sorry, project1 not found.'
+
     context 'but the feed already exists', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
@@ -537,6 +611,43 @@ describe 'phabs_admin module', ->
 
   # ---------------------------------------------------------------------------------
   context 'user wants to remove a feed from a project', ->
+
+    context 'and is project is unknown to phabricator', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': { },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'project with phid',
+          bug: 'project with phid'
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/project.query')
+          .query({
+            'names[0]': 'project1',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': [ ],
+            'slugMap': [ ],
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad project1 remove from #dev', ->
+        hubot 'phad project1 remove from #dev'
+        it 'should reply with proper info', ->
+          expect(hubotResponse())
+            .to.eql 'Sorry, project1 not found.'
 
     context 'and the feed exists', ->
       beforeEach ->
