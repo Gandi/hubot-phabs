@@ -460,6 +460,40 @@ describe 'phabs_commands module', ->
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
           expect(hubotResponse(3)).to.eql 'T24 has status open, priority Low, owner user_with_phid'
 
+
+    context 'phab new proj3 a task', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj2': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/project.query')
+          .query({
+            'names[0]': 'project1',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': [ ],
+            'slugMap': [ ],
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'when project is unknown', ->
+        hubot 'phab new proj3 a task', 'user_with_phid'
+        it 'replies that project is unknown', ->
+          expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
+
   # ---------------------------------------------------------------------------------
   context 'someone creates a new paste', ->
     context 'something goes wrong', ->
@@ -490,6 +524,11 @@ describe 'phabs_commands module', ->
       afterEach ->
         nock.cleanAll()
 
+      context 'when user is doing it for the first time and has no email recorded', ->
+        hubot 'ph paste a new paste'
+        it 'invites the user to set his email address', ->
+          expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
+                                         'Can you tell me with `.phab me as you@yourdomain.com`?'
       context 'ph paste a new paste', ->
         hubot 'ph paste a new paste', 'user_with_phid'
         it 'gives the link to fill up the paste Paste', ->
@@ -545,6 +584,39 @@ describe 'phabs_commands module', ->
         hubot 'phab count proj1', 'user_with_phid'
         it 'replies with the unmber of tasks in the project', ->
           expect(hubotResponse()).to.eql 'proj1 has no tasks.'
+
+    context 'phab count proj3', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj2': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/project.query')
+          .query({
+            'names[0]': 'project1',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': [ ],
+            'slugMap': [ ],
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'when project is unknown', ->
+        hubot 'phab count proj3', 'user_with_phid'
+        it 'replies that project is unknown', ->
+          expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
 
   # ---------------------------------------------------------------------------------
   context 'user changes status for a task', ->
@@ -1253,6 +1325,39 @@ describe 'phabs_commands module', ->
         it 'gives a message that there is no result', ->
           expect(hubotResponse()).to.eql "There is no task matching 'gitlab' in project 'proj3'."
           expect(hubotResponseCount()).to.eql 1
+
+    context 'phab count proj4', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj2': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/project.query')
+          .query({
+            'names[0]': 'project1',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': [ ],
+            'slugMap': [ ],
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'when project is unknown', ->
+        hubot 'phab proj4 gitlab', 'user_with_phid'
+        it 'replies that project is unknown', ->
+          expect(hubotResponse()).to.eql 'Sorry, proj4 not found.'
 
   # ---------------------------------------------------------------------------------
   context 'permissions system', ->
