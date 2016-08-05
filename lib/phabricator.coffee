@@ -172,7 +172,7 @@ class Phabricator
           cb { error_info: "Sorry, #{project} not found." }
 
 
-  withUser: (msg, user, cb) =>
+  withUser: (from, user, cb) =>
     if @ready() is true
       id = user.phid
       if id
@@ -180,22 +180,26 @@ class Phabricator
       else
         email = user.email_address or user.pagerdutyEmail
         unless email
-          if msg.envelope.user.name is user.name
-            msg.send "Sorry, I can't figure out your email address :( " +
-                     'Can you tell me with `.phab me as you@yourdomain.com`?'
+          if from.name is user.name
+            cb { 
+              error_info: "Sorry, I can't figure out your email address :( " +
+                          'Can you tell me with `.phab me as you@yourdomain.com`?'
+              }
           else
-            msg.send "Sorry, I can't figure #{user.name} email address. " +
-                     "Can you help me with .phab #{user.name} = <email>"
-          msg.finish()
-          return
-        query = { 'emails[0]': email }
-        @phabGet query, 'user.query', (json_body) ->
-          unless json_body['result']['0']?
-            msg.send "Sorry, I cannot find #{email} :("
-            msg.finish()
-            return
-          user.phid = json_body['result']['0']['phid']
-          cb user.phid
+            cb { 
+              error_info: "Sorry, I can't figure #{user.name} email address. " +
+                          "Can you help me with .phab #{user.name} = <email>"
+              }
+        else
+          query = { 'emails[0]': email }
+          @phabGet query, 'user.query', (json_body) ->
+            unless json_body['result']['0']?
+              cb { 
+                error_info:  "Sorry, I cannot find #{email} :(" 
+              }
+            else
+              user.phid = json_body['result']['0']['phid']
+              cb user.phid
 
 
   withUserByPhid: (phid, cb) =>
@@ -275,61 +279,63 @@ class Phabricator
         cb json_body
    
 
-  createTask: (msg, phid, title, description, cb) ->
+  createTask: (user, phid, title, description, cb) ->
     if @ready() is true
-      user = msg.envelope.user
       adapter = @robot.adapterName
       user = @robot.brain.userForName user.name
-      @withUser msg, user, (userPhid) =>
-        @withBotPHID (bot_phid) =>
+      @withUser user, user, (userPhid) =>
+        if userPhid.error_info?
+          cb userPhid
+        else
+          @withBotPHID (bot_phid) =>
+            query = {
+              'transactions[0][type]': 'title',
+              'transactions[0][value]': "#{title}",
+              'transactions[1][type]': 'comment',
+              'transactions[1][value]': "(created by #{user.name} on #{adapter})",
+              'transactions[2][type]': 'subscribers.add',
+              'transactions[2][value][0]': "#{userPhid}",
+              'transactions[3][type]': 'subscribers.remove',
+              'transactions[3][value][0]': "#{bot_phid}",
+              'transactions[4][type]': 'projects.add',
+              'transactions[4][value][]': "#{phid}"
+            }
+            if description?
+              query['transactions[5][type]'] = 'description'
+              query['transactions[5][value]'] = "#{description}"
+            @phabGet query, 'maniphest.edit', (json_body) ->
+              cb json_body
+
+
+  createPaste: (user, title, cb) ->
+    if @ready() is true
+      bot_phid = @robot.brain.data.phabricator.bot_phid
+      adapter = @robot.adapterName
+      user = @robot.brain.userForName user.name
+      @withUser user, user, (userPhid) =>
+        if userPhid.error_info?
+          cb userPhid
+        else
           query = {
             'transactions[0][type]': 'title',
             'transactions[0][value]': "#{title}",
-            'transactions[1][type]': 'comment',
+            'transactions[1][type]': 'text',
             'transactions[1][value]': "(created by #{user.name} on #{adapter})",
             'transactions[2][type]': 'subscribers.add',
             'transactions[2][value][0]': "#{userPhid}",
             'transactions[3][type]': 'subscribers.remove',
-            'transactions[3][value][0]': "#{bot_phid}",
-            'transactions[4][type]': 'projects.add',
-            'transactions[4][value][]': "#{phid}"
+            'transactions[3][value][0]': "#{bot_phid}"
           }
-          if description?
-            query['transactions[5][type]'] = 'description'
-            query['transactions[5][value]'] = "#{description}"
-          @phabGet query, 'maniphest.edit', (json_body) ->
+          @phabGet query, 'paste.edit', (json_body) ->
             cb json_body
 
 
-  createPaste: (msg, title, cb) ->
-    if @ready() is true
-      user = msg.envelope.user
-      bot_phid = @robot.brain.data.phabricator.bot_phid
-      adapter = @robot.adapterName
-      user = @robot.brain.userForName user.name
-      @withUser msg, user, (userPhid) =>
-        query = {
-          'transactions[0][type]': 'title',
-          'transactions[0][value]': "#{title}",
-          'transactions[1][type]': 'text',
-          'transactions[1][value]': "(created by #{user.name} on #{adapter})",
-          'transactions[2][type]': 'subscribers.add',
-          'transactions[2][value][0]': "#{userPhid}",
-          'transactions[3][type]': 'subscribers.remove',
-          'transactions[3][value][0]': "#{bot_phid}"
-        }
-        @phabGet query, 'paste.edit', (json_body) ->
-          cb json_body
-
-
-  recordPhid: (msg, id) ->
-    user = msg.envelope.user
+  recordPhid: (user, id) ->
     user.lastTask = moment().utc()
     user.lastPhid = id
 
 
-  retrievePhid: (msg) ->
-    user = msg.envelope.user
+  retrievePhid: (user) ->
     expires_at = moment(user.lastTask).add(5, 'minutes')
     if user.lastPhid? and moment().utc().isBefore(expires_at)
       user.lastPhid
@@ -337,9 +343,8 @@ class Phabricator
       null
 
 
-  addComment: (msg, id, comment, cb) ->
+  addComment: (user, id, comment, cb) ->
     if @ready() is true
-      user = msg.envelope.user
       query = {
         'objectIdentifier': id,
         'transactions[0][type]': 'comment',
@@ -351,9 +356,8 @@ class Phabricator
         cb json_body
 
 
-  updateStatus: (msg, id, status, comment, cb) ->
+  updateStatus: (user, id, status, comment, cb) ->
     if @ready() is true
-      user = msg.envelope.user
       query = {
         'objectIdentifier': id,
         'transactions[0][type]': 'status',
@@ -372,9 +376,8 @@ class Phabricator
         cb json_body
 
 
-  updatePriority: (msg, id, priority, comment, cb) ->
+  updatePriority: (user, id, priority, comment, cb) ->
     if @ready() is true
-      user = msg.envelope.user
       query = {
         'objectIdentifier': id,
         'transactions[0][type]': 'priority',

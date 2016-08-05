@@ -50,7 +50,7 @@ module.exports = (robot) ->
             else
               msg.send "#{body['result']['uri']}#{closed} - #{body['result']['title']} " +
                        "(#{body['result']['priority']})"
-            phab.recordPhid msg, id
+            phab.recordPhid msg.envelope.user, id
       
       when 'F' is type
         phab.fileInfo id, (body) ->

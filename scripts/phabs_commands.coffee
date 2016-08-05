@@ -48,14 +48,14 @@ module.exports = (robot) ->
         if projectData.error_info?
           msg.send projectData.error_info
         else
-          phab.createTask msg, projectData.data.phid, name, description, (body) ->
+          phab.createTask msg.envelope.user, projectData.data.phid, name, description, (body) ->
             # console.log body
             if body['error_info']?
               msg.send "#{body['error_info']}"
             else
               id = body['result']['object']['id']
               url = process.env.PHABRICATOR_URL + "/T#{id}"
-              phab.recordPhid msg, id
+              phab.recordPhid msg.envelope.user, id
               msg.send "Task T#{id} created = #{url}"
     msg.finish()
 
@@ -63,13 +63,13 @@ module.exports = (robot) ->
   robot.respond /ph(?:ab)? paste (.*)$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       title = msg.match[1]
-      phab.createPaste msg, title, (body) ->
+      phab.createPaste msg.envelope.user, title, (body) ->
         if body['error_info']?
           msg.send "#{body['error_info']}"
         else
           id = body['result']['object']['id']
           url = process.env.PHABRICATOR_URL + "/paste/edit/#{id}"
-          phab.recordPhid msg, id
+          phab.recordPhid msg.envelope.user, id
           msg.send "Paste P#{id} created = edit on #{url}"
     msg.finish()
 
@@ -88,7 +88,7 @@ module.exports = (robot) ->
 
   #   hubot phab Txx - gives information about task Txxx
   robot.respond /ph(?:ab)?(?: T([0-9]+) ?)?$/, (msg) ->
-    id = msg.match[1] ? phab.retrievePhid(msg)
+    id = msg.match[1] ? phab.retrievePhid(msg.envelope.user)
     unless id?
       msg.send "Sorry, you don't have any task active right now."
       msg.finish()
@@ -100,7 +100,7 @@ module.exports = (robot) ->
         phab.withUserByPhid body.result.ownerPHID, (owner) ->
           status = body.result.status
           priority = body.result.priority
-          phab.recordPhid msg, id
+          phab.recordPhid msg.envelope.user, id
           msg.send "T#{id} has status #{status}, " +
                    "priority #{priority}, owner #{owner.name}"
     msg.finish()
@@ -108,13 +108,13 @@ module.exports = (robot) ->
   #   hubot phab Txx + <some comment> - add a comment to task Txx
   robot.respond /ph(?:ab)?(?: T([0-9]+))? \+ (.+)$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = msg.match[1] ? phab.retrievePhid(msg)
+      id = msg.match[1] ? phab.retrievePhid(msg.envelope.user)
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
       comment = msg.match[2]
-      phab.addComment msg, id, comment, (body) ->
+      phab.addComment msg.envelope.user, id, comment, (body) ->
         if body['error_info']?
           msg.send "oops T#{id} #{body['error_info']}"
         else
@@ -128,14 +128,14 @@ module.exports = (robot) ->
     '(?: = (.+))?$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = msg.match[1] ? phab.retrievePhid(msg)
+      id = msg.match[1] ? phab.retrievePhid(msg.envelope.user)
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
       status = msg.match[2]
       comment = msg.match[3]
-      phab.updateStatus msg, id, status, comment, (body) ->
+      phab.updateStatus msg.envelope.user, id, status, comment, (body) ->
         if body['error_info']?
           msg.send "oops T#{id} #{body['error_info']}"
         else
@@ -148,14 +148,14 @@ module.exports = (robot) ->
     '(?: = (.+))?$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = msg.match[1] ? phab.retrievePhid(msg)
+      id = msg.match[1] ? phab.retrievePhid(msg.envelope.user)
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
       priority = msg.match[2]
       comment = msg.match[3]
-      phab.updatePriority msg, id, priority, comment, (body) ->
+      phab.updatePriority msg.envelope.user, id, priority, comment, (body) ->
         if body['error_info']?
           msg.send "oops T#{id} #{body['error_info']}"
         else
@@ -171,8 +171,11 @@ module.exports = (robot) ->
         msg.send "Sorry, I have no idea who #{name} is. Did you mistype it?"
         msg.finish()
         return
-      phab.withUser msg, assignee, (userPhid) ->
-        msg.send "Hey I know #{name}, he's #{userPhid}"
+      phab.withUser msg.envelope.user, assignee, (userPhid) ->
+        if userPhid.error_info?
+          msg.send userPhid.error_info
+        else
+          msg.send "Hey I know #{name}, he's #{userPhid}"
     msg.finish()
 
   #   hubot phab me as <email> - makes caller known with <email>
@@ -210,20 +213,23 @@ module.exports = (robot) ->
       else
         who = msg.match[5]
         what = msg.match[4]
-      id = what ? phab.retrievePhid(msg)
+      id = what ? phab.retrievePhid(msg.envelope.user)
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
       assignee = robot.brain.userForName(who)
       if assignee?
-        phab.withUser msg, assignee, (userPhid) ->
-          phab.assignTask id, userPhid, (body) ->
-            if body['error_info']?
-              msg.send "#{body['error_info']}"
-            else
-              msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
-            msg.finish()
+        phab.withUser msg.envelope.user, assignee, (userPhid) ->
+          if userPhid.error_info?
+            msg.send userPhid.error_info
+          else
+            phab.assignTask id, userPhid, (body) ->
+              if body['error_info']?
+                msg.send "#{body['error_info']}"
+              else
+                msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
+              msg.finish()
       else
         msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
     msg.finish()
