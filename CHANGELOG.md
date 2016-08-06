@@ -1,7 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.2.8 - wip
+### 1.2.9 - 2016-08-06
+- fix the transition from bot-phid to no-bot-phid in config
+
+### 1.2.8 - 2016-08-05
 - get back on track with full test coverage
 - remove the need to set the bot phid in config
 - big refactoring to make phabricator lib easier to use by other plugins

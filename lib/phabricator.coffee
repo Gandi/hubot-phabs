@@ -103,7 +103,7 @@ class Phabricator
     if @data.bot_phid
       cb @data.bot_phid
     else
-      @phabGet '', 'user.whoami', (json_body) =>
+      @phabGet { }, 'user.whoami', (json_body) =>
         @data.bot_phid = json_body.result.phid
         cb @data.bot_phid
 
