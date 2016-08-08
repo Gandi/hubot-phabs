@@ -49,11 +49,6 @@ describe 'Phabricator lib', ->
       delete process.env.PHABRICATOR_API_KEY
       delete process.env.PHABRICATOR_BOT_PHID
 
-    describe 'new', ->
-      it 'should initialize vars', ->
-        expect(@phab.url).to.eql(process.env.PHABRICATOR_URL)
-        expect(@phab.apikey).to.eql(process.env.PHABRICATOR_API_KEY)
-
     describe '.ready', ->
       it 'should be ready', ->
         ready = @phab.ready(@msg)

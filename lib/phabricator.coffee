@@ -46,8 +46,6 @@ class Phabricator
   }
 
   constructor: (@robot, env) ->
-    @url = env.PHABRICATOR_URL
-    @apikey = env.PHABRICATOR_API_KEY
     storageLoaded = =>
       @data = @robot.brain.data.phabricator ||= {
         projects: { },
@@ -60,9 +58,12 @@ class Phabricator
 
 
   ready: ->
-    @robot.logger.error 'Error: Phabricator url is not specified' if not @url
-    @robot.logger.error 'Error: Phabricator api key is not specified' if not @apikey
-    return false unless (@url and @apikey)
+    if not process.env.PHABRICATOR_URL
+      @robot.logger.error 'Error: Phabricator url is not specified'
+    if not process.env.PHABRICATOR_API_KEY
+      @robot.logger.error 'Error: Phabricator api key is not specified'
+    unless (process.env.PHABRICATOR_URL? and process.env.PHABRICATOR_API_KEY?)
+      return false
     true
 
 
@@ -303,6 +304,7 @@ class Phabricator
             if description?
               query['transactions[5][type]'] = 'description'
               query['transactions[5][value]'] = "#{description}"
+            # console.log query
             @phabGet query, 'maniphest.edit', (json_body) ->
               cb json_body
 
