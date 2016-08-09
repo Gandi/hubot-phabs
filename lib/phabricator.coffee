@@ -50,12 +50,13 @@ class Phabricator
       @data = @robot.brain.data.phabricator ||= {
         projects: { },
         aliases: { },
+        templates: { },
         bot_phid: env.PHABRICATOR_BOT_PHID
       }
       @robot.logger.debug 'Phabricator Data Loaded: ' + JSON.stringify(@data, null, 2)
     @robot.brain.on 'loaded', storageLoaded
     storageLoaded() # just in case storage was loaded before we got here
-
+    @data.templates ?= { }
 
   ready: ->
     if not process.env.PHABRICATOR_URL
@@ -101,7 +102,7 @@ class Phabricator
         cb json_body
 
   withBotPHID: (cb) =>
-    if @data.bot_phid
+    if @data.bot_phid?
       cb @data.bot_phid
     else
       @phabGet { }, 'user.whoami', (json_body) =>
@@ -433,6 +434,34 @@ class Phabricator
       @phabGet query, 'maniphest.query', (json_body) ->
         cb json_body
 
+  addTemplate: (name, taskid, cb) ->
+    if @ready() is true
+      data = @data
+      @taskInfo taskid, (body) ->
+        if body.error_info?
+          cb body
+        else
+          data.templates[name] = { task: taskid }
+          cb { ok: 'Ok' }
+
+  showTemplate: (name, cb) ->
+    if @ready() is true
+      if data.templates[name]
+        cb data.templates[name]
+      else
+        cb { error_info: "Template #{name} was not found." }
+
+  searchTemplate: (term, cb) ->
+    if @ready() is true
+      res = []
+      for name, template of data.templates
+        if /term/.test name
+          res.push { name: name, task: template.task }
+      if res.length is 0
+        cb { error_info: "No template matches '#{term}'." }
+      else
+        cb res
+        
 
 
 module.exports = Phabricator
