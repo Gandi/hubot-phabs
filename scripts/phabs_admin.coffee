@@ -6,7 +6,6 @@
 # Configuration:
 #   PHABRICATOR_URL
 #   PHABRICATOR_API_KEY
-#   PHABRICATOR_BOT_PHID
 #
 # Commands:
 #   hubot phad projects

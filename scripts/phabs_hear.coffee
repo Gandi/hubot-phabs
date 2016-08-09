@@ -8,8 +8,6 @@
 # Configuration:
 #   PHABRICATOR_URL
 #   PHABRICATOR_API_KEY
-#   PHABRICATOR_PROJECTS
-#   PHABRICATOR_BOT_PHID
 #
 # Commands:
 #   anything Txxx - complements with the title of the cited object
