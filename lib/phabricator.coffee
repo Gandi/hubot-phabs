@@ -434,19 +434,24 @@ class Phabricator
       @phabGet query, 'maniphest.query', (json_body) ->
         cb json_body
 
+  # templates
+
   addTemplate: (name, taskid, cb) ->
     if @ready() is true
-      data = @data
-      @taskInfo taskid, (body) ->
-        if body.error_info?
-          cb body
-        else
-          data.templates[name] = { task: taskid }
-          cb { ok: 'Ok' }
+      if data.templates[name]?
+        cb { error_info: "Template #{name} already exists." }
+      else
+        data = @data
+        @taskInfo taskid, (body) ->
+          if body.error_info?
+            cb body
+          else
+            data.templates[name] = { task: taskid }
+            cb { ok: 'Ok' }
 
   showTemplate: (name, cb) ->
     if @ready() is true
-      if data.templates[name]
+      if data.templates[name]?
         cb data.templates[name]
       else
         cb { error_info: "Template #{name} was not found." }
@@ -462,6 +467,26 @@ class Phabricator
       else
         cb res
         
+  removeTemplate: (name, cb) ->
+    if @ready() is true
+      if data.templates[name]?
+        delete data.templates[name]
+        cb { ok: 'Ok' }
+      else
+        cb { error_info: "Template #{name} was not found." }
+
+  updateTemplate: (name, newname, cb) ->
+    if @ready() is true
+      if data.templates[name]?
+        if data.templates[newname]?
+          cb { error_info: "Template #{newname} already exists." }
+        else
+          data.templates[newname] = { task: data.templates[name].task }
+          delete data.templates[name]
+          cb { ok: 'Ok' }
+      else
+        cb { error_info: "Template #{name} was not found." }
+
 
 
 module.exports = Phabricator

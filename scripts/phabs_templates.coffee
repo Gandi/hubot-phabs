@@ -61,18 +61,30 @@ module.exports = (robot) ->
   robot.respond (/pht remove ([-_a-zA-Z0-9]+)$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       name = msg.match[1]
-      msg.send 'Not implemented'
+      phab.removeTemplate name, (body) ->
+        if body.error_info?
+          msg.send body.error_info
+        else
+          msg.send "Ok. Template '#{name}' was removed."
 
   #   hubot pht update <name> T321
   robot.respond (/pht update ([-_a-zA-Z0-9]+) T([0-9]+)$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       name = msg.match[1]
       taskid = msg.match[2]
-      msg.send 'Not implemented'
+      phab.updateTemplate name, taskid, (body) ->
+        if body.error_info?
+          msg.send body.error_info
+        else
+          msg.send "Ok. Template '#{name}' will now use T#{taskid}."
 
   #   hubot pht rename <name> <newname>
   robot.respond (/pht rename ([-_a-zA-Z0-9]+) ([-_a-zA-Z0-9]+)$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       name = msg.match[1]
       newname = msg.match[2]
-      msg.send 'Not implemented'
+      phab.renameTemplate name, taskid, (body) ->
+        if body.error_info?
+          msg.send body.error_info
+        else
+          msg.send "Ok. Template '#{name}' will now use T#{taskid}."
