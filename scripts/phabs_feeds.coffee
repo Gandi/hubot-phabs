@@ -10,7 +10,7 @@
 #
 # Commands:
 #
-# http endpoints
+# http endpoints:
 #   /hubot/phabs/feeds
 #
 # Author:

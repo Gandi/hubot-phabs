@@ -278,6 +278,19 @@ class Phabricator
       # console.log query
       @phabGet query, 'maniphest.search', (json_body) ->
         cb json_body
+
+
+  searchAllTask: (phid, terms, cb) ->
+    if @ready() is true
+      query = {
+        'constraints[fulltext]': terms,
+        'constraints[projects][0]': phid,
+        'order': 'newest',
+        'limit': '3'
+      }
+      # console.log query
+      @phabGet query, 'maniphest.search', (json_body) ->
+        cb json_body
    
 
   createTask: (user, phid, title, description, cb) ->

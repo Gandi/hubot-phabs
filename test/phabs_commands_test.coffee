@@ -1059,6 +1059,307 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
 
   # ---------------------------------------------------------------------------------
+  context 'user searches through all tasks', ->
+
+    context 'there is 2 results', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj3': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.search')
+          .reply(200, { result: {
+            'data': [
+              {
+                'id': 2490,
+                'type': 'TASK',
+                'phid': 'PHID-TASK-p5tbi3vbcffx3mpbxhwr',
+                'fields': {
+                  'name': 'Task 1',
+                  'authorPHID': 'PHID-USER-7p4d4k6v4csqx7gcxcbw',
+                  'ownerPHID': null,
+                  'status': {
+                    'value': 'resolved',
+                    'name': 'Resolved',
+                    'color': null
+                  },
+                  'priority': {
+                    'value': 90,
+                    'subpriority': 0,
+                    'name': 'Needs Triage',
+                    'color': 'violet'
+                  },
+                  'points': null,
+                  'spacePHID': null,
+                  'dateCreated': 1468339539,
+                  'dateModified': 1469535704,
+                  'policy': {
+                    'view': 'users',
+                    'edit': 'users'
+                  }
+                },
+                'attachments': { }
+              },
+              {
+                'id': 2080,
+                'type': 'TASK',
+                'phid': 'PHID-TASK-ext-55d324653c69b5351ff64d0a',
+                'fields': {
+                  'name': 'Task 2',
+                  'authorPHID': 'PHID-USER-hqnae6h2h7fyhln3kqkd',
+                  'ownerPHID': null,
+                  'status': {
+                    'value': 'open',
+                    'name': 'Open',
+                    'color': null
+                  },
+                  'priority': {
+                    'value': 90,
+                    'subpriority': 0,
+                    'name': 'Needs Triage',
+                    'color': 'violet'
+                  },
+                  'points': null,
+                  'spacePHID': null,
+                  'dateCreated': 1439900773,
+                  'dateModified': 1467045532,
+                  'policy': {
+                    'view': 'users',
+                    'edit': 'users'
+                  }
+                },
+                'attachments': { }
+              }
+            ],
+            'maps': { },
+            'query': {
+              'queryKey': 'rwQ6luYqjZF0'
+            },
+            'cursor': {
+              'limit': 3,
+              'after': null,
+              'before': null,
+              'order': 'newest'
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phab all proj3 gitlab', ->
+        hubot 'phab all proj3 gitlab'
+        it 'gives a list of results', ->
+          expect(hubotResponse())
+            .to.eql 'http://example.com/T2490 - Task 1'
+          expect(hubotResponse(2))
+            .to.eql 'http://example.com/T2080 - Task 2'
+          expect(hubotResponseCount()).to.eql 2
+
+    context 'there is more than 3 results', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj3': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.search')
+          .reply(200, { result: {
+            'data': [
+              {
+                'id': 2490,
+                'type': 'TASK',
+                'phid': 'PHID-TASK-p5tbi3vbcffx3mpbxhwr',
+                'fields': {
+                  'name': 'Task 1',
+                  'authorPHID': 'PHID-USER-7p4d4k6v4csqx7gcxcbw',
+                  'ownerPHID': null,
+                  'status': {
+                    'value': 'open',
+                    'name': 'Open',
+                    'color': null
+                  },
+                  'priority': {
+                    'value': 90,
+                    'subpriority': 0,
+                    'name': 'Needs Triage',
+                    'color': 'violet'
+                  },
+                  'points': null,
+                  'spacePHID': null,
+                  'dateCreated': 1468339539,
+                  'dateModified': 1469535704,
+                  'policy': {
+                    'view': 'users',
+                    'edit': 'users'
+                  }
+                },
+                'attachments': { }
+              },
+              {
+                'id': 2080,
+                'type': 'TASK',
+                'phid': 'PHID-TASK-ext-55d324653c69b5351ff64d0a',
+                'fields': {
+                  'name': 'Task 2',
+                  'authorPHID': 'PHID-USER-hqnae6h2h7fyhln3kqkd',
+                  'ownerPHID': null,
+                  'status': {
+                    'value': 'open',
+                    'name': 'Open',
+                    'color': null
+                  },
+                  'priority': {
+                    'value': 90,
+                    'subpriority': 0,
+                    'name': 'Needs Triage',
+                    'color': 'violet'
+                  },
+                  'points': null,
+                  'spacePHID': null,
+                  'dateCreated': 1439900773,
+                  'dateModified': 1467045532,
+                  'policy': {
+                    'view': 'users',
+                    'edit': 'users'
+                  }
+                },
+                'attachments': { }
+              },
+              {
+                'id': 2078,
+                'type': 'TASK',
+                'phid': 'PHID-TASK-ext-55e53abba4d0c58648fdfab6',
+                'fields': {
+                  'name': 'Task 3',
+                  'authorPHID': 'PHID-USER-syykf4ieymsc73z6tie7',
+                  'ownerPHID': null,
+                  'status': {
+                    'value': 'open',
+                    'name': 'Open',
+                    'color': null
+                  },
+                  'priority': {
+                    'value': 90,
+                    'subpriority': 0,
+                    'name': 'Needs Triage',
+                    'color': 'violet'
+                  },
+                  'points': null,
+                  'spacePHID': null,
+                  'dateCreated': 1441086139,
+                  'dateModified': 1468252093,
+                  'policy': {
+                    'view': 'users',
+                    'edit': 'users'
+                  }
+                },
+                'attachments': { }
+              }
+            ],
+            'maps': { },
+            'query': {
+              'queryKey': 'rwQ6luYqjZF0'
+            },
+            'cursor': {
+              'limit': 3,
+              'after': '2078',
+              'before': null,
+              'order': 'newest'
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phab all proj3 gitlab', ->
+        hubot 'phab all proj3 gitlab'
+        it 'gives a list of results', ->
+          expect(hubotResponse())
+            .to.eql 'http://example.com/T2490 - Task 1'
+          expect(hubotResponse(2))
+            .to.eql 'http://example.com/T2080 - Task 2'
+          expect(hubotResponse(3))
+            .to.eql 'http://example.com/T2078 - Task 3'
+          expect(hubotResponse(4))
+            .to.eql '... and there is more.'
+          expect(hubotResponseCount()).to.eql 4
+
+
+    context 'there is no results', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj3': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.search')
+          .reply(200, { result: {
+            'data': [ ],
+            'maps': { },
+            'query': {
+              'queryKey': 'rwQ6luYqjZF0'
+            },
+            'cursor': {
+              'limit': 3,
+              'after': null,
+              'before': null,
+              'order': 'newest'
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phab all proj3 gitlab', ->
+        hubot 'phab all proj3 gitlab'
+        it 'gives a message that there is no result', ->
+          expect(hubotResponse()).to.eql "There is no task matching 'gitlab' in project 'proj3'."
+          expect(hubotResponseCount()).to.eql 1
+
+    context 'phab count proj4', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj2': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/project.query')
+          .query({
+            'names[0]': 'project1',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': [ ],
+            'slugMap': [ ],
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'when project is unknown', ->
+        hubot 'phab all proj4 gitlab', 'user_with_phid'
+        it 'replies that project is unknown', ->
+          expect(hubotResponse()).to.eql 'Sorry, proj4 not found.'
+
+  # ---------------------------------------------------------------------------------
   context 'user searches through tasks', ->
 
     context 'there is 2 results', ->

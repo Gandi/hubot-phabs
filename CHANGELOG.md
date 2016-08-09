@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.2.10 - 2016-08-09
+- add a search all command to also search in closed tasks
+
 ### 1.2.9 - 2016-08-06
 - fix the transition from bot-phid to no-bot-phid in config
 

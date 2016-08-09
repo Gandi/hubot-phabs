@@ -234,6 +234,24 @@ module.exports = (robot) ->
         msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
     msg.finish()
 
+  #   hubot phab all <project> search terms - searches for terms in project
+  robot.respond /ph(?:ab)? all ([^ ]+) (.+)$/, (msg) ->
+    project = msg.match[1]
+    terms = msg.match[2]
+    phab.withProject project, (projectData) ->
+      if projectData.error_info?
+        msg.send projectData.error_info
+      else
+        phab.searchAllTask projectData.data.phid, terms, (payload) ->
+          if payload.result.data.length is 0
+            msg.send "There is no task matching '#{terms}' in project '#{projectData.data.name}'."
+          else
+            for task in payload.result.data
+              msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
+            if payload.result.cursor.after?
+              msg.send '... and there is more.'
+    msg.finish()
+
   #   hubot phab <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)? ([^ ]+) (.+)$/, (msg) ->
     project = msg.match[1]
