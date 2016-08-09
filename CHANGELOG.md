@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.3.0 - wip
+- add phabs_template feature to create tasks according to a task template
+
 ### 1.2.10 - 2016-08-09
 - add a search all command to also search in closed tasks
 

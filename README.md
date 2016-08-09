@@ -206,6 +206,35 @@ As an experiment, I moved some configuration variables to the brain. They are ma
         remove a feed
         permission: phadmin
 
+New in 1.3.0, there is also a way to specify a list of templates for creating new Tasks with prefilled descriptions. Any task can be used as a template, whatever the status, as far as they are readable by the bot user. Typically those can be relevant closed Tasks form the past that we fit for templating.
+
+The management of those templates is done with the `.pht` command:
+
+    .pht new <name> T123
+        creates a new template named <name>, using the task T123 as a template
+        permission: phadmin
+
+    .pht show <name>
+        shows what task is used as a template
+        permission: phuser, phadmin
+
+    .pht search <term>
+        search through templates which names contain <term>
+        permission: phuser, phadmin
+
+    .pht remove <name>
+        removes template named <name> from the brain memory
+        permission: phadmin
+
+    .pht update <name> T321
+        updated template named <name> with the new template task T321
+        permission: phadmin
+
+    .pht rename <name> <newname>
+        rename the template named <name> with <newname>
+        permission: phadmin
+
+
 Feeds
 ----------------
 
