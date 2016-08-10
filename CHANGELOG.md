@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.3.1 - 2016-08-10
+- fix the template description when no prepend is provided
+
 ### 1.3.0 - 2016-08-10
 - add phabs_template feature to create tasks according to a task template
   - collection of new .pht commands to setup templates

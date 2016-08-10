@@ -75,8 +75,7 @@ module.exports = (robot) ->
               msg.send description.error_info
             else
               if prepend?
-                prepend += '\n\n'
-              description = "#{prepend}#{description}"
+                description = "#{prepend}\n\n#{description}"
               phab.createTask msg.envelope.user, projectData.data.phid, name, description, (body) ->
                 # console.log body
                 if body['error_info']?
