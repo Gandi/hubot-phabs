@@ -58,33 +58,58 @@ describe 'phabs_templates module', ->
           expect(hubotResponse()).to.eql 'Template \'template1\' already exists.'
 
     context 'and this template does not exist yet', ->
-      beforeEach ->
-        room.robot.brain.data.phabricator.templates = {
-          template1: { task: '123' }
-        }
-        do nock.disableNetConnect
-        nock(process.env.PHABRICATOR_URL)
-          .get('/api/maniphest.info')
-          .query({
-            'task_id': '333',
-            'api.token': 'xxx'
-          })
-          .reply(200, { result: {
-            status: 'open',
-            priority: 'Low',
-            name: 'Test task',
-            ownerPHID: 'PHID-USER-42'
-            } })
+      context 'but the task is not found', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.templates = {
+            template1: { task: '123' }
+          }
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.info')
+            .query({
+              'task_id': '333',
+              'api.token': 'xxx'
+            })
+            .reply(200, { error_info: 'No such Maniphest task exists.' })
 
 
-      afterEach ->
-        room.robot.brain.data.phabricator = { }
-        nock.cleanAll()
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
 
-      context 'pht new template2 T333', ->
-        hubot 'pht new template2 T333'
-        it 'should reply that the template was created', ->
-          expect(hubotResponse()).to.eql 'Ok. Template \'template2\' will use T333.'
+        context 'pht new template2 T333', ->
+          hubot 'pht new template2 T333'
+          it 'should reply that the template was created', ->
+            expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
+
+      context 'and the task exists', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.templates = {
+            template1: { task: '123' }
+          }
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.info')
+            .query({
+              'task_id': '333',
+              'api.token': 'xxx'
+            })
+            .reply(200, { result: {
+              status: 'open',
+              priority: 'Low',
+              name: 'Test task',
+              ownerPHID: 'PHID-USER-42'
+              } })
+
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'pht new template2 T333', ->
+          hubot 'pht new template2 T333'
+          it 'should reply that the template was created', ->
+            expect(hubotResponse()).to.eql 'Ok. Template \'template2\' will use T333.'
 
   # ---------------------------------------------------------------------------------
   context 'user wants info about a template', ->
