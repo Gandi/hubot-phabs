@@ -79,6 +79,11 @@ describe 'phabs_commands module with no bot_phid', ->
 # ---------------------------------------------------------------------------------
 describe 'phabs_commands module', ->
 
+  hubotEmit = (e, data, tempo = 40) ->
+    beforeEach (done) ->
+      room.robot.emit e, data
+      setTimeout (done), tempo
+ 
   hubotHear = (message, userName = 'momo', tempo = 40) ->
     beforeEach (done) ->
       room.user.say userName, message
@@ -318,6 +323,39 @@ describe 'phabs_commands module', ->
         expect(hubotResponse()).to.eql "Okay, I'll remember user email as user@example.com"
         expect(room.robot.brain.userForId('user').email_address).to.eql 'user@example.com'
 
+
+  # ---------------------------------------------------------------------------------
+  # context.only 'something emits a phab.createTask event', ->
+
+  #   context 'and it does not generate an error, ', ->
+  #     beforeEach ->
+  #       room.robot.brain.data.phabricator.projects = {
+  #         'proj1': {
+  #           phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+  #         }
+  #       }
+  #       room.robot.logger.info = sinon.spy()
+  #       do nock.disableNetConnect
+  #       nock(process.env.PHABRICATOR_URL)
+  #         .get('/api/user.query')
+  #         .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+  #         .get('/api/maniphest.edit')
+  #         .reply(200, { result: { object: { id: 42 } } })
+
+  #     afterEach ->
+  #       room.robot.brain.data.phabricator = { }
+  #       nock.cleanAll()
+
+  #     context 'when user is doing it for the first time and has no email recorded', ->
+  #       it 'logs a success', ->
+  #         hubotEmit 'phab.createTask', {
+  #           project: 'proj1',
+  #           template: undefined,
+  #           name: 'a task',
+  #           description: undefined,
+  #           user: { name: 'user_with_phid' }
+  #         }
+  #         expect(room.robot.logger.info).calledWith "Task T42 created = http://example.com/T42"
 
   # ---------------------------------------------------------------------------------
   context 'user creates a new task, ', ->

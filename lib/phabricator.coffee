@@ -326,7 +326,7 @@ class Phabricator
                       'transactions[3][type]': 'subscribers.remove',
                       'transactions[3][value][0]': "#{bot_phid}",
                       'transactions[4][type]': 'projects.add',
-                      'transactions[4][value][]': "#{projectData.phid}"
+                      'transactions[4][value][]': "#{projectData.data.phid}"
                     }
                     if params.description?
                       query['transactions[5][type]'] = 'description'

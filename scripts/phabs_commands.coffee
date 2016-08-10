@@ -37,8 +37,20 @@ module.exports = (robot) ->
     msg.send "hubot-phabs module is version #{pkg.version}"
     msg.finish()
 
-  robot.on 'phab:createTask', (e) ->
-    phab.createTask e.data, (res) ->
+  # robot.respond (
+  #   /phtest new ([-_a-zA-Z0-9]+)(?::([-_a-zA-Z0-9]+))? ([^=]+)(?: = (.*))?$/
+  # ), (msg) ->
+  #   phab.withPermission msg, msg.envelope.user, 'phuser', ->
+  #     data = 
+  #       project: msg.match[1]
+  #       template: msg.match[2]
+  #       title: msg.match[3]
+  #       description: msg.match[4]
+  #       user: msg.envelope.user
+  #     robot.emit 'phab.createTask', data
+
+  robot.on 'phab.createTask', (data) ->
+    phab.createTask data, (res) ->
       if res.error_info?
         robot.logger.info res.error_info
       else
@@ -52,7 +64,7 @@ module.exports = (robot) ->
       data = 
         project: msg.match[1]
         template: msg.match[2]
-        name: msg.match[3]
+        title: msg.match[3]
         description: msg.match[4]
         user: msg.envelope.user
       phab.createTask data, (res) ->
