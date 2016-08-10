@@ -82,8 +82,8 @@ module.exports = (robot) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       name = msg.match[1]
       newname = msg.match[2]
-      phab.renameTemplate name, taskid, (body) ->
+      phab.renameTemplate name, newname, (body) ->
         if body.error_info?
           msg.send body.error_info
         else
-          msg.send "Ok. Template '#{name}' will now use T#{taskid}."
+          msg.send "Ok. Template '#{name}' will now bew known as '#{newname}'."

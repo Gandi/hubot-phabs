@@ -79,7 +79,7 @@ describe 'phabs_templates module', ->
 
         context 'pht new template2 T333', ->
           hubot 'pht new template2 T333'
-          it 'should reply that the template was created', ->
+          it 'should reply that the task is unknown', ->
             expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
 
       context 'and the task exists', ->
@@ -209,3 +209,127 @@ describe 'phabs_templates module', ->
         it 'should reply that the removal succeeded', ->
           expect(hubotResponse()).to.eql 'Template \'template2\' was not found.'
           expect(room.robot.brain.data.phabricator.templates.template1).to.exist
+
+  # ---------------------------------------------------------------------------------
+  context 'user updates a template', ->
+
+    context 'and this template does not exist yet', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.templates = {
+          template1: { task: '123' }
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      context 'pht update template2 T333', ->
+        hubot 'pht update template2 T333'
+        it 'should reply that there is no such template', ->
+          expect(hubotResponse()).to.eql 'Template \'template2\' was not found.'
+
+    context 'and this template exists', ->
+      context 'but the task is not found', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.templates = {
+            template1: { task: '123' }
+          }
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.info')
+            .query({
+              'task_id': '333',
+              'api.token': 'xxx'
+            })
+            .reply(200, { error_info: 'No such Maniphest task exists.' })
+
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'pht update template1 T333', ->
+          hubot 'pht update template1 T333'
+          it 'should reply that the task is unknown', ->
+            expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
+
+      context 'and the task exists', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.templates = {
+            template1: { task: '123' }
+          }
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.info')
+            .query({
+              'task_id': '333',
+              'api.token': 'xxx'
+            })
+            .reply(200, { result: {
+              status: 'open',
+              priority: 'Low',
+              name: 'Test task',
+              ownerPHID: 'PHID-USER-42'
+              } })
+
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'pht update template1 T333', ->
+          hubot 'pht update template1 T333'
+          it 'should reply that the template was updated', ->
+            expect(hubotResponse()).to.eql 'Ok. Template \'template1\' will now use T333.'
+
+  # ---------------------------------------------------------------------------------
+  context 'user renames a template', ->
+
+    context 'and this template exists', ->
+      context 'but the new name already exists', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.templates = {
+            template1: { task: '123' },
+            template2: { task: '456' }
+          }
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+
+        context 'pht rename template1 template2', ->
+          hubot 'pht rename template1 template2'
+          it 'should reply that it is not going to make it', ->
+            expect(hubotResponse()).
+              to.eql 'Template \'template2\' already exists.'
+            expect(room.robot.brain.data.phabricator.templates.template1).to.exist
+            expect(room.robot.brain.data.phabricator.templates.template2).to.exist
+
+      context 'and the new name do not exist', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.templates = {
+            template1: { task: '123' }
+          }
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+
+        context 'pht rename template1 template2', ->
+          hubot 'pht rename template1 template2'
+          it 'should reply that the template was renamed', ->
+            expect(hubotResponse()).
+              to.eql 'Ok. Template \'template1\' will now bew known as \'template2\'.'
+            expect(room.robot.brain.data.phabricator.templates.template1).not.to.exist
+            expect(room.robot.brain.data.phabricator.templates.template2).to.exist
+
+    context 'but this template does not exist', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.templates = {
+          template2: { task: '123' }
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      context 'pht rename template1 template2', ->
+        hubot 'pht rename template1 template2'
+        it 'should reply that the template does not exist', ->
+          expect(hubotResponse()).to.eql 'Template \'template1\' was not found.'
