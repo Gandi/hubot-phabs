@@ -116,3 +116,38 @@ describe 'phabs_templates module', ->
         hubot 'pht show template2'
         it 'should reply that the template does not exist', ->
           expect(hubotResponse()).to.eql 'Template \'template2\' was not found.'
+
+  # ---------------------------------------------------------------------------------
+  context 'user searches a template', ->
+
+    context 'and there is no matching template', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.templates = {
+          template1: { task: '123' }
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      context 'pht search something', ->
+        hubot 'pht search something'
+        it 'should reply that there is no match', ->
+          expect(hubotResponse()).to.eql 'No template matches \'something\'.'
+
+    context 'and there are some matching templates', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.templates = {
+          template1: { task: '123' },
+          template2: { task: '456' },
+          template3: { task: '789' },
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      context 'pht search plate', ->
+        hubot 'pht search plate'
+        it 'should reply the list of matching templates', ->
+          expect(hubotResponse(1)).to.eql 'Template \'template1\' uses T123.'
+          expect(hubotResponse(2)).to.eql 'Template \'template2\' uses T456.'
+          expect(hubotResponse(3)).to.eql 'Template \'template3\' uses T789.'

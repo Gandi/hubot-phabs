@@ -458,9 +458,9 @@ class Phabricator
 
   searchTemplate: (term, cb) ->
     if @ready() is true
-      res = []
-      for name, template of data.templates
-        if /term/.test name
+      res = [ ]
+      for name, template of @data.templates
+        if new RegExp("#{term}").test name
           res.push { name: name, task: template.task }
       if res.length is 0
         cb { error_info: "No template matches '#{term}'." }

@@ -53,7 +53,7 @@ module.exports = (robot) ->
         if body.error_info?
           msg.send body.error_info
         else
-          for found in body.results
+          for found in body
             msg.send "Template '#{found.name}' uses T#{found.task}."
 
   #   hubot pht remove <name>
