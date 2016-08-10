@@ -55,7 +55,7 @@ describe 'phabs_templates module', ->
       context 'pht new template1 T333', ->
         hubot 'pht new template1 T333'
         it 'should reply that this template already exists', ->
-          expect(hubotResponse()).to.eql 'Template template1 already exists.'
+          expect(hubotResponse()).to.eql 'Template \'template1\' already exists.'
 
     context 'and this template does not exist yet', ->
       beforeEach ->
@@ -85,3 +85,34 @@ describe 'phabs_templates module', ->
         hubot 'pht new template2 T333'
         it 'should reply that the template was created', ->
           expect(hubotResponse()).to.eql 'Ok. Template \'template2\' will use T333.'
+
+  # ---------------------------------------------------------------------------------
+  context 'user wants info about a template', ->
+
+    context 'and this template already exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.templates = {
+          template1: { task: '123' }
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      context 'pht show template1', ->
+        hubot 'pht show template1'
+        it 'should reply what task is associated with that template', ->
+          expect(hubotResponse()).to.eql 'Template \'template1\' uses T123.'
+
+    context 'and this template does not exist yet', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.templates = {
+          template1: { task: '123' }
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      context 'pht show template2', ->
+        hubot 'pht show template2'
+        it 'should reply that the template does not exist', ->
+          expect(hubotResponse()).to.eql 'Template \'template2\' was not found.'

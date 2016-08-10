@@ -434,12 +434,12 @@ class Phabricator
       @phabGet query, 'maniphest.query', (json_body) ->
         cb json_body
 
-  # templates
+  # templates ---------------------------------------------------
 
   addTemplate: (name, taskid, cb) ->
     if @ready() is true
       if @data.templates[name]?
-        cb { error_info: "Template #{name} already exists." }
+        cb { error_info: "Template '#{name}' already exists." }
       else
         data = @data
         @taskInfo taskid, (body) ->
@@ -454,7 +454,7 @@ class Phabricator
       if @data.templates[name]?
         cb @data.templates[name]
       else
-        cb { error_info: "Template #{name} was not found." }
+        cb { error_info: "Template '#{name}' was not found." }
 
   searchTemplate: (term, cb) ->
     if @ready() is true

@@ -43,7 +43,7 @@ module.exports = (robot) ->
         if body.error_info?
           msg.send body.error_info
         else
-          msg.send "Ok. Template '#{name}' uses T#{body.task}."
+          msg.send "Template '#{name}' uses T#{body.task}."
 
   #   hubot pht search <term>
   robot.respond (/pht search ([-_a-zA-Z0-9]+)$/), (msg) ->
