@@ -294,34 +294,50 @@ class Phabricator
         cb json_body
    
 
-  createTask: (user, phid, title, description, cb) ->
+  createTask: (params, cb) ->
     if @ready() is true
-      adapter = @robot.adapterName
-      user = @robot.brain.userForName user.name
-      @withUser user, user, (userPhid) =>
-        if userPhid.error_info?
-          cb userPhid
+      @withTemplate params.template, (description) =>
+        if description?.error_info?
+          cb description
         else
-          @withBotPHID (bot_phid) =>
-            query = {
-              'transactions[0][type]': 'title',
-              'transactions[0][value]': "#{title}",
-              'transactions[1][type]': 'comment',
-              'transactions[1][value]': "(created by #{user.name} on #{adapter})",
-              'transactions[2][type]': 'subscribers.add',
-              'transactions[2][value][0]': "#{userPhid}",
-              'transactions[3][type]': 'subscribers.remove',
-              'transactions[3][value][0]': "#{bot_phid}",
-              'transactions[4][type]': 'projects.add',
-              'transactions[4][value][]': "#{phid}"
-            }
-            if description?
-              query['transactions[5][type]'] = 'description'
-              query['transactions[5][value]'] = "#{description}"
-            # console.log query
-            @phabGet query, 'maniphest.edit', (json_body) ->
-              cb json_body
-
+          if description?
+            if params.description?
+              params.description += "\n\n#{description}"
+            else
+              params.description = description
+          @withProject params.project, (projectData) =>
+            if projectData.error_info?
+              cb projectData
+            else
+              adapter = @robot.adapterName
+              user = @robot.brain.userForName params.user.name
+              @withUser user, user, (userPhid) =>
+                if userPhid.error_info?
+                  cb userPhid
+                else
+                  @withBotPHID (bot_phid) =>
+                    query = {
+                      'transactions[0][type]': 'title',
+                      'transactions[0][value]': "#{params.title}",
+                      'transactions[1][type]': 'comment',
+                      'transactions[1][value]': "(created by #{user.name} on #{adapter})",
+                      'transactions[2][type]': 'subscribers.add',
+                      'transactions[2][value][0]': "#{userPhid}",
+                      'transactions[3][type]': 'subscribers.remove',
+                      'transactions[3][value][0]': "#{bot_phid}",
+                      'transactions[4][type]': 'projects.add',
+                      'transactions[4][value][]': "#{projectData.phid}"
+                    }
+                    if params.description?
+                      query['transactions[5][type]'] = 'description'
+                      query['transactions[5][value]'] = "#{params.description}"
+                    @phabGet query, 'maniphest.edit', (json_body) ->
+                      if json_body.error_info?
+                        cb json_body
+                      else
+                        id = json_body.result.object.id
+                        url = process.env.PHABRICATOR_URL + "/T#{id}"
+                        cb { id: id, url: url, user: user }
 
   createPaste: (user, title, cb) ->
     if @ready() is true
@@ -441,17 +457,20 @@ class Phabricator
   # templates ---------------------------------------------------
 
   withTemplate: (name, cb) =>
-    if @data.templates[name]?
-      query = {
-        task_id: @data.templates[name].task
-      }
-      @phabGet query, 'maniphest.info', (json_body) ->
-        if json_body.error_info?
-          cb json_body
-        else
-          cb json_body.result.description
+    if name?
+      if @data.templates[name]?
+        query = {
+          task_id: @data.templates[name].task
+        }
+        @phabGet query, 'maniphest.info', (json_body) ->
+          if json_body.error_info?
+            cb json_body
+          else
+            cb json_body.result.description
+      else
+        cb { error_info: "There is no template named '#{name}'." }
     else
-      cb { error_info: "There is no template named '#{name}'." }
+      cb null
 
   addTemplate: (name, taskid, cb) ->
     if @ready() is true
