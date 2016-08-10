@@ -438,7 +438,7 @@ class Phabricator
 
   addTemplate: (name, taskid, cb) ->
     if @ready() is true
-      if data.templates[name]?
+      if @data.templates[name]?
         cb { error_info: "Template #{name} already exists." }
       else
         data = @data
@@ -451,8 +451,8 @@ class Phabricator
 
   showTemplate: (name, cb) ->
     if @ready() is true
-      if data.templates[name]?
-        cb data.templates[name]
+      if @data.templates[name]?
+        cb @data.templates[name]
       else
         cb { error_info: "Template #{name} was not found." }
 
@@ -469,20 +469,33 @@ class Phabricator
         
   removeTemplate: (name, cb) ->
     if @ready() is true
-      if data.templates[name]?
-        delete data.templates[name]
+      if @data.templates[name]?
+        delete @data.templates[name]
         cb { ok: 'Ok' }
       else
         cb { error_info: "Template #{name} was not found." }
 
-  updateTemplate: (name, newname, cb) ->
+  updateTemplate: (name, taskid, cb) ->
     if @ready() is true
-      if data.templates[name]?
-        if data.templates[newname]?
+      if @data.templates[name]?
+        data = @data
+        @taskInfo taskid, (body) ->
+          if body.error_info?
+            cb body
+          else
+            data.templates[name] = { task: taskid }
+            cb { ok: 'Ok' }
+      else
+        cb { error_info: "Template #{name} was not found." }
+
+  renameTemplate: (name, newname, cb) ->
+    if @ready() is true
+      if @data.templates[name]?
+        if @data.templates[newname]?
           cb { error_info: "Template #{newname} already exists." }
         else
-          data.templates[newname] = { task: data.templates[name].task }
-          delete data.templates[name]
+          @data.templates[newname] = { task: @data.templates[name].task }
+          delete @data.templates[name]
           cb { ok: 'Ok' }
       else
         cb { error_info: "Template #{name} was not found." }
