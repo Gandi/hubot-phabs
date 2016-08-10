@@ -99,6 +99,13 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         NOTE: this call will record this Task id associated to you for 5 minutes
         permission: phuser, phadmin
 
+    .phab new <project>:<template> <task title>
+    .phab new <project>:<template> <task title> = <description>
+        creates a new task using a template.
+        if a description is provided, it will prepend the template description
+        For the rest, it behaves like the .phab new command
+        permission: phuser, phadmin
+
     .phab paste <new paste title>
         creates a new paste and provide the link to edit it
         permission: phuser, phadmin

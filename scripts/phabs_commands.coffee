@@ -10,6 +10,7 @@
 # Commands:
 #   hubot phab version - give the version of hubot-phabs loaded
 #   hubot phab new <project> <name of the task> - creates a new task
+#   hubot phab new <project>:<template> <name of the task> - creates a new task using a template
 #   hubot phab paste <name of the paste> - creates a new paste
 #   hubot phab count <project> - counts how many tasks a project has
 #   hubot phab Txx - gives information about task Txx
@@ -57,6 +58,36 @@ module.exports = (robot) ->
               phab.recordPhid msg.envelope.user, id
               msg.send "Task T#{id} created = #{url}"
     msg.finish()
+
+  #   hubot phab new <project>:<template> <name of the task>
+  robot.respond (/ph(?:ab)? new ([-_a-zA-Z0-9]+):([-_a-zA-Z0-9]+) ([^=]+)(?: = (.*))?$/), (msg) ->
+    phab.withPermission msg, msg.envelope.user, 'phuser', ->
+      project = msg.match[1]
+      template = msg.match[2]
+      name = msg.match[3]
+      prepend = msg.match[4]
+      phab.withProject project, (projectData) ->
+        if projectData.error_info?
+          msg.send projectData.error_info
+        else
+          phab.withTemplate template, (description) ->
+            if description.error_info?
+              msg.send description.error_info
+            else
+              if prepend?
+                prepend += "\n\n"
+              description = "#{prepend}#{description}"
+              phab.createTask msg.envelope.user, projectData.data.phid, name, description, (body) ->
+                # console.log body
+                if body['error_info']?
+                  msg.send "#{body['error_info']}"
+                else
+                  id = body['result']['object']['id']
+                  url = process.env.PHABRICATOR_URL + "/T#{id}"
+                  phab.recordPhid msg.envelope.user, id
+                  msg.send "Task T#{id} created = #{url}"
+    msg.finish()
+
 
   #   hubot phab paste <name of the paste> - creates a new paste
   robot.respond /ph(?:ab)? paste (.*)$/, (msg) ->

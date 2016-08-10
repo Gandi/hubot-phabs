@@ -436,6 +436,18 @@ class Phabricator
 
   # templates ---------------------------------------------------
 
+  withTemplate: (name, cb) =>
+    if @data.templates[name]?
+      query =
+        task_id: @data.templates[name].task
+      @phabGet query, 'maniphest.info', (json_body) ->
+        if json_body.error_info?
+          cb json_body
+        else
+          cb json_body.result.description
+    else
+      cb { error_info: "There is no template named '#{name}'."}
+
   addTemplate: (name, taskid, cb) ->
     if @ready() is true
       if @data.templates[name]?
