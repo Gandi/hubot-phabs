@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.3.0 - wip
+### 1.3.0 - 2016-08-10
 - add phabs_template feature to create tasks according to a task template
   - collection of new .pht commands to setup templates
   - option to chose a template when creating new tasks
