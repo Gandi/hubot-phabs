@@ -505,29 +505,52 @@ describe 'phabs_commands module', ->
 
     context 'a task without description, ', ->
       context 'with a known template', ->
-        beforeEach ->
-          room.robot.brain.data.phabricator.projects = {
-            'proj1': {
-              phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+        context 'but not found on phabricator', ->
+          beforeEach ->
+            room.robot.brain.data.phabricator.projects = {
+              'proj1': {
+                phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+              }
             }
-          }
-          do nock.disableNetConnect
-          nock(process.env.PHABRICATOR_URL)
-            .get('/api/maniphest.info')
-            .reply(200, { result: { description: 'some templated description' } })
-            .get('/api/user.query')
-            .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
-            .get('/api/maniphest.edit')
-            .reply(200, { result: { object: { id: 42 } } })
+            do nock.disableNetConnect
+            nock(process.env.PHABRICATOR_URL)
+              .get('/api/maniphest.info')
+              .reply(200, { error_info: 'No such Maniphest task exists.' })
 
-        afterEach ->
-          room.robot.brain.data.phabricator = { }
-          nock.cleanAll()
+          afterEach ->
+            room.robot.brain.data.phabricator = { }
+            nock.cleanAll()
 
-        context 'when user is known and his phid is in the brain', ->
-          hubot 'phab new proj1:template1 a task', 'user_with_phid'
-          it 'replies with the object id', ->
-            expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
+          context 'when user is known and his phid is in the brain', ->
+            hubot 'phab new proj1:template1 a task', 'user_with_phid'
+            it 'replies that the template task is not found', ->
+              expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
+
+        context 'and found on phabricator', ->
+          beforeEach ->
+            room.robot.brain.data.phabricator.projects = {
+              'proj1': {
+                phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+              }
+            }
+            do nock.disableNetConnect
+            nock(process.env.PHABRICATOR_URL)
+              .get('/api/maniphest.info')
+              .reply(200, { result: { description: 'some templated description' } })
+              .get('/api/user.query')
+              .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+              .get('/api/maniphest.edit')
+              .reply(200, { result: { object: { id: 42 } } })
+
+          afterEach ->
+            room.robot.brain.data.phabricator = { }
+            nock.cleanAll()
+
+          context 'when user is known and his phid is in the brain', ->
+            hubot 'phab new proj1:template1 a task', 'user_with_phid'
+            it 'replies with the object id', ->
+              expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
+
 
       context 'with a template not found', ->
         beforeEach ->
