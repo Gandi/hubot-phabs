@@ -34,7 +34,8 @@ module.exports = (robot) ->
           msg.send body.error_info
         else
           msg.send "Ok. Template '#{name}' will use T#{taskid}."
-
+    msg.finish()
+    
   #   hubot pht show <name>
   robot.respond (/pht show ([-_a-zA-Z0-9]+)$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
@@ -44,6 +45,7 @@ module.exports = (robot) ->
           msg.send body.error_info
         else
           msg.send "Template '#{name}' uses T#{body.task}."
+    msg.finish()
 
   #   hubot pht search <term>
   robot.respond (/pht search ([-_a-zA-Z0-9]+)$/), (msg) ->
@@ -55,6 +57,7 @@ module.exports = (robot) ->
         else
           for found in body
             msg.send "Template '#{found.name}' uses T#{found.task}."
+    msg.finish()
 
   #   hubot pht remove <name>
   robot.respond (/pht remove ([-_a-zA-Z0-9]+)$/), (msg) ->
@@ -65,6 +68,7 @@ module.exports = (robot) ->
           msg.send body.error_info
         else
           msg.send "Ok. Template '#{name}' was removed."
+    msg.finish()
 
   #   hubot pht update <name> T321
   robot.respond (/pht update ([-_a-zA-Z0-9]+) T([0-9]+)$/), (msg) ->
@@ -76,6 +80,7 @@ module.exports = (robot) ->
           msg.send body.error_info
         else
           msg.send "Ok. Template '#{name}' will now use T#{taskid}."
+    msg.finish()
 
   #   hubot pht rename <name> <newname>
   robot.respond (/pht rename ([-_a-zA-Z0-9]+) ([-_a-zA-Z0-9]+)$/), (msg) ->
@@ -87,3 +92,4 @@ module.exports = (robot) ->
           msg.send body.error_info
         else
           msg.send "Ok. Template '#{name}' will now bew known as '#{newname}'."
+    msg.finish()
