@@ -1,6 +1,8 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.3.2 - wip
+
 ### 1.3.1 - 2016-08-10
 - fix the template description when no prepend is provided
 

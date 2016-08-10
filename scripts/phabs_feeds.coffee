@@ -1,22 +1,19 @@
 # Description:
 #   enable http listener for Phabricator feed_http
 #
-# Dependencies:
-#
 # Configuration:
 #   PHABRICATOR_URL
 #   PHABRICATOR_API_KEY
 #
-# Commands:
-#
-# http endpoints:
+# Urls:
 #   /hubot/phabs/feeds
 #
 # Author:
 #   mose
-
-# curl -XPOST -H "Content-Type: application/json" -d @test/samples/payload2 \
-# http://localhost:8080/Hubot/phabs/feeds
+#
+# Examples:
+#   curl -XPOST -H "Content-Type: application/json" -d @test/samples/payload2 \
+#   http://localhost:8080/Hubot/phabs/feeds
 
 Phabricator = require '../lib/phabricator'
 module.exports = (robot) ->
