@@ -151,3 +151,36 @@ describe 'phabs_templates module', ->
           expect(hubotResponse(1)).to.eql 'Template \'template1\' uses T123.'
           expect(hubotResponse(2)).to.eql 'Template \'template2\' uses T456.'
           expect(hubotResponse(3)).to.eql 'Template \'template3\' uses T789.'
+
+  # ---------------------------------------------------------------------------------
+  context 'user removes a template', ->
+
+    context 'and this template exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.templates = {
+          template1: { task: '123' }
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      context 'pht remove template1', ->
+        hubot 'pht remove template1'
+        it 'should reply that there is no such template', ->
+          expect(hubotResponse()).to.eql 'Ok. Template \'template1\' was removed.'
+          expect(room.robot.brain.data.phabricator.templates.template1).not.to.exist
+
+    context 'but this template does not exist', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.templates = {
+          template1: { task: '123' }
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      context 'pht remove template2', ->
+        hubot 'pht remove template2'
+        it 'should reply that the removal succeeded', ->
+          expect(hubotResponse()).to.eql 'Template \'template2\' was not found.'
+          expect(room.robot.brain.data.phabricator.templates.template1).to.exist

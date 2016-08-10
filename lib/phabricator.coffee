@@ -473,7 +473,7 @@ class Phabricator
         delete @data.templates[name]
         cb { ok: 'Ok' }
       else
-        cb { error_info: "Template #{name} was not found." }
+        cb { error_info: "Template '#{name}' was not found." }
 
   updateTemplate: (name, taskid, cb) ->
     if @ready() is true
@@ -486,19 +486,19 @@ class Phabricator
             data.templates[name] = { task: taskid }
             cb { ok: 'Ok' }
       else
-        cb { error_info: "Template #{name} was not found." }
+        cb { error_info: "Template '#{name}' was not found." }
 
   renameTemplate: (name, newname, cb) ->
     if @ready() is true
       if @data.templates[name]?
         if @data.templates[newname]?
-          cb { error_info: "Template #{newname} already exists." }
+          cb { error_info: "Template '#{newname}' already exists." }
         else
           @data.templates[newname] = { task: @data.templates[name].task }
           delete @data.templates[name]
           cb { ok: 'Ok' }
       else
-        cb { error_info: "Template #{name} was not found." }
+        cb { error_info: "Template '#{name}' was not found." }
 
 
 
