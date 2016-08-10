@@ -73,7 +73,6 @@ module.exports = (robot) ->
         else
           id = body['result']['object']['id']
           url = process.env.PHABRICATOR_URL + "/paste/edit/#{id}"
-          phab.recordPhid msg.envelope.user, id
           msg.send "Paste P#{id} created = edit on #{url}"
     msg.finish()
 
