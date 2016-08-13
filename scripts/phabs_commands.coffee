@@ -103,8 +103,8 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx - gives information about task Txxx
-  robot.respond /ph(?:ab)?(?: T([0-9]+) ?)?$/, (msg) ->
-    id = msg.match[1] ? phab.retrievePhid(msg.envelope.user)
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? ?$/, (msg) ->
+    id = phab.retrievePhid(msg.envelope.user, msg.match[1] or msg.match[2])
     unless id?
       msg.send "Sorry, you don't have any task active right now."
       msg.finish()
@@ -122,14 +122,14 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx + <some comment> - add a comment to task Txx
-  robot.respond /ph(?:ab)?(?: T([0-9]+))? \+ (.+)$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? \+ (.+)$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = msg.match[1] ? phab.retrievePhid(msg.envelope.user)
+      id = phab.retrievePhid(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
-      comment = msg.match[2]
+      comment = msg.match[3]
       phab.addComment msg.envelope.user, id, comment, (body) ->
         if body['error_info']?
           msg.send "oops T#{id} #{body['error_info']}"
@@ -140,17 +140,17 @@ module.exports = (robot) ->
 
   #   hubot phab Txx is <status> - modifies task Txxx status
   robot.respond new RegExp(
-    "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.statuses).join('|')})" +
+    "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.statuses).join('|')})" +
     '(?: = (.+))?$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = msg.match[1] ? phab.retrievePhid(msg.envelope.user)
+      id = phab.retrievePhid(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
-      status = msg.match[2]
-      comment = msg.match[3]
+      status = msg.match[3]
+      comment = msg.match[4]
       phab.updateStatus msg.envelope.user, id, status, comment, (body) ->
         if body['error_info']?
           msg.send "oops T#{id} #{body['error_info']}"
@@ -160,17 +160,17 @@ module.exports = (robot) ->
 
   #   hubot phab Txx is <priority> - modifies task Txxx priority
   robot.respond new RegExp(
-    "ph(?:ab)?(?: T([0-9]+))? (?:is )?(#{Object.keys(phab.priorities).join('|')})" +
+    "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.priorities).join('|')})" +
     '(?: = (.+))?$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = msg.match[1] ? phab.retrievePhid(msg.envelope.user)
+      id = phab.retrievePhid(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
-      priority = msg.match[2]
-      comment = msg.match[3]
+      priority = msg.match[3]
+      comment = msg.match[4]
       phab.updatePriority msg.envelope.user, id, priority, comment, (body) ->
         if body['error_info']?
           msg.send "oops T#{id} #{body['error_info']}"
@@ -220,16 +220,17 @@ module.exports = (robot) ->
 
   #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
   robot.respond new RegExp(
-    'ph(?:ab)?(?: assign)? (?:([^ ]+)(?: (?:to|on) (T)([0-9]+))?|(?:T([0-9]+) )?(?:to|on) ([^ ]+))$'
+    'ph(?:ab)?(?: assign)? (?:([^ ]+)(?: (?:to|on) (?:(T)([0-9]+)|(last)))?|' +
+    '(?:T([0-9]+) |(last) )?(?:to|on) ([^ ]+))$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       if msg.match[2] is 'T'
         who = msg.match[1]
-        what = msg.match[3]
+        what = msg.match[3] or msg.match[4]
       else
-        who = msg.match[5]
-        what = msg.match[4]
-      id = what ? phab.retrievePhid(msg.envelope.user)
+        who = msg.match[7]
+        what = msg.match[5] or msg.match[6]
+      id = phab.retrievePhid(msg.envelope.user, what)
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()

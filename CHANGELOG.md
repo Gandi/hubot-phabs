@@ -2,7 +2,10 @@ Hubot-phabs Changelog
 ==========================
 
 ### 1.3.2 - wip
+- add the possibility to use 'last' instead of T123 to get the last task called
+  without timeout consideration
 - avoid remembering id for paste (as it only apply to tasks)
+- make any call on task commands extend the temporary memory
 
 ### 1.3.1 - 2016-08-10
 - fix the template description when no prepend is provided

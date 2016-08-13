@@ -367,12 +367,22 @@ class Phabricator
     user.lastPhid = id
 
 
-  retrievePhid: (user) ->
-    expires_at = moment(user.lastTask).add(5, 'minutes')
-    if user.lastPhid? and moment().utc().isBefore(expires_at)
-      user.lastPhid
+  retrievePhid: (user, id = null) ->
+    if id?
+      if id is 'last'
+        if user.lastPhid?
+          user.lastPhid
+        else
+          null
+      else
+        id
     else
-      null
+      expires_at = moment(user.lastTask).add(5, 'minutes')
+      if user.lastPhid? and moment().utc().isBefore(expires_at)
+        user.lastTask = moment().utc()
+        user.lastPhid
+      else
+        null
 
 
   addComment: (user, id, comment, cb) ->
