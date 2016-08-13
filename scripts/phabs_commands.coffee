@@ -41,7 +41,7 @@ module.exports = (robot) ->
   #   /phtest new ([-_a-zA-Z0-9]+)(?::([-_a-zA-Z0-9]+))? ([^=]+)(?: = (.*))?$/
   # ), (msg) ->
   #   phab.withPermission msg, msg.envelope.user, 'phuser', ->
-  #     data = 
+  #     data =
   #       project: msg.match[1]
   #       template: msg.match[2]
   #       title: msg.match[3]
@@ -52,7 +52,7 @@ module.exports = (robot) ->
   robot.on 'phab.createTask', (data) ->
     phab.createTask data, (res) ->
       if res.error_info?
-        robot.logger.info res.error_info
+        robot.logger.error res.error_info
       else
         robot.logger.info "Task T#{res.id} created = #{res.url}"
 
@@ -61,12 +61,13 @@ module.exports = (robot) ->
     /ph(?:ab)? new ([-_a-zA-Z0-9]+)(?::([-_a-zA-Z0-9]+))? ([^=]+)(?: = (.*))?$/
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      data = 
+      data = {
         project: msg.match[1]
         template: msg.match[2]
         title: msg.match[3]
         description: msg.match[4]
         user: msg.envelope.user
+      }
       phab.createTask data, (res) ->
         if res.error_info?
           msg.send res.error_info
