@@ -14,6 +14,8 @@ When installed this plugin will check the channels where the bot lurks, to see i
 
 It also makes available some commands to interact directly with Phabricator items, like create a task, assign a task to a user. This is a work in progress and more commands will be added with time.
 
+This plugin is used in production internally at [Gandi](https://gandi.net) since 2016-07-13.
+
 Installation
 --------------
 In your hubot directory:    
@@ -263,6 +265,22 @@ A http endpoint is open for receiving feeds from `feed.http-hooks` as explained 
 You can use the `.phad` commands to associate Projects to rooms. Each Feed Story will then be dispatched on one or several rooms according to the project the task belongs to. This only works with Tasks (for now).
 
 The feed has an optional way to limit the IP of the sender, by setting the HUBOT_AUTHORIZED_IP_REGEXP env variable. If this variable is not set, there is not access control. It's a limited soft protection, if you really need a heavy secure protection, do something on your network for it.
+
+
+Events
+----------------
+
+There is some events available for interaction with other plugins, to chain actions or automate them. The specific use case we had was to use [hubot-cron-events](https://github.com/Gandi/hubot-cron-events) to create templated tasks are given times. It is making sense in our workflow. The principle is pretty useful, so there will be more events declared further on.
+
+    phab.createTask
+        payload:
+        - project (by name or alias)
+        - template (null if none)
+        - title
+        - description
+        - user
+        It will create a task from an event, and talk on the logger when done or if it fails.
+
 
 Testing
 ----------------
