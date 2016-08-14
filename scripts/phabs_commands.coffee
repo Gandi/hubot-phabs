@@ -103,14 +103,14 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot bl <id> - blacklists <id> from auto-resopnses
-  robot.respond /phab bl ((?:T|F|P|M|B|Q|L|V)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
+  robot.respond /ph(?:ab)? bl ((?:T|F|P|M|B|Q|L|V)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       phab.blacklist msg.match[1]
       msg.send "Ok. #{msg.match[1]} won't react anymore to auto-detection."
     msg.finish()
 
   #   hubot bl <id> - blacklists <id> from auto-resopnses
-  robot.respond /phab unbl ((?:T|F|P|M|B|Q|L|V)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
+  robot.respond /ph(?:ab)? unbl ((?:T|F|P|M|B|Q|L|V)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       phab.unblacklist msg.match[1]
       msg.send "Ok. #{msg.match[1]} now will react to auto-detection."
