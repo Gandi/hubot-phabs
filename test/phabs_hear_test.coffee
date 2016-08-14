@@ -69,7 +69,7 @@ describe 'phabs_hear module', ->
 
     context 'whatever about T42 or something', ->
       hubot 'whatever about T42 or something'
-      it "does not say anything", ->
+      it 'does not say anything', ->
         expect(hubotResponseCount()).to.eql 1
         expect(hubotResponse()).to.be.undefined
 

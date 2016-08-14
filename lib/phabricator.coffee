@@ -113,7 +113,7 @@ class Phabricator
   unblacklist: (id) ->
     if @isBlacklisted(id)
       pos = @data.blacklist.indexOf id
-      @data.blacklist.splice(pos, 1);
+      @data.blacklist.splice(pos, 1)
 
   withBotPHID: (cb) =>
     if @data.bot_phid?
