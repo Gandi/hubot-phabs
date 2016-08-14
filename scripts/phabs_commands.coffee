@@ -20,6 +20,8 @@
 #   hubot phab <user> - checks if user is known or not
 #   hubot phab me as <email> - makes caller known with <email>
 #   hubot phab <user> = <email> - associates user to email
+#   hubot phab bl <id> - blacklists an id from phabs_hear
+#   hubot phab unbl <id> - removes an id from blacklist
 #
 # Author:
 #   mose
