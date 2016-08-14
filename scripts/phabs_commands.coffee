@@ -102,6 +102,18 @@ module.exports = (robot) ->
             msg.send "#{projectData.data.name} has #{Object.keys(body['result']).length} tasks."
     msg.finish()
 
+  #   hubot bl <id> - blacklists <id> from auto-resopnses
+  robot.respond /phab bl ((?:T|F|P|M|B|Q|L|V)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
+    phab.blacklist msg.match[1]
+    msg.send "Ok. #{msg.match[1]} won't react anymore to auto-detection."
+    msg.finish()
+
+  #   hubot bl <id> - blacklists <id> from auto-resopnses
+  robot.respond /phab unbl ((?:T|F|P|M|B|Q|L|V)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
+    phab.unblacklist msg.match[1]
+    msg.send "Ok. #{msg.match[1]} now will react to auto-detection."
+    msg.finish()
+
   #   hubot phab Txx - gives information about task Txxx
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? ?$/, (msg) ->
     id = phab.retrievePhid(msg.envelope.user, msg.match[1] or msg.match[2])

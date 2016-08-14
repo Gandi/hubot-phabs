@@ -58,6 +58,22 @@ describe 'phabs_hear module', ->
     delete process.env.PHABRICATOR_PROJECTS
 
   # ---------------------------------------------------------------------------------
+  context 'someone talks about a task that is blacklisted', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      room.robot.brain.data.phabricator.blacklist = [ 'T42', 'V3' ]
+
+    afterEach ->
+      nock.cleanAll()
+      room.robot.brain.data.phabricator.blacklist = [ ]
+
+    context 'whatever about T42 or something', ->
+      hubot 'whatever about T42 or something'
+      it "does not say anything", ->
+        expect(hubotResponseCount()).to.eql 1
+        expect(hubotResponse()).to.be.undefined
+
+  # ---------------------------------------------------------------------------------
   context 'someone talks about a task', ->
     context 'when the task is unknown', ->
       beforeEach ->

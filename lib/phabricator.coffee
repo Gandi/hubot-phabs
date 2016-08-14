@@ -51,12 +51,14 @@ class Phabricator
         projects: { },
         aliases: { },
         templates: { },
+        blacklist: [ ],
         bot_phid: env.PHABRICATOR_BOT_PHID
       }
       @robot.logger.debug 'Phabricator Data Loaded: ' + JSON.stringify(@data, null, 2)
     @robot.brain.on 'loaded', storageLoaded
     storageLoaded() # just in case storage was loaded before we got here
     @data.templates ?= { }
+    @data.blacklist ?= [ ]
 
   ready: ->
     if not process.env.PHABRICATOR_URL
@@ -100,6 +102,18 @@ class Phabricator
             error_info: err.message
           }
         cb json_body
+
+  isBlacklisted: (id) ->
+    @data.blacklist.indexOf(id) > -1
+
+  blacklist: (id) ->
+    unless @isBlacklisted(id)
+      @data.blacklist.push id
+
+  unblacklist: (id) ->
+    if @isBlacklisted(id)
+      pos = @data.blacklist.indexOf id
+      @data.blacklist.splice(pos, 1);
 
   withBotPHID: (cb) =>
     if @data.bot_phid?

@@ -139,6 +139,36 @@ describe 'phabs_commands module', ->
         expect(hubotResponse()).to.match /hubot-phabs module is version [0-9]+\.[0-9]+\.[0-9]+/
 
   # ---------------------------------------------------------------------------------
+  context 'user blacklists an item', ->
+    beforeEach ->
+      room.robot.brain.data.phabricator.blacklist = [ ]
+      do nock.disableNetConnect
+    afterEach ->
+      room.robot.brain.data.phabricator.blacklist = [ ]
+      nock.cleanAll()
+
+    hubot 'phab bl T42'
+    it 'says the item is now blacklisted', ->
+      expect(hubotResponse()).to.eql 'Ok. T42 won\'t react anymore to auto-detection.'
+    it 'adds the item in brain blacklist', ->
+      expect(room.robot.brain.data.phabricator.blacklist).to.contains 'T42'
+
+  # ---------------------------------------------------------------------------------
+  context 'user unblacklists an item', ->
+    beforeEach ->
+      room.robot.brain.data.phabricator.blacklist = [ 'T42', 'V5' ]
+      do nock.disableNetConnect
+    afterEach ->
+      room.robot.brain.data.phabricator.blacklist = [ ]
+      nock.cleanAll()
+
+    hubot 'phab unbl T42'
+    it 'says the item is now blacklisted', ->
+      expect(hubotResponse()).to.eql 'Ok. T42 now will react to auto-detection.'
+    it 'adds the item in brain blacklist', ->
+      expect(room.robot.brain.data.phabricator.blacklist).not.to.contains 'T42'
+
+  # ---------------------------------------------------------------------------------
   context 'user asks for task info', ->
 
     context 'task id is provided', ->

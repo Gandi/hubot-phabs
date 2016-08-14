@@ -1,7 +1,8 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.3.2 - wip
+### 1.3.2 - 2016-08-14
+- add a way to blacklist auto-detection on given items
 - add the possibility to use 'last' instead of T123 to get the last task called
   without timeout consideration
 - avoid remembering id for paste (as it only apply to tasks)

@@ -63,24 +63,6 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
 
 Requests can be done on arbitrary projects. Their PHID will be retrieved at first call and cached in hubot brain. Those projects can use aliases, like short names, interchangeably, for convenience (set them up using the `.phad` command).
 
-    something about https://phabricator.example.com/T2#17207
-    just talking about T123. did you see that one?
-        the plugin will watch if it sees 
-        - T[0-9]+ for tasks (of Maniphest)
-        - P[0-9]+ for pastes 
-        - F[0-9]+ for files 
-        - M[0-9]+ for mocks (of Pholio)
-        - B[0-9]+ for builds (of Harbormaster)
-        - L[0-9]+ for legalpads
-        - V[0-9]+ for polls (of Slowvote)
-        - r[A-Z]+[a-f0-9]+ for commit (of Diffusion)
-        if it is in an url, it will reply with 
-          T2 - <title of the task>
-        if it's not in an url it will reply with
-          <task url> - <task title>
-        NOTE: this call will record this Task id associated to you for 5 minutes
-        permission: all
-
     .phab <project> search terms
         will grab the 3 newest matches in tasks matching search terms.
         note that there are some special rules:
@@ -177,6 +159,37 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab version
         displays the version of hubot-phabs that is installed
         permission: all
+
+
+There is a `.hear` feature that also will give information about items that are cited on channel. It tries to do precise pattern matching but sometimes there are some unfortunate coincidences. For example, we work with level3 and talk about it under L3 often. Or one of our project involves a V5. It's kind of annoying to have the bot react on those specific case, so it' possible to blacklist them.
+
+    something about https://phabricator.example.com/T2#17207
+    just talking about T123. did you see that one?
+        the plugin will watch if it sees 
+        - T[0-9]+ for tasks (of Maniphest)
+        - P[0-9]+ for pastes 
+        - F[0-9]+ for files 
+        - M[0-9]+ for mocks (of Pholio)
+        - B[0-9]+ for builds (of Harbormaster)
+        - L[0-9]+ for legalpads
+        - V[0-9]+ for polls (of Slowvote)
+        - r[A-Z]+[a-f0-9]+ for commit (of Diffusion)
+        if it is in an url, it will reply with 
+          T2 - <title of the task>
+        if it's not in an url it will reply with
+          <task url> - <task title>
+        NOTE: this call will record this Task id associated to you for 5 minutes
+        it will just say nothing if the pattern matched is in the blacklist
+        permission: all
+
+    .phab bl T123
+        this will add T123 to the blacklist
+        permission: phuser
+
+    .phab unbl T123
+        this will remove T123 from the blacklist
+        permission: phuser
+
 
 As an experiment, I moved some configuration variables to the brain. They are managed by the phabs_admin module, driven with the `.phad` command. 
 
