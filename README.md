@@ -193,7 +193,7 @@ There is a `.hear` feature that also will give information about items that are 
         permission: phuser
 
 
-As an experiment, I moved some configuration variables to the brain. They are managed by the phabs_admin module, driven with the `.phad` command. 
+Some configuration variables are stored the brain. They are managed by the phabs_admin module, driven with the `.phad` command. 
 
     .phad projects
         lists projects listed in brain
