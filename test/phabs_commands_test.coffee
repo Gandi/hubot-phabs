@@ -965,6 +965,12 @@ describe 'phabs_commands module', ->
           it 'reports the status as open', ->
             expect(hubotResponse(3)).to.eql 'Ok, T42 now has status open.'
 
+        context 'phab open', ->
+          hubot 'phab T42', 'user_with_phid'
+          hubot 'phab last open', 'user_with_phid'
+          it 'reports the status as open', ->
+            expect(hubotResponse(3)).to.eql 'Ok, T42 now has status open.'
+
 
       context 'phab T42 is open', ->
         beforeEach ->
@@ -978,6 +984,11 @@ describe 'phabs_commands module', ->
 
         context 'phab open', ->
           hubot 'phab open'
+          it 'warns the user that there is no active task in memory', ->
+            expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
+
+        context 'phab last open', ->
+          hubot 'phab last open'
           it 'warns the user that there is no active task in memory', ->
             expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
