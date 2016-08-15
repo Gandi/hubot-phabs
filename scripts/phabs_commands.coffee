@@ -20,6 +20,7 @@
 #   hubot phab Txx is <priority> - modifies task Txx priority
 #   hubot phab assign Txx to <user> - assigns task Txx to comeone
 #   hubot phab Txx next [<key>] - outputs next checkbox found in task Txx
+#   hubot phab Txx check [<key>] - update task Txx description by checking a box
 #   hubot phab <user> - checks if user is known or not
 #   hubot phab me as <email> - makes caller known with <email>
 #   hubot phab <user> = <email> - associates user to email
@@ -211,7 +212,7 @@ module.exports = (robot) ->
           msg.send "Next on T#{id} is: #{body.line}"
     msg.finish()
 
-  #   hubot phab Txx check [<key>]- update tast Txx description by checking a box
+  #   hubot phab Txx check [<key>] - update task Txx description by checking a box
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? check(?: (.+))?$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])

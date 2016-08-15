@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.4.0 - wip
+- add checkbox checking commands
+- fix subscribers removal of bot for assign command
+
 ### 1.3.3 - 2016-08-14
 - make the bl and unbl command able to use the short .ph
 

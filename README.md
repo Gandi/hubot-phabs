@@ -139,6 +139,23 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         NOTE: this call will record this Task id associated to you for 5 minutes
         permission: phuser, phadmin
 
+    .phab T123 next <term>
+    .phab T123 next
+    .phab next
+        This will return the first match in the Task T123 description 
+        that begins with a [ ] (a checkbox)
+        if a <term> is provided, it will match the first line 
+        that begins with '[ ] term'
+        the first word on the line, just after the checkbox, is used
+        as a keyword, but it's totally optional
+
+    .phab T123 check <term>
+    .phab T123 check
+    .phab check
+        This will update the description of T123
+        and replace the checkbox line with a checked box '[x]'
+        If a term is provided, the first line matching it will be the checked one
+
     .phab <someone>
         will check is <someone> is linked to his phabricator account 
         (using email address)
