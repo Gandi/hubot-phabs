@@ -5,7 +5,7 @@ Hubot Phabricator Plugin
 [![Downloads](https://img.shields.io/npm/dt/hubot-phabs.svg)](https://www.npmjs.com/package/hubot-phabs)
 [![Build Status](https://img.shields.io/travis/Gandi/hubot-phabs.svg)](https://travis-ci.org/Gandi/hubot-phabs)
 [![Dependency Status](https://gemnasium.com/Gandi/hubot-phabs.svg)](https://gemnasium.com/Gandi/hubot-phabs)
-[![Coverage Status](http://img.shields.io/coveralls/Gandi/hubot-phabs.svg)](https://coveralls.io/r/Gandi/hubot-phabs)
+[![Coverage Status](http://img.shields.io/codeclimate/coverage/github/Gandi/hubot-phabs.svg)](https://codeclimate.com/github/Gandi/hubot-phabs/coverage)
 [![Code Climate](https://img.shields.io/codeclimate/github/Gandi/hubot-phabs.svg)](https://codeclimate.com/github/Gandi/hubot-phabs)
 
 This plugin is designed to work as an addon for [Hubot](https://hubot.github.com/). Its role is to make interactions possible between a chat room (irc, slack, gitter) and a [phabricator](https://www.phacility.com/phabricator/) instance.
