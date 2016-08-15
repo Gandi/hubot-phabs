@@ -1,8 +1,8 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.4.0 - wip
-- add checkbox checking commands
+### 1.4.0 - 2016-08-15
+- add checkbox checking commands .ph next and .ph check
 - fix subscribers removal of bot for assign command
 
 ### 1.3.3 - 2016-08-14

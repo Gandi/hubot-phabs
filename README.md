@@ -81,18 +81,18 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         for the newly created task.
         The <description> is optional, and will be used as description if provided
         NOTE: this call will record this Task id associated to you for 5 minutes
-        permission: phuser, phadmin
+        permission: phuser
 
     .phab new <project>:<template> <task title>
     .phab new <project>:<template> <task title> = <description>
         creates a new task using a template.
         if a description is provided, it will prepend the template description
         For the rest, it behaves like the .phab new command
-        permission: phuser, phadmin
+        permission: phuser
 
     .phab paste <new paste title>
         creates a new paste and provide the link to edit it
-        permission: phuser, phadmin
+        permission: phuser
 
     .phab Txxx
     .phab
@@ -103,7 +103,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab Txxx + <some comment>
     .phab + <some comment>
         adds a comment to task Txxx (or the one in short memory).
-        permission: phuser, phadmin
+        permission: phuser
 
     .phab Txxx is open
     .phab Txxx broken
@@ -125,7 +125,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         - low                     -> Low
         - wish, wishlist          -> Whishlist
         NOTE: this call will record this Task id associated to you for 5 minutes
-        permission: phuser, phadmin
+        permission: phuser
 
     .phab assign T123 to <someone>
     .phab assign <someone> to T123
@@ -137,7 +137,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         which is exactly the same). 
         The 'to' and 'on' conjunctions are inter-changeable.
         NOTE: this call will record this Task id associated to you for 5 minutes
-        permission: phuser, phadmin
+        permission: phuser
 
     .phab T123 next <term>
     .phab T123 next
@@ -148,6 +148,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         that begins with '[ ] term'
         the first word on the line, just after the checkbox, is used
         as a keyword, but it's totally optional
+        permission: phuser
 
     .phab T123 check <term>
     .phab T123 check
@@ -155,16 +156,17 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         This will update the description of T123
         and replace the checkbox line with a checked box '[x]'
         If a term is provided, the first line matching it will be the checked one
+        permission: phuser
 
     .phab <someone>
-        will check is <someone> is linked to his phabricator account 
+        will check is <someone> is linked to his Phabricator account 
         (using email address)
-        permission: phuser, phadmin
+        permission: phuser
 
     .phab me as <email@example.com>
         registers your email in the bot. You need to specify the email address 
         registered in Phabricator
-        permission: phuser, phadmin
+        permission: phuser
 
     .phab <someone> = <email@example.com>
         registers email for another user, follows the same concept as 
@@ -255,11 +257,11 @@ The management of those templates is done with the `.pht` command:
 
     .pht show <name>
         shows what task is used as a template
-        permission: phuser, phadmin
+        permission: phuser
 
     .pht search <term>
         search through templates which names contain <term>
-        permission: phuser, phadmin
+        permission: phuser
 
     .pht remove <name>
         removes template named <name> from the brain memory
