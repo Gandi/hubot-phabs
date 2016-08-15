@@ -150,12 +150,30 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         as a keyword, but it's totally optional
         permission: phuser
 
+    .phab T123 prev <term>
+    .phab T123 prev
+    .phab previous
+    .phab prev
+        This will return the last match in the Task T123 description 
+        that begins with a [x] (a checked checkbox)
+        if a <term> is provided, it will match the last line 
+        that begins with '[x] term'
+        permission: phuser
+
     .phab T123 check <term>
     .phab T123 check
     .phab check
         This will update the description of T123
         and replace the checkbox line with a checked box '[x]'
         If a term is provided, the first line matching it will be the checked one
+        permission: phuser
+
+    .phab T123 uncheck <term>
+    .phab T123 uncheck
+    .phab uncheck
+        This will update the description of T123
+        and replace the checked checkbox line with a checked box '[ ]'
+        If a term is provided, the last line matching it will be the unchecked one
         permission: phuser
 
     .phab <someone>

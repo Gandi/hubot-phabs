@@ -20,7 +20,9 @@
 #   hubot phab Txx is <priority> - modifies task Txx priority
 #   hubot phab assign Txx to <user> - assigns task Txx to comeone
 #   hubot phab Txx next [<key>] - outputs next checkbox found in task Txx
+#   hubot phab Txx prev [<key>] - outputs last checked checkbox found in task Txx
 #   hubot phab Txx check [<key>] - update task Txx description by checking a box
+#   hubot phab Txx uncheck [<key>] - update task Txx description by unchecking a box
 #   hubot phab <user> - checks if user is known or not
 #   hubot phab me as <email> - makes caller known with <email>
 #   hubot phab <user> = <email> - associates user to email
