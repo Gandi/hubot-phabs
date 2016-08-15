@@ -283,6 +283,209 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner unknown'
 
   # ---------------------------------------------------------------------------------
+  context 'user asks for next checkbox of a task', ->
+
+    context 'task id is provided', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            description: 'description\n[ ] something\n[ ] another',
+            ownerPHID: 'PHID-USER-42'
+            } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42 next', ->
+        hubot 'phab T42 next', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'Next on T42 is: [ ] something'
+
+
+      context 'phab T42 next ano', ->
+        hubot 'phab T42 next ano', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'Next on T42 is: [ ] another'
+
+    context 'task id is provided but there is no checkboxes', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            description: 'description\nand no checkboxes',
+            ownerPHID: 'PHID-USER-42'
+            } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42 next', ->
+        hubot 'phab T42 next', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'The task T42 has no unchecked checkboxes.'
+
+      context 'phab T42 next ano', ->
+        hubot 'phab T42 next ano', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'The task T42 has no unchecked checkbox starting with ano.'
+
+
+    context 'task id is provided but doesn not exist', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { error_info: 'No such Maniphest task exists.' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42 next', ->
+        hubot 'phab T42 next'
+        it 'tells that the task does not exist', ->
+          expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
+
+
+    context 'failed implicit re-use of the object id', ->
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'ph next', 'user_with_phid'
+        it 'complains that there is no active object id in memory', ->
+          expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
+
+  # ---------------------------------------------------------------------------------
+  context 'user checks the checkbox of a task', ->
+
+    context 'task id is provided', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            description: 'description\n[ ] something\n[ ] another',
+            ownerPHID: 'PHID-USER-42'
+            } })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { id: 42 } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42 check', ->
+        hubot 'phab T42 check', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'Checked on T42: [x] something'
+
+      context 'phab T42 check ano', ->
+        hubot 'phab T42 check ano', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'Checked on T42: [x] another'
+
+    context 'task id is provided but edit fails', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            description: 'description\n[ ] something\n[ ] another',
+            ownerPHID: 'PHID-USER-42'
+            } })
+          .get('/api/maniphest.edit')
+          .reply(200, { error_info: "no permission to edit" })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42 check', ->
+        hubot 'phab T42 check', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'no permission to edit'
+
+
+    context 'task id is provided but there is no checkboxes', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            description: 'description\nand no checkboxes',
+            ownerPHID: 'PHID-USER-42'
+            } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42 check', ->
+        hubot 'phab T42 check', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'The task T42 has no unchecked checkboxes.'
+
+      context 'phab T42 check ano', ->
+        hubot 'phab T42 check ano', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'The task T42 has no unchecked checkbox starting with ano.'
+
+
+    context 'task id is provided but doesn not exist', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { error_info: 'No such Maniphest task exists.' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42 check', ->
+        hubot 'phab T42 check'
+        it 'tells that the task does not exist', ->
+          expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
+
+
+    context 'failed implicit re-use of the object id', ->
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'ph check', 'user_with_phid'
+        it 'complains that there is no active object id in memory', ->
+          expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
+
+  # ---------------------------------------------------------------------------------
   context 'user asks about a user', ->
 
     context 'phab toto', ->
