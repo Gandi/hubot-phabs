@@ -5,6 +5,8 @@ node_js:
 script: make test-coverage
 # after_success:
 #   - 'cat ./coverage/lcov.info | ./node_modules/.bin/coveralls'
+after_success:
+  - codeclimate < ./coverage/lcov.info
 addons:
   code_climate:
     repo_token: 3a877a01424c6dc8412df0cbf65eccacf314437cfe251e97c30b416d50fd3935
