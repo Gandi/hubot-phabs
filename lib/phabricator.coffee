@@ -506,6 +506,33 @@ class Phabricator
               cb { error_info: "The task T#{id} has no unchecked checkboxes." }
 
 
+  prevCheckbox: (user, id, key, cb) ->
+    if @ready() is true
+      query = {
+        task_id: id
+      }
+      @phabGet query, 'maniphest.info', (json_body) =>
+        if json_body.error_info?
+          cb json_body
+        else
+          user = @robot.brain.userForName user.name
+          @recordId user, id
+          lines = json_body.result.description.split('\n').reverse()
+          reg = new RegExp("^\\[x\\] #{key or ''}")
+          found = null
+          for line in lines
+            if reg.test line
+              found = line
+              break
+          if found?
+            cb { line: found }
+          else
+            if key?
+              cb { error_info: "The task T#{id} has no checked checkbox starting with #{key}." }
+            else
+              cb { error_info: "The task T#{id} has no checked checkboxes." }
+
+
   checkCheckbox: (user, id, key, cb) ->
     if @ready() is true
       query = {
@@ -548,6 +575,50 @@ class Phabricator
               cb { error_info: "The task T#{id} has no unchecked checkbox starting with #{key}." }
             else
               cb { error_info: "The task T#{id} has no unchecked checkboxes." }
+
+
+  uncheckCheckbox: (user, id, key, cb) ->
+    if @ready() is true
+      query = {
+        task_id: id
+      }
+      @phabGet query, 'maniphest.info', (json_body) =>
+        if json_body.error_info?
+          cb json_body
+        else
+          user = @robot.brain.userForName user.name
+          @recordId user, id
+          lines = json_body.result.description.split('\n').reverse()
+          reg = new RegExp("^\\[x\\] #{key or ''}")
+          found = null
+          updated = [ ]
+          for line in lines
+            if not found? and reg.test line
+              found = line.replace('[x] ', '[ ] ')
+              updated.push found
+            else
+              updated.push line
+          if found?
+            @withBotPHID (bot_phid) =>
+              editquery = {
+                'objectIdentifier': "T#{id}",
+                'transactions[0][type]': 'description'
+                'transactions[0][value]': "#{updated.reverse().join('\n')}"
+                'transactions[1][type]': 'subscribers.remove',
+                'transactions[1][value][0]': "#{bot_phid}",
+                'transactions[2][type]': 'comment',
+                'transactions[2][value]': "#{user.name} checked:\n#{found}"
+              }
+              @phabGet editquery, 'maniphest.edit', (json_body) ->
+                if json_body.error_info?
+                  cb json_body
+                else
+                  cb { line: found }
+          else
+            if key?
+              cb { error_info: "The task T#{id} has no checked checkbox starting with #{key}." }
+            else
+              cb { error_info: "The task T#{id} has no checked checkboxes." }
 
 
   # templates ---------------------------------------------------

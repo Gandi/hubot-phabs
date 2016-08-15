@@ -212,6 +212,22 @@ module.exports = (robot) ->
           msg.send "Next on T#{id} is: #{body.line}"
     msg.finish()
 
+  #   hubot phab Txx prev [<key>]- outputs the last checked checkbox in a given task
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? prev(?:ious)?(?: (.+))?$/, (msg) ->
+    phab.withPermission msg, msg.envelope.user, 'phuser', ->
+      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
+      unless id?
+        msg.send "Sorry, you don't have any task active right now."
+        msg.finish()
+        return
+      key = msg.match[3]
+      phab.prevCheckbox msg.envelope.user, id, key, (body) ->
+        if body.error_info?
+          msg.send body.error_info
+        else
+          msg.send "Previous on T#{id} is: #{body.line}"
+    msg.finish()
+
   #   hubot phab Txx check [<key>] - update task Txx description by checking a box
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? check(?: (.+))?$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
@@ -226,6 +242,22 @@ module.exports = (robot) ->
           msg.send body.error_info
         else
           msg.send "Checked on T#{id}: #{body.line}"
+    msg.finish()
+
+  #   hubot phab Txx uncheck [<key>] - update task Txx description by unchecking a box
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? uncheck(?: (.+))?$/, (msg) ->
+    phab.withPermission msg, msg.envelope.user, 'phuser', ->
+      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
+      unless id?
+        msg.send "Sorry, you don't have any task active right now."
+        msg.finish()
+        return
+      key = msg.match[3]
+      phab.uncheckCheckbox msg.envelope.user, id, key, (body) ->
+        if body.error_info?
+          msg.send body.error_info
+        else
+          msg.send "Unchecked on T#{id}: #{body.line}"
     msg.finish()
 
   #   hubot phab <user> - checks if user is known or not
