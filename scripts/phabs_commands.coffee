@@ -12,16 +12,17 @@
 #   hubot phab new <project>[:<template>] <name of the task> - creates a new task
 #   hubot phab paste <name of the paste> - creates a new paste
 #   hubot phab count <project> - counts how many tasks a project has
+#   hubot phab bl <id> - blacklists an id from phabs_hear
+#   hubot phab unbl <id> - removes an id from blacklist
 #   hubot phab Txx - gives information about task Txx
 #   hubot phab Txx + <some comment> - add a comment to task Txx
 #   hubot phab Txx is <status> - modifies task Txx status
 #   hubot phab Txx is <priority> - modifies task Txx priority
 #   hubot phab assign Txx to <user> - assigns task Txx to comeone
+#   hubot phab Txx next [<key>] - outputs next checkbox found in task Txx
 #   hubot phab <user> - checks if user is known or not
 #   hubot phab me as <email> - makes caller known with <email>
 #   hubot phab <user> = <email> - associates user to email
-#   hubot phab bl <id> - blacklists an id from phabs_hear
-#   hubot phab unbl <id> - removes an id from blacklist
 #
 # Author:
 #   mose
@@ -74,7 +75,7 @@ module.exports = (robot) ->
         if res.error_info?
           msg.send res.error_info
         else
-          phab.recordPhid res.user, res.id
+          phab.recordId res.user, res.id
           msg.send "Task T#{res.id} created = #{res.url}"
     msg.finish()
 
@@ -120,7 +121,7 @@ module.exports = (robot) ->
 
   #   hubot phab Txx - gives information about task Txxx
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? ?$/, (msg) ->
-    id = phab.retrievePhid(msg.envelope.user, msg.match[1] or msg.match[2])
+    id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
     unless id?
       msg.send "Sorry, you don't have any task active right now."
       msg.finish()
@@ -132,7 +133,7 @@ module.exports = (robot) ->
         phab.withUserByPhid body.result.ownerPHID, (owner) ->
           status = body.result.status
           priority = body.result.priority
-          phab.recordPhid msg.envelope.user, id
+          phab.recordId msg.envelope.user, id
           msg.send "T#{id} has status #{status}, " +
                    "priority #{priority}, owner #{owner.name}"
     msg.finish()
@@ -140,7 +141,7 @@ module.exports = (robot) ->
   #   hubot phab Txx + <some comment> - add a comment to task Txx
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? \+ (.+)$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = phab.retrievePhid(msg.envelope.user, msg.match[1] or msg.match[2])
+      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
@@ -160,7 +161,7 @@ module.exports = (robot) ->
     '(?: = (.+))?$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = phab.retrievePhid(msg.envelope.user, msg.match[1] or msg.match[2])
+      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
@@ -180,7 +181,7 @@ module.exports = (robot) ->
     '(?: = (.+))?$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = phab.retrievePhid(msg.envelope.user, msg.match[1] or msg.match[2])
+      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
@@ -192,6 +193,38 @@ module.exports = (robot) ->
           msg.send "oops T#{id} #{body['error_info']}"
         else
           msg.send "Ok, T#{id} now has priority #{priority}"
+    msg.finish()
+
+  #   hubot phab Txx next [<key>]- outputs the next checkbox in a given task
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? next(?: (.+))?$/, (msg) ->
+    phab.withPermission msg, msg.envelope.user, 'phuser', ->
+      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
+      unless id?
+        msg.send "Sorry, you don't have any task active right now."
+        msg.finish()
+        return
+      key = msg.match[3]
+      phab.nextCheckbox msg.envelope.user, id, key, (body) ->
+        if body.error_info?
+          msg.send body.error_info
+        else
+          msg.send "Next on T#{id} is: #{body.line}"
+    msg.finish()
+
+  #   hubot phab Txx check [<key>]- update tast Txx description by checking a box
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? check(?: (.+))?$/, (msg) ->
+    phab.withPermission msg, msg.envelope.user, 'phuser', ->
+      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
+      unless id?
+        msg.send "Sorry, you don't have any task active right now."
+        msg.finish()
+        return
+      key = msg.match[3]
+      phab.checkCheckbox msg.envelope.user, id, key, (body) ->
+        if body.error_info?
+          msg.send body.error_info
+        else
+          msg.send "Checked on T#{id}: #{body.line}"
     msg.finish()
 
   #   hubot phab <user> - checks if user is known or not
@@ -246,7 +279,7 @@ module.exports = (robot) ->
       else
         who = msg.match[7]
         what = msg.match[5] or msg.match[6]
-      id = phab.retrievePhid(msg.envelope.user, what)
+      id = phab.retrieveId(msg.envelope.user, what)
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
