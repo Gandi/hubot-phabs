@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.4.1 - 2016-08-16
+- add .ph prev command to see the last unchecked box in a task
+- add .ph uncheck to uncheck the last checked box in a task
+
 ### 1.4.0 - 2016-08-15
 - add checkbox checking commands .ph next and .ph check
 - fix subscribers removal of bot for assign command
