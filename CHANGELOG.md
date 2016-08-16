@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.4.2 - wip
+- add .ph check! and .ph uncheck! for it also returns the next or previous checkbox
+
 ### 1.4.1 - 2016-08-16
 - add .ph prev command to see the last unchecked box in a task
 - add .ph uncheck to uncheck the last checked box in a task

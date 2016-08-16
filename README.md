@@ -163,17 +163,21 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab T123 check <term>
     .phab T123 check
     .phab check
+    .phab check!
         This will update the description of T123
         and replace the checkbox line with a checked box '[x]'
         If a term is provided, the first line matching it will be the checked one
+        If the '!' is added, it will also return the next unchecked checkbox
         permission: phuser
 
     .phab T123 uncheck <term>
     .phab T123 uncheck
     .phab uncheck
+    .phab uncheck!
         This will update the description of T123
         and replace the checked checkbox line with a checked box '[ ]'
         If a term is provided, the last line matching it will be the unchecked one
+        If the '!' is added, it will also return the previous checked checkbox
         permission: phuser
 
     .phab <someone>
