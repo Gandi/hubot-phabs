@@ -565,7 +565,7 @@ class Phabricator
             if not found? and reg.test line
               line = line.replace('[ ] ', '[x] ')
               found = line
-            else if found? and not foundNext? and reg.test line
+            else if withNext? and found? and not foundNext? and reg.test line
               foundNext = line
             updated.push line
           if found?
@@ -601,7 +601,7 @@ class Phabricator
             if not found? and reg.test line
               line = line.replace('[x] ', '[ ] ')
               found = line
-            else if found? and not foundNext? and reg.test line
+            else if withNext? and found? and not foundNext? and reg.test line
               foundNext = line
             updated.push line
           if found?

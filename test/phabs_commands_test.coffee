@@ -481,11 +481,13 @@ describe 'phabs_commands module', ->
         hubot 'phab T42 check', 'user_with_phid'
         it 'gives information about the next checkbox', ->
           expect(hubotResponse()).to.eql 'Checked on T42: [x] something'
+          expect(hubotResponse(2)).to.be.undefined
 
       context 'phab T42 check ano', ->
         hubot 'phab T42 check ano', 'user_with_phid'
         it 'gives information about the next checkbox', ->
           expect(hubotResponse()).to.eql 'Checked on T42: [x] another'
+          expect(hubotResponse(2)).to.be.undefined
 
     context 'task id is provided', ->
       beforeEach ->
@@ -637,11 +639,13 @@ describe 'phabs_commands module', ->
         hubot 'phab T42 uncheck', 'user_with_phid'
         it 'gives information about the previous checkbox', ->
           expect(hubotResponse()).to.eql 'Unchecked on T42: [ ] another one'
+          expect(hubotResponse(2)).to.be.undefined
 
       context 'phab T42 uncheck some', ->
         hubot 'phab T42 uncheck some', 'user_with_phid'
         it 'gives information about the previous checkbox', ->
           expect(hubotResponse()).to.eql 'Unchecked on T42: [ ] something'
+          expect(hubotResponse(2)).to.be.undefined
 
     context 'task id is provided', ->
       beforeEach ->
