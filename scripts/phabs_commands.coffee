@@ -231,35 +231,41 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx check [<key>] - update task Txx description by checking a box
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? check(?: (.+))?$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? check(!)?(?: (.+))?$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
-      key = msg.match[3]
-      phab.checkCheckbox msg.envelope.user, id, key, (body) ->
+      withNext = msg.match[3]
+      key = msg.match[4]
+      phab.checkCheckbox msg.envelope.user, id, key, withNext, (body) ->
         if body.error_info?
           msg.send body.error_info
         else
-          msg.send "Checked on T#{id}: #{body.line}"
+          msg.send "Checked on T#{id}: #{body.line[0]}"
+          if body.line[1]?
+            msg.send "Next on T#{id} is: #{body.line[1]}"
     msg.finish()
 
   #   hubot phab Txx uncheck [<key>] - update task Txx description by unchecking a box
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? uncheck(?: (.+))?$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? uncheck(!)?(?: (.+))?$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
-      key = msg.match[3]
-      phab.uncheckCheckbox msg.envelope.user, id, key, (body) ->
+      withNext = msg.match[3]
+      key = msg.match[4]
+      phab.uncheckCheckbox msg.envelope.user, id, key, withNext, (body) ->
         if body.error_info?
           msg.send body.error_info
         else
-          msg.send "Unchecked on T#{id}: #{body.line}"
+          msg.send "Unchecked on T#{id}: #{body.line[0]}"
+          if body.line[1]?
+            msg.send "Previous on T#{id} is: #{body.line[1]}"
     msg.finish()
 
   #   hubot phab <user> - checks if user is known or not

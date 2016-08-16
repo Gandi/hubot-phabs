@@ -532,12 +532,23 @@ class Phabricator
             else
               cb { error_info: "The task T#{id} has no checked checkboxes." }
 
-
-  checkCheckbox: (user, id, key, cb) ->
-    if @ready() is true
-      query = {
-        task_id: id
+  updateTask: (id, description, comment, cb) =>
+    @withBotPHID (bot_phid) =>
+      editquery = {
+        'objectIdentifier': "T#{id}",
+        'transactions[0][type]': 'description'
+        'transactions[0][value]': "#{description}"
+        'transactions[1][type]': 'subscribers.remove',
+        'transactions[1][value][0]': "#{bot_phid}",
+        'transactions[2][type]': 'comment',
+        'transactions[2][value]': "#{comment}"
       }
+      @phabGet editquery, 'maniphest.edit', (json_body) ->
+        cb json_body
+
+  checkCheckbox: (user, id, key, withNext, cb) ->
+    if @ready() is true
+      query = { task_id: id }
       @phabGet query, 'maniphest.info', (json_body) =>
         if json_body.error_info?
           cb json_body
@@ -547,41 +558,33 @@ class Phabricator
           lines = json_body.result.description.split('\n')
           reg = new RegExp("^\\[ \\] #{key or ''}")
           found = null
+          foundNext = null
           updated = [ ]
+          extra = if key? then " starting with #{key}" else ''
           for line in lines
             if not found? and reg.test line
-              found = line.replace('[ ] ', '[x] ')
-              updated.push found
-            else
-              updated.push line
+              line = line.replace('[ ] ', '[x] ')
+              found = line
+            else if found? and not foundNext? and reg.test line
+              foundNext = line
+            updated.push line
           if found?
-            @withBotPHID (bot_phid) =>
-              editquery = {
-                'objectIdentifier': "T#{id}",
-                'transactions[0][type]': 'description'
-                'transactions[0][value]': "#{updated.join('\n')}"
-                'transactions[1][type]': 'subscribers.remove',
-                'transactions[1][value][0]': "#{bot_phid}",
-                'transactions[2][type]': 'comment',
-                'transactions[2][value]': "#{user.name} checked:\n#{found}"
-              }
-              @phabGet editquery, 'maniphest.edit', (json_body) ->
-                if json_body.error_info?
-                  cb json_body
-                else
-                  cb { line: found }
+            comment = "#{user.name} checked:\n#{found}"
+            description = updated.join('\n')
+            @updateTask id, description, comment, (json_body) ->
+              if json_body.error_info?
+                cb json_body
+              else
+                if withNext? and not foundNext?
+                  foundNext = "and there is no more unchecked checkbox#{extra}."
+                cb { line: [ found, foundNext ] }
           else
-            if key?
-              cb { error_info: "The task T#{id} has no unchecked checkbox starting with #{key}." }
-            else
-              cb { error_info: "The task T#{id} has no unchecked checkboxes." }
+            cb { error_info: "The task T#{id} has no unchecked checkbox#{extra}." }
 
 
-  uncheckCheckbox: (user, id, key, cb) ->
+  uncheckCheckbox: (user, id, key, withNext, cb) ->
     if @ready() is true
-      query = {
-        task_id: id
-      }
+      query = { task_id: id }
       @phabGet query, 'maniphest.info', (json_body) =>
         if json_body.error_info?
           cb json_body
@@ -591,34 +594,28 @@ class Phabricator
           lines = json_body.result.description.split('\n').reverse()
           reg = new RegExp("^\\[x\\] #{key or ''}")
           found = null
+          foundNext = null
           updated = [ ]
+          extra = if key? then " starting with #{key}" else ''
           for line in lines
             if not found? and reg.test line
-              found = line.replace('[x] ', '[ ] ')
-              updated.push found
-            else
-              updated.push line
+              line = line.replace('[x] ', '[ ] ')
+              found = line
+            else if found? and not foundNext? and reg.test line
+              foundNext = line
+            updated.push line
           if found?
-            @withBotPHID (bot_phid) =>
-              editquery = {
-                'objectIdentifier': "T#{id}",
-                'transactions[0][type]': 'description'
-                'transactions[0][value]': "#{updated.reverse().join('\n')}"
-                'transactions[1][type]': 'subscribers.remove',
-                'transactions[1][value][0]': "#{bot_phid}",
-                'transactions[2][type]': 'comment',
-                'transactions[2][value]': "#{user.name} checked:\n#{found}"
-              }
-              @phabGet editquery, 'maniphest.edit', (json_body) ->
-                if json_body.error_info?
-                  cb json_body
-                else
-                  cb { line: found }
+            comment = "#{user.name} unchecked:\n#{found}"
+            description = updated.reverse().join('\n')
+            @updateTask id, description, comment, (json_body) ->
+              if json_body.error_info?
+                cb json_body
+              else
+                if withNext? and not foundNext?
+                  foundNext = "and there is no more checked checkbox#{extra}."
+                cb { line: [ found, foundNext ] }
           else
-            if key?
-              cb { error_info: "The task T#{id} has no checked checkbox starting with #{key}." }
-            else
-              cb { error_info: "The task T#{id} has no checked checkboxes." }
+            cb { error_info: "The task T#{id} has no checked checkbox#{extra}." }
 
 
   # templates ---------------------------------------------------

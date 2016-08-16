@@ -538,7 +538,7 @@ describe 'phabs_commands module', ->
       context 'phab T42 check', ->
         hubot 'phab T42 check', 'user_with_phid'
         it 'gives information about the next checkbox', ->
-          expect(hubotResponse()).to.eql 'The task T42 has no unchecked checkboxes.'
+          expect(hubotResponse()).to.eql 'The task T42 has no unchecked checkbox.'
 
       context 'phab T42 check ano', ->
         hubot 'phab T42 check ano', 'user_with_phid'
@@ -654,7 +654,7 @@ describe 'phabs_commands module', ->
       context 'phab T42 uncheck', ->
         hubot 'phab T42 uncheck', 'user_with_phid'
         it 'gives information about the previous checkbox', ->
-          expect(hubotResponse()).to.eql 'The task T42 has no checked checkboxes.'
+          expect(hubotResponse()).to.eql 'The task T42 has no checked checkbox.'
 
       context 'phab T42 uncheck ano', ->
         hubot 'phab T42 uncheck ano', 'user_with_phid'
