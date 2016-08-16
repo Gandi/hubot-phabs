@@ -2403,7 +2403,7 @@ describe 'phabs_commands module', ->
   # ---------------------------------------------------------------------------------
   context 'permissions system', ->
     beforeEach ->
-      process.env.HUBOT_AUTH_ROLES = 'admin=admin_user phadmin=phadmin_user phuser=phuser_user'
+      process.env.HUBOT_AUTH_ADMIN = 'admin_user'
       room.robot.loadFile path.resolve('node_modules/hubot-auth/src'), 'auth.coffee'
       room.robot.brain.userForId 'admin_user', {
         name: 'admin_user',
@@ -2411,11 +2411,17 @@ describe 'phabs_commands module', ->
       }
       room.robot.brain.userForId 'phadmin_user', {
         name: 'phadmin_user',
-        phid: 'PHID-USER-123456789'
+        phid: 'PHID-USER-123456789',
+        roles: [
+          'phadmin'
+        ]
       }
       room.robot.brain.userForId 'phuser_user', {
         name: 'phuser_user',
-        phid: 'PHID-USER-123456789'
+        phid: 'PHID-USER-123456789',
+        roles: [
+          'phuser'
+        ]
       }
 
     context 'user wants to create comment on a task', ->
