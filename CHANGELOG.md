@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.4.2 - wip
+### 1.4.2 - 2016-08-16
 - add .ph check! and .ph uncheck! for it also returns the next or previous checkbox
 
 ### 1.4.1 - 2016-08-16
