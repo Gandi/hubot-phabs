@@ -576,7 +576,7 @@ class Phabricator
                 cb json_body
               else
                 if withNext? and not foundNext?
-                  foundNext = "and there is no more unchecked checkbox#{extra}."
+                  foundNext = "there is no more unchecked checkbox#{extra}."
                 cb { line: [ found, foundNext ] }
           else
             cb { error_info: "The task T#{id} has no unchecked checkbox#{extra}." }
@@ -612,7 +612,7 @@ class Phabricator
                 cb json_body
               else
                 if withNext? and not foundNext?
-                  foundNext = "and there is no more checked checkbox#{extra}."
+                  foundNext = "there is no more checked checkbox#{extra}."
                 cb { line: [ found, foundNext ] }
           else
             cb { error_info: "The task T#{id} has no checked checkbox#{extra}." }

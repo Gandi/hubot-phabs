@@ -487,6 +487,46 @@ describe 'phabs_commands module', ->
         it 'gives information about the next checkbox', ->
           expect(hubotResponse()).to.eql 'Checked on T42: [x] another'
 
+    context 'task id is provided', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            description: 'description\n[ ] something\n[ ] another\n[ ] something else',
+            ownerPHID: 'PHID-USER-42'
+            } })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { id: 42 } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42 check!', ->
+        hubot 'phab T42 check!', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'Checked on T42: [x] something'
+          expect(hubotResponse(2)).to.eql 'Next on T42: [ ] another'
+
+      context 'phab T42 check! some', ->
+        hubot 'phab T42 check! some', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'Checked on T42: [x] something'
+          expect(hubotResponse(2)).to.eql 'Next on T42: [ ] something else'
+
+      context 'phab T42 check! ano', ->
+        hubot 'phab T42 check! ano', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'Checked on T42: [x] another'
+          expect(hubotResponse(2)).to.eql 'Next on T42: there is no more unchecked checkbox starting with ano.'
+
     context 'task id is provided but edit fails', ->
       beforeEach ->
         do nock.disableNetConnect
@@ -584,7 +624,7 @@ describe 'phabs_commands module', ->
             status: 'open',
             priority: 'Low',
             name: 'Test task',
-            description: 'description\n[x] something\n[x] another',
+            description: 'description\n[x] another\n[x] something\n[x] another one',
             ownerPHID: 'PHID-USER-42'
             } })
           .get('/api/maniphest.edit')
@@ -596,12 +636,52 @@ describe 'phabs_commands module', ->
       context 'phab T42 uncheck', ->
         hubot 'phab T42 uncheck', 'user_with_phid'
         it 'gives information about the previous checkbox', ->
-          expect(hubotResponse()).to.eql 'Unchecked on T42: [ ] another'
+          expect(hubotResponse()).to.eql 'Unchecked on T42: [ ] another one'
 
       context 'phab T42 uncheck some', ->
         hubot 'phab T42 uncheck some', 'user_with_phid'
         it 'gives information about the previous checkbox', ->
           expect(hubotResponse()).to.eql 'Unchecked on T42: [ ] something'
+
+    context 'task id is provided', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            description: 'description\n[x] another\n[x] something\n[x] another one',
+            ownerPHID: 'PHID-USER-42'
+            } })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { id: 42 } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42 uncheck!', ->
+        hubot 'phab T42 uncheck!', 'user_with_phid'
+        it 'gives information about the previous checkbox', ->
+          expect(hubotResponse()).to.eql 'Unchecked on T42: [ ] another one'
+          expect(hubotResponse(2)).to.eql 'Previous on T42: [x] something'
+
+      context 'phab T42 uncheck! ano', ->
+        hubot 'phab T42 uncheck! ano', 'user_with_phid'
+        it 'gives information about the previous checkbox', ->
+          expect(hubotResponse()).to.eql 'Unchecked on T42: [ ] another one'
+          expect(hubotResponse(2)).to.eql 'Previous on T42: [x] another'
+
+      context 'phab T42 uncheck! some', ->
+        hubot 'phab T42 uncheck! some', 'user_with_phid'
+        it 'gives information about the previous checkbox', ->
+          expect(hubotResponse()).to.eql 'Unchecked on T42: [ ] something'
+          expect(hubotResponse(2)).to.eql 'Previous on T42: there is no more checked checkbox starting with some.'
 
     context 'task id is provided but edit fails', ->
       beforeEach ->

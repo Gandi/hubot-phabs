@@ -246,7 +246,7 @@ module.exports = (robot) ->
         else
           msg.send "Checked on T#{id}: #{body.line[0]}"
           if body.line[1]?
-            msg.send "Next on T#{id} is: #{body.line[1]}"
+            msg.send "Next on T#{id}: #{body.line[1]}"
     msg.finish()
 
   #   hubot phab Txx uncheck [<key>] - update task Txx description by unchecking a box
@@ -265,7 +265,7 @@ module.exports = (robot) ->
         else
           msg.send "Unchecked on T#{id}: #{body.line[0]}"
           if body.line[1]?
-            msg.send "Previous on T#{id} is: #{body.line[1]}"
+            msg.send "Previous on T#{id}: #{body.line[1]}"
     msg.finish()
 
   #   hubot phab <user> - checks if user is known or not
