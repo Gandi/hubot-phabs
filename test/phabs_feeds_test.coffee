@@ -34,6 +34,7 @@ describe 'phabs_feeds module', ->
     process.env.PHABRICATOR_URL = 'http://example.com'
     process.env.PHABRICATOR_API_KEY = 'xxx'
     process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
+    process.env.PORT = 80800
     room = helper.createRoom()
     room.robot.brain.userForId 'user', {
       name: 'user'
@@ -296,10 +297,9 @@ describe 'phabs_feeds module', ->
     context 'with invalid payload', ->
       beforeEach (done) ->
         do nock.enableNetConnect
-        process.env.EXPRESS_PORT = 8080
         options = {
           host: 'localhost',
-          port: 8080,
+          port: process.env.PORT,
           path: '/hubot/phabs/feeds',
           method: 'POST',
           headers: {
@@ -317,10 +317,9 @@ describe 'phabs_feeds module', ->
     context 'with valid payload', ->
       beforeEach (done) ->
         do nock.enableNetConnect
-        process.env.EXPRESS_PORT = 8080
         options = {
           host: 'localhost',
-          port: 8080,
+          port: process.env.PORT,
           path: '/hubot/phabs/feeds',
           method: 'POST',
           headers: {
