@@ -34,7 +34,7 @@ describe 'phabs_feeds module', ->
     process.env.PHABRICATOR_URL = 'http://example.com'
     process.env.PHABRICATOR_API_KEY = 'xxx'
     process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
-    process.env.PORT = 80800
+    process.env.PORT = 8088
     room = helper.createRoom()
     room.robot.brain.userForId 'user', {
       name: 'user'
