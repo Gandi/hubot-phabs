@@ -2,7 +2,7 @@ Helper = require('hubot-test-helper')
 Hubot = require('../node_modules/hubot')
 
 # helper loads a specific script if it's a file
-helper = new Helper('../scripts/phabs_commands.coffee')
+helper = new Helper('../scripts/phabs_events.coffee')
 
 nock   = require 'nock'
 sinon  = require 'sinon'
@@ -11,7 +11,7 @@ expect = require('chai').use(require('sinon-chai')).expect
 room = null
 
 # ---------------------------------------------------------------------------------
-describe 'phabs_commands module', ->
+describe 'phabs_events module', ->
 
   beforeEach ->
     process.env.PHABRICATOR_URL = 'http://example.com'
