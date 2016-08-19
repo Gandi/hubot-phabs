@@ -12,13 +12,13 @@ phabs_available_features = [
 
 phabs_features = if process.env.PHABS_ENABLED_FEATURES?
   enabled = process.env.PHABS_ENABLED_FEATURES.split(',')
-  phabs_available_features.reduce (a, f) -> 
+  phabs_available_features.reduce (a, f) ->
     a.push f if f in enabled
     a
   , [ ]
 else if process.env.PHABS_DISABLED_FEATURES?
   disabled = process.env.PHABS_DISABLED_FEATURES.split(',')
-  phabs_available_features.reduce (a, f) -> 
+  phabs_available_features.reduce (a, f) ->
     a.push f if f not in disableda
     a
   , [ ]
