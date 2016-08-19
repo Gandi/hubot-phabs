@@ -322,7 +322,7 @@ There is some events available for interaction with other plugins, to chain acti
         - template (null if none)
         - title
         - description
-        - user (needs to have a .name property)
+        - user (either a user object or a string)
         It will create a task from an event, 
         and talk on the logger when done or if it fails.
 

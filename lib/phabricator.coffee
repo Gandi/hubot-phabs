@@ -323,13 +323,19 @@ class Phabricator
             if projectData.error_info?
               cb projectData
             else
-              adapter = @robot.adapterName
-              user = @robot.brain.userForName params.user.name
-              @withUser user, user, (userPhid) =>
-                if userPhid.error_info?
-                  cb userPhid
+              @withBotPHID (bot_phid) =>
+                adapter = @robot.adapterName
+                if params.user?.name?
+                  user = @robot.brain.userForName params.user.name
                 else
-                  @withBotPHID (bot_phid) =>
+                  if @robot.brain.data.users[params.user]
+                    user = @robot.brain.userForName params.user
+                  else
+                    user = { name: @robot.name, phid: bot_phid }
+                @withUser user, user, (userPhid) =>
+                  if userPhid.error_info?
+                    cb userPhid
+                  else
                     query = {
                       'transactions[0][type]': 'title',
                       'transactions[0][value]': "#{params.title}",

@@ -33,7 +33,7 @@ describe 'phabs_events module', ->
     it 'should know about phab.createTask', ->
       expect(room.robot.events['phab.createTask']).to.be.defined
 
-    context 'and it does not generate an error, ', ->
+    context 'with a user object, ', ->
       beforeEach (done) ->
         room.robot.brain.data.phabricator.projects = {
           'proj1': {
@@ -62,6 +62,68 @@ describe 'phabs_events module', ->
       it 'logs a success', ->
         expect(room.robot.logger.info).calledOnce
         expect(room.robot.logger.info).calledWith 'Task T42 created = http://example.com/T42'
+
+    context 'with a user name, ', ->
+      beforeEach (done) ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        room.robot.logger = sinon.spy()
+        room.robot.logger.info = sinon.spy()
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+        room.robot.emit 'phab.createTask', {
+          project: 'proj1',
+          template: undefined,
+          name: 'a task',
+          description: undefined,
+          user: 'user_with_phid'
+        }
+        setTimeout (done), 40
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      it 'logs a success', ->
+        expect(room.robot.logger.info).calledOnce
+        expect(room.robot.logger.info).calledWith 'Task T42 created = http://example.com/T42'
+
+    context 'with no user name, ', ->
+      beforeEach (done) ->
+        room.robot.brain.userForId 'user_with_phid', {
+          name: 'hubot',
+          phid: 'PHID-USER-123456789'
+        }
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        room.robot.logger = sinon.spy()
+        room.robot.logger.info = sinon.spy()
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+        room.robot.emit 'phab.createTask', {
+          project: 'proj1',
+          name: 'a task'
+        }
+        setTimeout (done), 40
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      it 'logs a success', ->
+        expect(room.robot.logger.info).calledOnce
+        expect(room.robot.logger.info).calledWith 'Task T42 created = http://example.com/T42'
+
 
     context 'and it generates an error, ', ->
       beforeEach (done) ->
