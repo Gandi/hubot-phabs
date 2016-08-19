@@ -1,11 +1,31 @@
 path = require 'path'
 
+phabs_available_features = [
+  'events',
+  'api',
+  'commands',
+  'templates',
+  'admin',
+  'feeds',
+  'hear'
+]
+
+phabs_features = if process.env.PHABS_ENABLED_FEATURES?
+  enabled = process.env.PHABS_ENABLED_FEATURES.split(',')
+  phabs_available_features.reduce (a, f) -> 
+    a.push f if f in enabled
+    a
+  , [ ]
+else if process.env.PHABS_DISABLED_FEATURES?
+  disabled = process.env.PHABS_DISABLED_FEATURES.split(',')
+  phabs_available_features.reduce (a, f) -> 
+    a.push f if f not in disableda
+    a
+  , [ ]
+else
+  phabs_available_features
+
 module.exports = (robot) ->
-  robot.loadFile(path.resolve(__dirname, 'scripts'), 'phabs_events.coffee')
-  unless process.env.PHABS_NO_API?
-    robot.loadFile(path.resolve(__dirname, 'scripts'), 'phabs_api.coffee')
-  robot.loadFile(path.resolve(__dirname, 'scripts'), 'phabs_commands.coffee')
-  robot.loadFile(path.resolve(__dirname, 'scripts'), 'phabs_templates.coffee')
-  robot.loadFile(path.resolve(__dirname, 'scripts'), 'phabs_admin.coffee')
-  robot.loadFile(path.resolve(__dirname, 'scripts'), 'phabs_feeds.coffee')
-  robot.loadFile(path.resolve(__dirname, 'scripts'), 'phabs_hear.coffee')
+  for feature in phabs_features
+    robot.logger.debug "Loading phabs_#{feature}"
+    robot.loadFile(path.resolve(__dirname, 'scripts'), "phabs_#{feature}.coffee")
