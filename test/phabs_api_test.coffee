@@ -12,7 +12,7 @@ querystring = require('querystring')
 
 room = null
 
-describe.only 'phabs_api module', ->
+describe 'phabs_api module', ->
 
   beforeEach ->
     process.env.PHABRICATOR_URL = 'http://example.com'
