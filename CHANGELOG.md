@@ -1,8 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.4.4 - wip
+### 1.4.4 - 2016-08-19
 - add a REST endpoint to create a task
+- rely on hubot-restrict-ip for web endpoints protection
 
 ### 1.4.3 - 2016-08-16
 - fix .ph check so it's not mistaken for a .ph check!

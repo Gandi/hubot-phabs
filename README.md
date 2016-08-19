@@ -31,11 +31,12 @@ Configuration
 
 - `PHABRICATOR_URL` - main url of your Phabricator instance
 - `PHABRICATOR_API_KEY` - api key for the bot user
-- `HUBOT_AUTHORIZED_IP_REGEXP` - an optional configuration var to limit access to the webhook feeds endpoint
 
-and if you use `hubot-auth`
+If you use `hubot-auth`
 - `HUBOT_AUTH_ADMIN` - hardcoded list of hubot admins
 - `PHABRICATOR_TRUSTED_USERS` - if set to 'y', bypasses the requirement of belonging to `phuser` group for  commands restricted to users. Makes sense in places where all users are internal or invited-only and trustable.
+
+You also should use `hubot-restrict-ip` to limit the access to the web endpoints (api and feeds endpoints), or serve only on localhost (`EXPRESS_BIND_ADDRESS=127.0.0.1`) and use a proxy to access those endpoints.
 
 Permission system
 -------------------
@@ -324,6 +325,27 @@ There is some events available for interaction with other plugins, to chain acti
         - user
         It will create a task from an event, and talk on the logger when done or if it fails.
 
+API
+-----------------
+
+It may seem a little weird, but circumstances led us to use our hubot as an API endpoint for creating tasks from inside our internal network. Of course we could just use conduit and hit Phabricator directly but:
+
+- we save the hassle of spreading the API key around
+- we are inside a trusted network, and use hubot-restrict-ip
+- we expose REST endpoints, with only very simplified payload description
+
+To avoid exposure of that weak API endpoint, you should:
+
+- set the env var PHABS_NO_API to any value, if it's defined, the api code is not loaded
+- use [hubot-restrict-ip](https://github.com/Gandi/hubot-restrict-ip) to set up your own policy
+- set your hubot to respond http calls through a well configured apache or nginx proxy
+
+Currently the API only has one endpoint, that triggers the `phab.createTask` event
+
+    POST /<robot.name>/phabs/api/:project/task
+    where :project can be a project name or an alias that you have set with .phad
+    the content-type has to be application/json
+    and the payload should conform to the payload for the phab.createTask event
 
 Testing
 ----------------

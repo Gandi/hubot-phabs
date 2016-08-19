@@ -311,8 +311,8 @@ describe 'phabs_feeds module', ->
         req.write(data)
         req.end()
 
-      it 'responds with status 401', ->
-        expect(@response.statusCode).to.equal 401
+      it 'responds with status 422', ->
+        expect(@response.statusCode).to.equal 422
 
     context 'with valid payload', ->
       beforeEach (done) ->
