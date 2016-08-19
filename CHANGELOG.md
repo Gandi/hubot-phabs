@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.4.5 - wip
+- made possible to use either a user object or user string
+  when calling createTask event and api
+
 ### 1.4.4 - 2016-08-19
 - add a REST endpoint to create a task
 - rely on hubot-restrict-ip for web endpoints protection
