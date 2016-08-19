@@ -323,7 +323,8 @@ There is some events available for interaction with other plugins, to chain acti
         - title
         - description
         - user
-        It will create a task from an event, and talk on the logger when done or if it fails.
+        It will create a task from an event, 
+        and talk on the logger when done or if it fails.
 
 API
 -----------------
@@ -343,9 +344,11 @@ To avoid exposure of that weak API endpoint, you should:
 Currently the API only has one endpoint, that triggers the `phab.createTask` event
 
     POST /<robot.name>/phabs/api/:project/task
-    where :project can be a project name or an alias that you have set with .phad
+    where :project can be a project name or an alias 
+    that you have set with .phad
     the content-type has to be application/json
-    and the payload should conform to the payload for the phab.createTask event
+    and the payload should conform to the payload 
+    for the phab.createTask event
 
 Testing
 ----------------
