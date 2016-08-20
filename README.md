@@ -16,26 +16,28 @@ It also makes available some commands to interact directly with Phabricator item
 
 This plugin is used in production internally at [Gandi](https://gandi.net) since 2016-07-13.
 
-TOC
---------------
-- Installation
-- Permission System
-- Configuration
-- Features
-  - events
-  - api
-  - commands
-  - templates
-  - admin
-  - feeds
-  - hear
-- Testing
-- Changelog
-- Contribute
-- Attributions
-  - Autors
-  - License
-  - Copyright
+> TOC
+> --------------
+>
+> - [Installation](#installation)
+> - [Permission System](#permission-system)
+> - [Configuration](#configuration)
+> - [Features](#features)
+>   - [events](#events-feature)
+>   - [api](#api-feature)
+>   - [commands](#commands-feature)
+>   - [templates](#templates-feature)
+>   - [admin](#admin-feature)
+>   - [feeds](#feeds-feature)
+>   - [hear](#hear-feature)
+> - [Development](#development)
+>   - [Changelog](#changelog)
+>   - [Testing](#testing)
+>   - [Contribute](#contribute)
+> - [Attribution](#attribution)
+>   - [Authors](#authors)
+>   - [License](#license)
+>   - [Copyright](#copyright)
 
 Installation
 --------------
@@ -399,8 +401,14 @@ There is a `.hear` feature that also will give information about items that are 
         this will remove T123 from the blacklist
         permission: phuser
 
-Testing
-----------------
+Development
+--------------
+
+### Changelog
+
+All changes are listed in the [CHANGELOG](CHANGELOG.md)
+
+### Testing
 
     npm install
 
@@ -425,17 +433,14 @@ Testing
     # run the lint and the coverage
     make
 
-Changelog
----------------
-All changes are listed in the [CHANGELOG](CHANGELOG.md)
 
-Contribute
---------------
+### Contribute
+
 Feel free to open a PR if you find any bug, typo, want to improve documentation, or think about a new feature. 
 
 Gandi loves Free and Open Source Software. This project is used internally at Gandi but external contributions are **very welcome**. 
 
-Attributions
+Attribution
 -----------
 
 ### Authors
