@@ -24,7 +24,6 @@ Phabricator = require '../lib/phabricator'
 module.exports = (robot) ->
 
   phab = new Phabricator robot, process.env
-  data = robot.brain.data['phabricator']
 
   robot.router.post "/#{robot.name}/phabs/feeds", (req, res) ->
     if req.body.storyID?
