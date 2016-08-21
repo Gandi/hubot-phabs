@@ -1,7 +1,8 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.5.0 - wip
+### 1.5.0 - 2016-08-21
+- make all commands more tolerant, if people add spaces at the end of the line
 - add feature flags for the various parts of this plugin
 - made possible to use either a user object or user string
   when calling createTask event and api

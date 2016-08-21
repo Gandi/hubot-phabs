@@ -29,14 +29,14 @@ module.exports = (robot) ->
   data = robot.brain.data['phabricator']
 
   #   hubot phad projects
-  robot.respond (/phad projects$/), (msg) ->
+  robot.respond (/phad projects *$/), (msg) ->
     if Object.keys(data.projects).length > 0
       msg.send "Known Projects: #{Object.keys(data.projects).join(', ')}"
     else
       msg.send 'There is no project.'
 
   #   hubot phad <project> delete
-  robot.respond (/phad (.+) del(?:ete)?$/), (msg) ->
+  robot.respond (/phad (.+) del(?:ete)? *$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       project = msg.match[1]
       if data.projects[project]?
@@ -46,7 +46,7 @@ module.exports = (robot) ->
         msg.send "#{project} not found in memory."
 
   #   hubot phad <project> info
-  robot.respond (/phad (.+) info$/), (msg) ->
+  robot.respond (/phad (.+) info *$/), (msg) ->
     project = msg.match[1]
     phab.withProject project, (projectData) ->
       if projectData.error_info?

@@ -38,14 +38,14 @@ module.exports = (robot) ->
   phab = new Phabricator robot, process.env
 
   #   hubot phab version - give the version of hubot-phabs loaded
-  robot.respond /ph(?:ab)? version$/, (msg) ->
+  robot.respond /ph(?:ab)? version *$/, (msg) ->
     pkg = require path.join __dirname, '..', 'package.json'
     msg.send "hubot-phabs module is version #{pkg.version}"
     msg.finish()
 
   #   hubot phab new <project>[:<template>] <name of the task>
   robot.respond (
-    /ph(?:ab)? new ([-_a-zA-Z0-9]+)(?::([-_a-zA-Z0-9]+))? ([^=]+)(?: = (.*))?$/
+    /ph(?:ab)? new ([-_a-zA-Z0-9]+)(?::([-_a-zA-Z0-9]+))? ([^=]+)(?: = (.*))? *$/
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       data = {
@@ -77,7 +77,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab count <project> - counts how many tasks a project has
-  robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+)/), (msg) ->
+  robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+) *$/), (msg) ->
     phab.withProject msg.match[1], (projectData) ->
       if projectData.error_info?
         msg.send projectData.error_info
@@ -104,7 +104,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx - gives information about task Txxx
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? ?$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? *$/, (msg) ->
     id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
     unless id?
       msg.send "Sorry, you don't have any task active right now."
@@ -123,7 +123,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx + <some comment> - add a comment to task Txx
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? \+ (.+)$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? \+ (.+) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
@@ -142,7 +142,7 @@ module.exports = (robot) ->
   #   hubot phab Txx is <status> - modifies task Txxx status
   robot.respond new RegExp(
     "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.statuses).join('|')})" +
-    '(?: = (.+))?$'
+    '(?: = (.+))? *$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
@@ -162,7 +162,7 @@ module.exports = (robot) ->
   #   hubot phab Txx is <priority> - modifies task Txxx priority
   robot.respond new RegExp(
     "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.priorities).join('|')})" +
-    '(?: = (.+))?$'
+    '(?: = (.+))? *$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
@@ -180,7 +180,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx next [<key>]- outputs the next checkbox in a given task
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? next(?: (.+))?$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? next(?: (.+))? *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
@@ -196,7 +196,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx prev [<key>]- outputs the last checked checkbox in a given task
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? prev(?:ious)?(?: (.+))?$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? prev(?:ious)?(?: (.+))? *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
@@ -212,7 +212,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx check [<key>] - update task Txx description by checking a box
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? check(!)?(?: (.+))?$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? check(!)?(?: (.+))? *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
@@ -231,7 +231,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx uncheck [<key>] - update task Txx description by unchecking a box
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? uncheck(!)?(?: (.+))?$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? uncheck(!)?(?: (.+))? *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
@@ -250,7 +250,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab <user> - checks if user is known or not
-  robot.respond /ph(?:ab)? ([^ ]*)$/, (msg) ->
+  robot.respond /ph(?:ab)? ([^ ]*) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       name = msg.match[1]
       assignee = robot.brain.userForName(name)
@@ -266,7 +266,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab me as <email> - makes caller known with <email>
-  robot.respond /ph(?:ab)? me as (.*@.*)$/, (msg) ->
+  robot.respond /ph(?:ab)? me as (.*@.*) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       email = msg.match[1]
       assignee = robot.brain.userForName(msg.envelope.user.name)
@@ -276,7 +276,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab <user> = <email> - associates user to email
-  robot.respond /ph(?:ab)? ([^ ]*) *?= *?([^ ]*@.*)$/, (msg) ->
+  robot.respond /ph(?:ab)? ([^ ]*) *?= *?([^ ]*@.*) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       who = msg.match[1]
       email = msg.match[2]
@@ -292,7 +292,7 @@ module.exports = (robot) ->
   #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
   robot.respond new RegExp(
     'ph(?:ab)?(?: assign)? (?:([^ ]+)(?: (?:to|on) (?:(T)([0-9]+)|(last)))?|' +
-    '(?:T([0-9]+) |(last) )?(?:to|on) ([^ ]+))$'
+    '(?:T([0-9]+) |(last) )?(?:to|on) ([^ ]+)) *$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       if msg.match[2] is 'T'
