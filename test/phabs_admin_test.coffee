@@ -81,13 +81,17 @@ describe 'phabs_admin module', ->
         hubot 'phad projects'
         it 'should reply the list of known projects', ->
           expect(hubotResponse()).to.eql 'Known Projects: project1, project2, project3'
+      context 'phad list', ->
+        hubot 'phad list'
+        it 'should reply the list of known projects', ->
+          expect(hubotResponse()).to.eql 'Known Projects: project1, project2, project3'
 
   # ---------------------------------------------------------------------------------
   context 'user wants to delete a project', ->
 
     context 'when there is no project registered yet', ->
-      context 'phad project1 del', ->
-        hubot 'phad project1 del'
+      context 'phad del project1', ->
+        hubot 'phad del project1'
         it 'should reply that this project is unknown', ->
           expect(hubotResponse()).to.eql 'project1 not found in memory.'
 
@@ -103,8 +107,16 @@ describe 'phabs_admin module', ->
       afterEach ->
         room.robot.brain.data.phabricator = { }
 
-      context 'phad project1 delete', ->
-        hubot 'phad project1 delete'
+      context 'phad delete project1', ->
+        hubot 'phad delete project1'
+        it 'should reply that this project was forgotten', ->
+          expect(hubotResponse()).to.eql 'project1 erased from memory.'
+          expect(Object.keys(room.robot.brain.data.phabricator.projects).length)
+            .to.eql 2
+          expect(room.robot.brain.data.phabricator.projects['project1'])
+            .to.eql undefined
+      context 'phad del project1', ->
+        hubot 'phad del project1'
         it 'should reply that this project was forgotten', ->
           expect(hubotResponse()).to.eql 'project1 erased from memory.'
           expect(Object.keys(room.robot.brain.data.phabricator.projects).length)
@@ -149,8 +161,8 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad unknown info', ->
-          hubot 'phad unknown info'
+        context 'phad info unknown', ->
+          hubot 'phad info unknown'
           it 'should reply with proper info', ->
             expect(hubotResponse())
               .to.eql 'Sorry, unknown not found.'
@@ -203,8 +215,8 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad Bug Report info', ->
-          hubot 'phad Bug Report info'
+        context 'phad info Bug Report', ->
+          hubot 'phad info Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
               .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed."
@@ -261,8 +273,8 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad Bug Report info', ->
-          hubot 'phad Bug Report info'
+        context 'phad show Bug Report', ->
+          hubot 'phad show Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
               .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed."
@@ -302,8 +314,8 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad Bug Report info', ->
-          hubot 'phad Bug Report info'
+        context 'phad info Bug Report', ->
+          hubot 'phad info Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
               .to.eql 'Sorry, Bug Report not found.'
@@ -325,8 +337,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad project with phid info', ->
-        hubot 'phad project with phid info'
+      context 'phad info project with phid', ->
+        hubot 'phad info project with phid'
         it 'should reply with proper info', ->
           expect(hubotResponse())
             .to.eql "'project with phid' is 'project with phid' (aka bugs, bug), with no feed."
@@ -351,8 +363,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad project with phid info', ->
-        hubot 'phad project with phid info'
+      context 'phad info project with phid', ->
+        hubot 'phad info project with phid'
         it 'should reply with proper info', ->
           expect(hubotResponse())
             .to.eql "'project with phid' is 'project with phid', with no alias, announced on #dev"
@@ -374,8 +386,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad bug info', ->
-        hubot 'phad bug info'
+      context 'phad info bug', ->
+        hubot 'phad info bug'
         it 'should reply with proper info', ->
           expect(hubotResponse())
             .to.eql "'bug' is 'Bug Report' (aka bugs, bug), with no feed."
@@ -414,8 +426,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad project1 alias bug', ->
-        hubot 'phad project1 alias bug'
+      context 'phad alias project1 as bug', ->
+        hubot 'phad alias project1 as bug'
         it 'should reply with proper info', ->
           expect(hubotResponse())
             .to.eql 'Sorry, project1 not found.'
@@ -436,8 +448,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad project with phid alias bug', ->
-        hubot 'phad project with phid alias bug'
+      context 'phad alias project with phid as bug', ->
+        hubot 'phad alias project with phid as bug'
         it 'should say that the alias already exists', ->
           expect(hubotResponse())
             .to.eql "The alias 'bug' already exists for project 'Bug Report'."
@@ -459,8 +471,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad project with phid alias pwp', ->
-        hubot 'phad project with phid alias pwp'
+      context 'phad alias project with phid as pwp', ->
+        hubot 'phad alias project with phid as pwp'
         it 'should say that the alias was created', ->
           expect(hubotResponse())
             .to.eql "Ok, 'project with phid' will be known as 'pwp'."
@@ -549,8 +561,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad project1 feed to #dev', ->
-        hubot 'phad project1 feed to #dev'
+      context 'phad feed project1 to #dev', ->
+        hubot 'phad feed project1 to #dev'
         it 'should reply with proper info', ->
           expect(hubotResponse())
             .to.eql 'Sorry, project1 not found.'
@@ -576,8 +588,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad bug feed to #dev', ->
-        hubot 'phad bug feed to #dev'
+      context 'phad feed bug to #dev', ->
+        hubot 'phad feed bug to #dev'
         it 'should say that the feed is already there', ->
           expect(hubotResponse())
             .to.eql "The feed from 'Bug Report' to '#dev' already exist."
@@ -601,8 +613,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad bug feed to #dev', ->
-        hubot 'phad bug feed to #dev'
+      context 'phad feed bug to #dev', ->
+        hubot 'phad feed bug to #dev'
         it 'should say that the feed was created', ->
           expect(hubotResponse())
             .to.eql "Ok, 'Bug Report' is now feeding '#dev'."
@@ -643,8 +655,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad project1 remove from #dev', ->
-        hubot 'phad project1 remove from #dev'
+      context 'phad remove project1 from #dev', ->
+        hubot 'phad remove project1 from #dev'
         it 'should reply with proper info', ->
           expect(hubotResponse())
             .to.eql 'Sorry, project1 not found.'
@@ -670,8 +682,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad bug remove from #dev', ->
-        hubot 'phad bug remove from #dev'
+      context 'phad remove bug from #dev', ->
+        hubot 'phad remove bug from #dev'
         it 'should say that the feed was removed', ->
           expect(hubotResponse())
             .to.eql "Ok, The feed from 'Bug Report' to '#dev' was removed."
@@ -697,8 +709,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad bug remove from #dev', ->
-        hubot 'phad bug remove from #dev'
+      context 'phad remove bug from #dev', ->
+        hubot 'phad remove bug from #dev'
         it 'should say that the feed could not be removed', ->
           expect(hubotResponse())
             .to.eql "Sorry, 'Bug Report' is not feeding '#dev'."
@@ -745,8 +757,8 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad project with phid alias pwp', ->
-          hubot 'phad project with phid alias pwp', 'admin_user'
+        context 'phad alias project with phid as pwp', ->
+          hubot 'phad alias project with phid as pwp', 'admin_user'
           it 'should say that the alias was created', ->
             expect(hubotResponse())
               .to.eql "Ok, 'project with phid' will be known as 'pwp'."
@@ -767,8 +779,8 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad project with phid alias pwp', ->
-          hubot 'phad project with phid alias pwp', 'phadmin_user'
+        context 'phad alias project with phid as pwp', ->
+          hubot 'phad alias project with phid as pwp', 'phadmin_user'
           it 'should say that the alias was created', ->
             expect(hubotResponse())
               .to.eql "Ok, 'project with phid' will be known as 'pwp'."
@@ -789,8 +801,8 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad project with phid alias pwp', ->
-          hubot 'phad project with phid alias pwp', 'phuser_user'
+        context 'phad alias project with phid as pwp', ->
+          hubot 'phad alias project with phid as pwp', 'phuser_user'
           it 'warns the user that he has no permission to use that command', ->
             expect(hubotResponse())
               .to.eql "@phuser_user You don't have permission to do that."

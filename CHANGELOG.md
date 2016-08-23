@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.5.1 - 2016-08-23
+- change .phad commands syntax to be more gramatically consistent
+  ie. .phad verb object complement
+
 ### 1.5.0 - 2016-08-21
 - make all commands more tolerant, if people add spaces at the end of the line
 - add feature flags for the various parts of this plugin

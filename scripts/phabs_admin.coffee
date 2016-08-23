@@ -9,12 +9,12 @@
 #
 # Commands:
 #   hubot phad projects
-#   hubot phad <project> delete
-#   hubot phad <project> info
-#   hubot phad <project> alias <alias>
+#   hubot phad delete <project>
+#   hubot phad info <project>
+#   hubot phad alias <project> as <alias>
 #   hubot phad forget <alias>
-#   hubot phad <project> feed to <room>
-#   hubot phad <project> remove from <room>
+#   hubot phad feed <project> to <room>
+#   hubot phad remove <project> from <room>
 #
 # Author:
 #   mose
@@ -29,14 +29,14 @@ module.exports = (robot) ->
   data = robot.brain.data['phabricator']
 
   #   hubot phad projects
-  robot.respond (/phad projects *$/), (msg) ->
+  robot.respond (/phad (?:projects|list) *$/), (msg) ->
     if Object.keys(data.projects).length > 0
       msg.send "Known Projects: #{Object.keys(data.projects).join(', ')}"
     else
       msg.send 'There is no project.'
 
-  #   hubot phad <project> delete
-  robot.respond (/phad (.+) del(?:ete)? *$/), (msg) ->
+  #   hubot phad delete <project>
+  robot.respond (/phad del(?:ete)? (.+) *$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       project = msg.match[1]
       if data.projects[project]?
@@ -45,8 +45,8 @@ module.exports = (robot) ->
       else
         msg.send "#{project} not found in memory."
 
-  #   hubot phad <project> info
-  robot.respond (/phad (.+) info *$/), (msg) ->
+  #   hubot phad info <project>
+  robot.respond (/phad (?:info|show) (.+) *$/), (msg) ->
     project = msg.match[1]
     phab.withProject project, (projectData) ->
       if projectData.error_info?
@@ -63,8 +63,8 @@ module.exports = (robot) ->
           response += ', with no feed.'
         msg.send response
 
-  #   hubot phad <project> alias <alias>
-  robot.respond (/phad (.+) a(?:lia)?s (.+)$/), (msg) ->
+  #   hubot phad alias <project> as <alias>
+  robot.respond (/phad alias (.+) as (.+)$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       project = msg.match[1]
       alias = msg.match[2]
@@ -88,8 +88,8 @@ module.exports = (robot) ->
       else
         msg.send "Sorry, I don't know the alias '#{alias}'."
 
-  #   hubot phad <project> feed to <room>
-  robot.respond (/phad (.+) feeds?(?: to)? (.+)$/), (msg) ->
+  #   hubot phad feed <project> to <room>
+  robot.respond (/phad feeds? (.+) to (.+)$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       project = msg.match[1]
       room = msg.match[2]
@@ -105,8 +105,8 @@ module.exports = (robot) ->
             data.projects[projectData.data.name].feeds.push room
             msg.send "Ok, '#{projectData.data.name}' is now feeding '#{room}'."
 
-  #   hubot phad <project> remove from <room>
-  robot.respond (/phad (.+) remove (?:from )?(.+)$/), (msg) ->
+  #   hubot phad remove <project> from <room>
+  robot.respond (/phad remove (.+) from (.+)$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       project = msg.match[1]
       room = msg.match[2]

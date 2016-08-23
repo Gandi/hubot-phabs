@@ -325,23 +325,24 @@ The management of those templates is done with the `.pht` command:
 
 ### Admin features
 
-Some configuration variables are stored the brain. They are managed by the phabs_admin module, driven with the `.phad` command. 
+Some configuration variables are stored the brain. They are managed by the phabs_admin module, driven with the `.phad` command. **note** the syntax changed in v1.5.1
 
     .phad projects
         lists projects listed in brain
         permission: all
 
-    .phad <project> delete
+    .phad delete <project>
+    .phad del <project>
         removes information about <projects> from the brain
         (useful when a project is deleted or renamed in phabricator)
         permission: phadmin
 
-    .phad <project> info
+    .phad info <project>
+    .phad show <project>
         gives info about <project>
         permission: all
 
-    .phad <project> alias <alias>
-    .phad <project> as <alias>
+    .phad alias <project> as <alias>
         adds an alias <alias> to <project>. Aliases are unique 
         permission: phadmin
 
@@ -349,14 +350,13 @@ Some configuration variables are stored the brain. They are managed by the phabs
         removes the alias <alias>
         permission: phadmin
 
-    .phad <project> feed to <room>
-    .phad <project> feeds <room>
+    .phad feed <project> to <room>
+    .phad feeds <project> to <room>
         creates a feed for <project> to <room>.
         Feeds are comming from feed.http-hooks
         permission: phadmin
 
-    .phad <project> remove from <room>
-    .phad <project> remove <room>
+    .phad remove <project> from <room>
         remove a feed
         permission: phadmin
 
