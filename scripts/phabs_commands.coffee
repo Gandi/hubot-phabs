@@ -212,7 +212,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx check [<key>] - update task Txx description by checking a box
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? check(!)?(?: (.+))? *$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? check(!)?(?: ([^\+]+))?(?: \+ (.+))? *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
@@ -221,7 +221,8 @@ module.exports = (robot) ->
         return
       withNext = msg.match[3]
       key = msg.match[4]
-      phab.checkCheckbox msg.envelope.user, id, key, withNext, (body) ->
+      comment = msg.match[5]
+      phab.checkCheckbox msg.envelope.user, id, key, withNext, comment, (body) ->
         if body.error_info?
           msg.send body.error_info
         else
@@ -231,7 +232,8 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx uncheck [<key>] - update task Txx description by unchecking a box
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? uncheck(!)?(?: (.+))? *$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? uncheck(!)?(?: ([^\+]+))?(?: \+ (.+))? *$/
+  , (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
       unless id?
@@ -240,7 +242,8 @@ module.exports = (robot) ->
         return
       withNext = msg.match[3]
       key = msg.match[4]
-      phab.uncheckCheckbox msg.envelope.user, id, key, withNext, (body) ->
+      comment = msg.match[5]
+      phab.uncheckCheckbox msg.envelope.user, id, key, withNext, comment, (body) ->
         if body.error_info?
           msg.send body.error_info
         else

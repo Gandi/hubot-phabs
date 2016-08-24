@@ -552,7 +552,7 @@ class Phabricator
       @phabGet editquery, 'maniphest.edit', (json_body) ->
         cb json_body
 
-  checkCheckbox: (user, id, key, withNext, cb) ->
+  checkCheckbox: (user, id, key, withNext, usercomment, cb) ->
     if @ready() is true
       query = { task_id: id }
       @phabGet query, 'maniphest.info', (json_body) =>
@@ -576,6 +576,7 @@ class Phabricator
             updated.push line
           if found?
             comment = "#{user.name} checked:\n#{found}"
+            comment += "\n#{usercomment}" if usercomment?
             description = updated.join('\n')
             @updateTask id, description, comment, (json_body) ->
               if json_body.error_info?
@@ -588,7 +589,7 @@ class Phabricator
             cb { error_info: "The task T#{id} has no unchecked checkbox#{extra}." }
 
 
-  uncheckCheckbox: (user, id, key, withNext, cb) ->
+  uncheckCheckbox: (user, id, key, withNext, usercomment, cb) ->
     if @ready() is true
       query = { task_id: id }
       @phabGet query, 'maniphest.info', (json_body) =>
@@ -612,6 +613,7 @@ class Phabricator
             updated.push line
           if found?
             comment = "#{user.name} unchecked:\n#{found}"
+            comment += "\n#{usercomment}" if usercomment?
             description = updated.reverse().join('\n')
             @updateTask id, description, comment, (json_body) ->
               if json_body.error_info?
