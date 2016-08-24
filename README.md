@@ -251,10 +251,13 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab check
     .phab check! <term>
     .phab check!
+    .phab check! + <comment>
         This will update the description of T123
         and replace the checkbox line with a checked box '[x]'
         If a term is provided, the first matching line will be the checked one
         If the '!' is added, it will also return the next unchecked checkbox
+        If a '+' is added at the end of any above syntax, it will append a comment 
+        in the modification
         permission: phuser
 
     .phab T123 uncheck <term>
@@ -262,10 +265,13 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab uncheck
     .phab uncheck! <term>
     .phab uncheck!
+    .phab uncheck! + <comment>
         This will update the description of T123
         and replace the checked checkbox line with a checked box '[ ]'
         If a term is provided, the last matching line will be the unchecked one
         If the '!' is added, it will also return the previous checked checkbox
+        If a '+' is added at the end of any above syntax, it will append a comment 
+        in the modification
         permission: phuser
 
     .phab <someone>
