@@ -497,7 +497,7 @@ class Phabricator
           user = @robot.brain.userForName user.name
           @recordId user, id
           lines = json_body.result.description.split('\n')
-          reg = new RegExp("^\\[ \\] #{key or ''}")
+          reg = new RegExp("^\\[ \\] .*#{key or ''}")
           found = null
           for line in lines
             if reg.test line
@@ -524,7 +524,7 @@ class Phabricator
           user = @robot.brain.userForName user.name
           @recordId user, id
           lines = json_body.result.description.split('\n').reverse()
-          reg = new RegExp("^\\[x\\] #{key or ''}")
+          reg = new RegExp("^\\[x\\] .*#{key or ''}")
           found = null
           for line in lines
             if reg.test line
@@ -562,7 +562,7 @@ class Phabricator
           user = @robot.brain.userForName user.name
           @recordId user, id
           lines = json_body.result.description.split('\n')
-          reg = new RegExp("^\\[ \\] #{key or ''}")
+          reg = new RegExp("^\\[ \\] .*#{key or ''}")
           found = null
           foundNext = null
           updated = [ ]
@@ -598,7 +598,7 @@ class Phabricator
           user = @robot.brain.userForName user.name
           @recordId user, id
           lines = json_body.result.description.split('\n').reverse()
-          reg = new RegExp("^\\[x\\] #{key or ''}")
+          reg = new RegExp("^\\[x\\] .*#{key or ''}")
           found = null
           foundNext = null
           updated = [ ]

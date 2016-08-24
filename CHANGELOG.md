@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.5.2 - wip
+- made term not needed to be the start of the line when searching for checkbox
+
 ### 1.5.1 - 2016-08-23
 - change .phad commands syntax to be more gramatically consistent
   ie. .phad verb object complement

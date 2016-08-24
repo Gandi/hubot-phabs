@@ -253,7 +253,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab check!
         This will update the description of T123
         and replace the checkbox line with a checked box '[x]'
-        If a term is provided, the first line matching it will be the checked one
+        If a term is provided, the first matching line will be the checked one
         If the '!' is added, it will also return the next unchecked checkbox
         permission: phuser
 
@@ -264,7 +264,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab uncheck!
         This will update the description of T123
         and replace the checked checkbox line with a checked box '[ ]'
-        If a term is provided, the last line matching it will be the unchecked one
+        If a term is provided, the last matching line will be the unchecked one
         If the '!' is added, it will also return the previous checked checkbox
         permission: phuser
 

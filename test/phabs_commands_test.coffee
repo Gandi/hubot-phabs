@@ -316,6 +316,13 @@ describe 'phabs_commands module', ->
         it 'gives information about the next checkbox', ->
           expect(hubotResponse()).to.eql 'Next on T42 is: [ ] another'
 
+
+      context 'phab T42 next the', ->
+        hubot 'phab T42 next the', 'user_with_phid'
+        it 'gives information about the next checkbox', ->
+          expect(hubotResponse()).to.eql 'Next on T42 is: [ ] another'
+
+
     context 'task id is provided but there is no checkboxes', ->
       beforeEach ->
         do nock.disableNetConnect
