@@ -2,7 +2,7 @@ Hubot-phabs Changelog
 ==========================
 
 ### 1.5.2 - 2016-08-25
-- add a way to add a comment when checking ort unchecking boxes
+- add a way to add a comment when checking or unchecking boxes
 - made term not needed to be the start of the line when searching for checkbox
 
 ### 1.5.1 - 2016-08-23
