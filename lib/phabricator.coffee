@@ -328,7 +328,7 @@ class Phabricator
                 if params.user?.name?
                   user = @robot.brain.userForName params.user.name
                 else
-                  if @robot.brain.data.users[params.user]
+                  if @robot.brain.data.users[params.user]?
                     user = @robot.brain.userForName params.user
                   else
                     user = { name: @robot.name, phid: bot_phid }
@@ -348,9 +348,15 @@ class Phabricator
                       'transactions[4][type]': 'projects.add',
                       'transactions[4][value][]': "#{projectData.data.phid}"
                     }
+                    next = 5
                     if params.description?
-                      query['transactions[5][type]'] = 'description'
-                      query['transactions[5][value]'] = "#{params.description}"
+                      query["transactions[#{next}][type]"] = 'description'
+                      query["transactions[#{next}][value]"] = "#{params.description}"
+                      next += 1
+                    if params.assign? and @robot.brain.data.users[params.assign]?.phid
+                      owner = @robot.brain.data.users[params.assign]?.phid
+                      query["transactions[#{next}][type]"] = 'owner'
+                      query["transactions[#{next}][value]"] = owner
                     @phabGet query, 'maniphest.edit', (json_body) ->
                       if json_body.error_info?
                         cb json_body

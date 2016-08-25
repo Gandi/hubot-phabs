@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.5.5 - wip
+- add possibility to add owner to createTask dataset (for events)
+
 ### 1.5.4 - 2016-08-25
 - make checkbox command key search case insensitive
 
