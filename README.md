@@ -309,11 +309,15 @@ The management of those templates is done with the `.pht` command:
         permission: phadmin
 
     .pht show <name>
+    .pht info <name>
         shows what task is used as a template
         permission: phuser
 
     .pht search <term>
+    .pht list <term>
         search through templates which names contain <term>
+        If <term> is omitted, it just retruns the whole list 
+        of all templates
         permission: phuser
 
     .pht remove <name>
