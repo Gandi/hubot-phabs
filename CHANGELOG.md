@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.5.4 - 2016-08-25
+- make checkbox command key search case insensitive
+
 ### 1.5.3 - 2016-08-25
 - add a .pht list command
 

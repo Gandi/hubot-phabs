@@ -497,7 +497,7 @@ class Phabricator
           user = @robot.brain.userForName user.name
           @recordId user, id
           lines = json_body.result.description.split('\n')
-          reg = new RegExp("^\\[ \\] .*#{key or ''}")
+          reg = new RegExp("^\\[ \\] .*#{key or ''}", 'i')
           found = null
           for line in lines
             if reg.test line
@@ -507,7 +507,7 @@ class Phabricator
             cb { line: found }
           else
             if key?
-              cb { error_info: "The task T#{id} has no unchecked checkbox starting with #{key}." }
+              cb { error_info: "The task T#{id} has no unchecked checkbox matching #{key}." }
             else
               cb { error_info: "The task T#{id} has no unchecked checkboxes." }
 
@@ -524,7 +524,7 @@ class Phabricator
           user = @robot.brain.userForName user.name
           @recordId user, id
           lines = json_body.result.description.split('\n').reverse()
-          reg = new RegExp("^\\[x\\] .*#{key or ''}")
+          reg = new RegExp("^\\[x\\] .*#{key or ''}", 'i')
           found = null
           for line in lines
             if reg.test line
@@ -534,7 +534,7 @@ class Phabricator
             cb { line: found }
           else
             if key?
-              cb { error_info: "The task T#{id} has no checked checkbox starting with #{key}." }
+              cb { error_info: "The task T#{id} has no checked checkbox matching #{key}." }
             else
               cb { error_info: "The task T#{id} has no checked checkboxes." }
 
@@ -562,11 +562,11 @@ class Phabricator
           user = @robot.brain.userForName user.name
           @recordId user, id
           lines = json_body.result.description.split('\n')
-          reg = new RegExp("^\\[ \\] .*#{key or ''}")
+          reg = new RegExp("^\\[ \\] .*#{key or ''}", 'i')
           found = null
           foundNext = null
           updated = [ ]
-          extra = if key? then " starting with #{key}" else ''
+          extra = if key? then " matching #{key}" else ''
           for line in lines
             if not found? and reg.test line
               line = line.replace('[ ] ', '[x] ')
@@ -599,11 +599,11 @@ class Phabricator
           user = @robot.brain.userForName user.name
           @recordId user, id
           lines = json_body.result.description.split('\n').reverse()
-          reg = new RegExp("^\\[x\\] .*#{key or ''}")
+          reg = new RegExp("^\\[x\\] .*#{key or ''}", 'i')
           found = null
           foundNext = null
           updated = [ ]
-          extra = if key? then " starting with #{key}" else ''
+          extra = if key? then " matching #{key}" else ''
           for line in lines
             if not found? and reg.test line
               line = line.replace('[x] ', '[ ] ')

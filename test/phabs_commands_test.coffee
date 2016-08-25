@@ -317,8 +317,8 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Next on T42 is: [ ] another'
 
 
-      context 'phab T42 next the', ->
-        hubot 'phab T42 next the', 'user_with_phid'
+      context 'phab T42 next THe', ->
+        hubot 'phab T42 next THe', 'user_with_phid'
         it 'gives information about the next checkbox', ->
           expect(hubotResponse()).to.eql 'Next on T42 is: [ ] another'
 
@@ -351,7 +351,7 @@ describe 'phabs_commands module', ->
       context 'phab T42 next ano', ->
         hubot 'phab T42 next ano', 'user_with_phid'
         it 'gives information about the next checkbox', ->
-          expect(hubotResponse()).to.eql 'The task T42 has no unchecked checkbox starting with ano.'
+          expect(hubotResponse()).to.eql 'The task T42 has no unchecked checkbox matching ano.'
 
 
     context 'task id is provided but doesn not exist', ->
@@ -434,7 +434,7 @@ describe 'phabs_commands module', ->
       context 'phab T42 previous ano', ->
         hubot 'phab T42 previous ano', 'user_with_phid'
         it 'gives information about the previous checkbox', ->
-          expect(hubotResponse()).to.eql 'The task T42 has no checked checkbox starting with ano.'
+          expect(hubotResponse()).to.eql 'The task T42 has no checked checkbox matching ano.'
 
 
     context 'task id is provided but doesn not exist', ->
@@ -541,7 +541,7 @@ describe 'phabs_commands module', ->
         it 'gives information about the next checkbox', ->
           expect(hubotResponse()).to.eql 'Checked on T42: [x] another'
           expect(hubotResponse(2)).
-            to.eql 'Next on T42: there is no more unchecked checkbox starting with ano.'
+            to.eql 'Next on T42: there is no more unchecked checkbox matching ano.'
 
     context 'task id is provided but edit fails', ->
       beforeEach ->
@@ -599,7 +599,7 @@ describe 'phabs_commands module', ->
       context 'phab T42 check ano', ->
         hubot 'phab T42 check ano', 'user_with_phid'
         it 'gives information about the next checkbox', ->
-          expect(hubotResponse()).to.eql 'The task T42 has no unchecked checkbox starting with ano.'
+          expect(hubotResponse()).to.eql 'The task T42 has no unchecked checkbox matching ano.'
 
 
     context 'task id is provided but doesn not exist', ->
@@ -706,7 +706,7 @@ describe 'phabs_commands module', ->
         it 'gives information about the previous checkbox', ->
           expect(hubotResponse()).to.eql 'Unchecked on T42: [ ] something'
           expect(hubotResponse(2)).
-            to.eql 'Previous on T42: there is no more checked checkbox starting with some.'
+            to.eql 'Previous on T42: there is no more checked checkbox matching some.'
 
     context 'task id is provided but edit fails', ->
       beforeEach ->
@@ -764,7 +764,7 @@ describe 'phabs_commands module', ->
       context 'phab T42 uncheck ano', ->
         hubot 'phab T42 uncheck ano', 'user_with_phid'
         it 'gives information about the previous checkbox', ->
-          expect(hubotResponse()).to.eql 'The task T42 has no checked checkbox starting with ano.'
+          expect(hubotResponse()).to.eql 'The task T42 has no checked checkbox matching ano.'
 
 
     context 'task id is provided but doesn not exist', ->
