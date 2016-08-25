@@ -147,9 +147,7 @@ describe 'phabs_templates module', ->
 
     context 'and there is no matching template', ->
       beforeEach ->
-        room.robot.brain.data.phabricator.templates = {
-          template1: { task: '123' }
-        }
+        room.robot.brain.data.phabricator.templates = { }
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
@@ -159,11 +157,16 @@ describe 'phabs_templates module', ->
         it 'should reply that there is no match', ->
           expect(hubotResponse()).to.eql 'No template matches \'something\'.'
 
+      context 'pht list', ->
+        hubot 'pht list'
+        it 'should reply that there is no match', ->
+          expect(hubotResponse()).to.eql 'There is no template defined.'
+
     context 'and there are some matching templates', ->
       beforeEach ->
         room.robot.brain.data.phabricator.templates = {
           template1: { task: '123' },
-          template2: { task: '456' },
+          another: { task: '456' },
           template3: { task: '789' },
         }
 
@@ -174,7 +177,14 @@ describe 'phabs_templates module', ->
         hubot 'pht search plate'
         it 'should reply the list of matching templates', ->
           expect(hubotResponse(1)).to.eql 'Template \'template1\' uses T123.'
-          expect(hubotResponse(2)).to.eql 'Template \'template2\' uses T456.'
+          expect(hubotResponse(2)).to.eql 'Template \'template3\' uses T789.'
+          expect(hubotResponse(3)).to.be.undefined
+
+      context 'pht list', ->
+        hubot 'pht list'
+        it 'should reply the list of matching templates', ->
+          expect(hubotResponse(1)).to.eql 'Template \'template1\' uses T123.'
+          expect(hubotResponse(2)).to.eql 'Template \'another\' uses T456.'
           expect(hubotResponse(3)).to.eql 'Template \'template3\' uses T789.'
 
   # ---------------------------------------------------------------------------------

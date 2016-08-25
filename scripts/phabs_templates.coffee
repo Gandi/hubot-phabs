@@ -36,8 +36,9 @@ module.exports = (robot) ->
           msg.send "Ok. Template '#{name}' will use T#{taskid}."
     msg.finish()
     
+
   #   hubot pht show <name>
-  robot.respond (/pht show ([-_a-zA-Z0-9]+) *$/), (msg) ->
+  robot.respond (/pht (?:show|info) ([-_a-zA-Z0-9]+) *$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       name = msg.match[1]
       phab.showTemplate name, (body) ->
@@ -48,7 +49,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot pht search <term>
-  robot.respond (/pht search ([-_a-zA-Z0-9]+) *$/), (msg) ->
+  robot.respond (/pht (?:search|list) *([-_a-zA-Z0-9]+)? *$/), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       term = msg.match[1]
       phab.searchTemplate term, (body) ->

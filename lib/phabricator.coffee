@@ -668,10 +668,13 @@ class Phabricator
     if @ready() is true
       res = [ ]
       for name, template of @data.templates
-        if new RegExp("#{term}").test name
+        if new RegExp(term).test name
           res.push { name: name, task: template.task }
       if res.length is 0
-        cb { error_info: "No template matches '#{term}'." }
+        if term?
+          cb { error_info: "No template matches '#{term}'." }
+        else
+          cb { error_info: 'There is no template defined.' }
       else
         cb res
         
