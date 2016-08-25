@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.5.5 - wip
+### 1.5.5 - 2016-08-25
 - add possibility to add owner to createTask dataset (for events)
 
 ### 1.5.4 - 2016-08-25
