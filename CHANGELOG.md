@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.5.6 - 2016-08-26
+- add an announce param to the createTask event
+
 ### 1.5.5 - 2016-08-25
 - add possibility to add owner to createTask dataset (for events)
 

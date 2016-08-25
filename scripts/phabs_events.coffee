@@ -29,11 +29,16 @@ module.exports = (robot) ->
   #       description: msg.match[5]
   #       user: msg.envelope.user
   #       assign: msg.match[4]
+  #       announce: msg.envelope.room
   #     robot.emit 'phab.createTask', data
 
   robot.on 'phab.createTask', (data) ->
     phab.createTask data, (res) ->
       if res.error_info?
         robot.logger.error res.error_info
+        if data.announce?
+          robot.messageRoom data.announce, res.error_info
       else
         robot.logger.info "Task T#{res.id} created = #{res.url}"
+        if data.announce?
+          robot.messageRoom data.announce, "Task T#{res.id} created = #{res.url}"

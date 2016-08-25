@@ -63,6 +63,7 @@ describe 'phabs_events module', ->
       it 'logs a success', ->
         expect(room.robot.logger.info).calledOnce
         expect(room.robot.logger.info).calledWith 'Task T42 created = http://example.com/T42'
+        expect(room.messages[0]).not.to.be.defined
 
     context 'with a user name, ', ->
       beforeEach (done) ->
@@ -113,7 +114,8 @@ describe 'phabs_events module', ->
           .reply(200, { result: { object: { id: 42 } } })
         room.robot.emit 'phab.createTask', {
           project: 'proj1',
-          name: 'a task'
+          name: 'a task',
+          announce: 'room1'
         }
         setTimeout (done), 40
 
@@ -124,6 +126,8 @@ describe 'phabs_events module', ->
       it 'logs a success', ->
         expect(room.robot.logger.info).calledOnce
         expect(room.robot.logger.info).calledWith 'Task T42 created = http://example.com/T42'
+      it 'announces on a channel', ->
+        expect(room.messages[0][1]).to.eql 'Task T42 created = http://example.com/T42'
 
 
     context 'and it generates an error, ', ->
@@ -144,7 +148,8 @@ describe 'phabs_events module', ->
           template: undefined,
           name: 'a task',
           description: undefined,
-          user: { name: 'user_with_phid' }
+          user: { name: 'user_with_phid' },
+          announce: 'room1'
         }
         setTimeout (done), 40
 
@@ -155,3 +160,5 @@ describe 'phabs_events module', ->
       it 'logs an error', ->
         expect(room.robot.logger.error).calledOnce
         expect(room.robot.logger.error).calledWith 'failed'
+      it 'announces on a channel', ->
+        expect(room.messages[0][1]).to.eql 'failed'

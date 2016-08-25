@@ -120,6 +120,7 @@ There is some events available for interaction with other plugins, to chain acti
         - description
         - user (either a user object or a string)
         - assign (as a user name)
+        - announce (optinoal: the name of a room where to announce the task creation and id)
         It will create a task from an event, 
         and talk on the logger when done or if it fails.
 
