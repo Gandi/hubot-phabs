@@ -1399,9 +1399,26 @@ describe 'phabs_commands module', ->
         nock.cleanAll()
 
       context 'phab T424242 is open', ->
-        hubot 'phab T424242 is open'
+        hubot 'phab T424242 is open', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).to.eql 'oops T424242 No object exists with ID "4456874864".'
+
+    context 'when the user is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.edit')
+          .reply(200, { error_info: 'No object exists with ID "4456874864".' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 is open', ->
+        hubot 'phab T424242 is open', 'user'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).
+            to.eql 'oops T424242 Sorry, I can\'t figure out your email address :( ' + 
+            'Can you tell me with `.phab me as you@yourdomain.com`?'
 
     context 'when the task is present', ->
 
@@ -1454,17 +1471,17 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab open', ->
-          hubot 'phab open'
+          hubot 'phab open', 'user_with_phid'
           it 'warns the user that there is no active task in memory', ->
             expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
         context 'phab last open', ->
-          hubot 'phab last open'
+          hubot 'phab last open', 'user_with_phid'
           it 'warns the user that there is no active task in memory', ->
             expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
         context 'phab T42 is open', ->
-          hubot 'phab T42 is open'
+          hubot 'phab T42 is open', 'user_with_phid'
           it 'reports the status as open', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status open.'
 
@@ -1479,7 +1496,7 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 open', ->
-          hubot 'phab T42 open'
+          hubot 'phab T42 open', 'user_with_phid'
           it 'reports the status as open', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status open.'
 
@@ -1494,7 +1511,7 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 resolved', ->
-          hubot 'phab T42 resolved'
+          hubot 'phab T42 resolved', 'user_with_phid'
           it 'reports the status as resolved', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status resolved.'
 
@@ -1509,7 +1526,7 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 wontfix', ->
-          hubot 'phab T42 wontfix'
+          hubot 'phab T42 wontfix', 'user_with_phid'
           it 'reports the status as wontfix', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status wontfix.'
 
@@ -1524,7 +1541,7 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 invalid', ->
-          hubot 'phab T42 invalid'
+          hubot 'phab T42 invalid', 'user_with_phid'
           it 'reports the status as invalid', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status invalid.'
 
@@ -1539,7 +1556,7 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 spite', ->
-          hubot 'phab T42 spite'
+          hubot 'phab T42 spite', 'user_with_phid'
           it 'reports the status as spite', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status spite.'
 
@@ -1554,55 +1571,10 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 spite = what a crazy idea', ->
-          hubot 'phab T42 spite = what a crazy idea'
+          hubot 'phab T42 spite = what a crazy idea', 'user_with_phid'
           it 'reports the status as spite', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status spite.'
 
-  # ---------------------------------------------------------------------------------
-  context 'error: non json', ->
-    beforeEach ->
-      do nock.disableNetConnect
-      nock(process.env.PHABRICATOR_URL)
-        .get('/api/maniphest.edit')
-        .reply(200, '<body></body>', { 'Content-type': 'text/html' })
-
-    afterEach ->
-      nock.cleanAll()
-
-    context 'phab T42 spite', ->
-      hubot 'phab T42 spite'
-      it 'reports an api error', ->
-        expect(hubotResponse()).to.eql 'oops T42 api did not deliver json'
-
-  context 'error: lib error', ->
-    beforeEach ->
-      do nock.disableNetConnect
-      nock(process.env.PHABRICATOR_URL)
-        .get('/api/maniphest.edit')
-        .replyWithError({ 'message': 'something awful happened', 'code': 'AWFUL_ERROR' })
-
-    afterEach ->
-      nock.cleanAll()
-
-    context 'phab T42 spite', ->
-      hubot 'phab T42 spite'
-      it 'reports a lib error', ->
-        expect(hubotResponse()).to.eql 'oops T42 something awful happened'
-
-  context 'error: lib error', ->
-    beforeEach ->
-      do nock.disableNetConnect
-      nock(process.env.PHABRICATOR_URL)
-        .get('/api/maniphest.edit')
-        .reply(400)
-
-    afterEach ->
-      nock.cleanAll()
-
-    context 'phab T42 spite', ->
-      hubot 'phab T42 spite'
-      it 'reports a http error', ->
-        expect(hubotResponse()).to.eql 'oops T42 http error 400'
 
   # ---------------------------------------------------------------------------------
   context 'user changes priority for a task', ->
@@ -1617,9 +1589,27 @@ describe 'phabs_commands module', ->
         nock.cleanAll()
 
       context 'phab T424242 is low', ->
-        hubot 'phab T424242 is low'
+        hubot 'phab T424242 is low', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
+
+    context 'when the user is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.edit')
+          .reply(200, { error_info: 'No such Maniphest task exists.' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 is low', ->
+        hubot 'phab T424242 is low', 'user'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).
+            to.eql 'oops T424242 Sorry, I can\'t figure out your email address :( ' + 
+            'Can you tell me with `.phab me as you@yourdomain.com`?'
+
 
     context 'when the task is present', ->
   
@@ -1639,15 +1629,15 @@ describe 'phabs_commands module', ->
             expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
         context 'phab T42 is broken', ->
-          hubot 'phab T42 is broken'
+          hubot 'phab T42 is broken', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority broken'
         context 'phab T42 broken', ->
-          hubot 'phab T42 broken'
+          hubot 'phab T42 broken', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority broken'
         context 'phab T42 unbreak', ->
-          hubot 'phab T42 unbreak'
+          hubot 'phab T42 unbreak', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority unbreak'
 
@@ -1663,11 +1653,11 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 none', ->
-          hubot 'phab T42 none'
+          hubot 'phab T42 none', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority none'
         context 'phab T42 unknown', ->
-          hubot 'phab T42 unknown'
+          hubot 'phab T42 unknown', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority unknown'
 
@@ -1682,7 +1672,7 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 none = maintainer left', ->
-          hubot 'phab T42 none = maintainer left'
+          hubot 'phab T42 none = maintainer left', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority none'
 
@@ -1697,11 +1687,11 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 urgent', ->
-          hubot 'phab T42 urgent'
+          hubot 'phab T42 urgent', 'user_with_phid'
           it 'reports the priority to be High', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority urgent'
         context 'phab T42 high', ->
-          hubot 'phab T42 high'
+          hubot 'phab T42 high', 'user_with_phid'
           it 'reports the priority to be High', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority high'
 
@@ -1716,7 +1706,7 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 normal', ->
-          hubot 'phab T42 normal'
+          hubot 'phab T42 normal', 'user_with_phid'
           it 'reports the priority to be Normal', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority normal'
 
@@ -1731,7 +1721,7 @@ describe 'phabs_commands module', ->
           nock.cleanAll()
 
         context 'phab T42 low', ->
-          hubot 'phab T42 low'
+          hubot 'phab T42 low', 'user_with_phid'
           it 'reports the priority to be Low', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority low'
 
@@ -1760,7 +1750,7 @@ describe 'phabs_commands module', ->
         nock.cleanAll()
 
       context 'phab assign T424242 to user_with_phid', ->
-        hubot 'phab assign T424242 to user_with_phid'
+        hubot 'phab assign T424242 to user_with_phid', 'user_with_phid'
         it 'warns the user that the task does not exist', ->
           expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
 
@@ -1775,27 +1765,27 @@ describe 'phabs_commands module', ->
         nock.cleanAll()
 
       context 'phab on user_with_phid', ->
-        hubot 'phab on user_with_phid'
+        hubot 'phab on user_with_phid', 'user_with_phid'
         it 'warns the user that there is no active task in memory', ->
           expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
       context 'phab assign T42 to user_with_phid', ->
-        hubot 'phab assign T42 to user_with_phid'
+        hubot 'phab assign T42 to user_with_phid', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
       context 'phab assign T42 on user_with_phid', ->
-        hubot 'phab assign T42 on user_with_phid'
+        hubot 'phab assign T42 on user_with_phid', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
       context 'phab T42 on user_with_phid', ->
-        hubot 'phab T42 on user_with_phid'
+        hubot 'phab T42 on user_with_phid', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
       context 'phab user_with_phid on T42', ->
-        hubot 'phab user_with_phid on T42'
+        hubot 'phab user_with_phid on T42', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
@@ -1813,7 +1803,7 @@ describe 'phabs_commands module', ->
         nock.cleanAll()
 
       context 'phab T424242 + some comment', ->
-        hubot 'phab T424242 + some comment'
+        hubot 'phab T424242 + some comment', 'user_with_phid'
         it 'warns the user that the task does not exist', ->
           expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
 
@@ -1828,12 +1818,12 @@ describe 'phabs_commands module', ->
         nock.cleanAll()
 
       context 'phab + some comment', ->
-        hubot 'phab + some comment'
+        hubot 'phab + some comment', 'user_with_phid'
         it 'warns the user that there is no active task in memory', ->
           expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
       context 'phab T24 + some comment', ->
-        hubot 'phab T24 + some comment'
+        hubot 'phab T24 + some comment', 'user_with_phid'
         it 'gives a feedback that the comment was added', ->
           expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
 
@@ -2438,6 +2428,52 @@ describe 'phabs_commands module', ->
         hubot 'phab proj4 gitlab', 'user_with_phid'
         it 'replies that project is unknown', ->
           expect(hubotResponse()).to.eql 'Sorry, proj4 not found.'
+
+  # ---------------------------------------------------------------------------------
+  context 'error: non json', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.edit')
+        .reply(200, '<body></body>', { 'Content-type': 'text/html' })
+
+    afterEach ->
+      nock.cleanAll()
+
+    context 'phab T42 spite', ->
+      hubot 'phab T42 spite', 'user_with_phid'
+      it 'reports an api error', ->
+        expect(hubotResponse()).to.eql 'oops T42 api did not deliver json'
+
+  context 'error: lib error', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.edit')
+        .replyWithError({ 'message': 'something awful happened', 'code': 'AWFUL_ERROR' })
+
+    afterEach ->
+      nock.cleanAll()
+
+    context 'phab T42 spite', ->
+      hubot 'phab T42 spite', 'user_with_phid'
+      it 'reports a lib error', ->
+        expect(hubotResponse()).to.eql 'oops T42 something awful happened'
+
+  context 'error: lib error', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.edit')
+        .reply(400)
+
+    afterEach ->
+      nock.cleanAll()
+
+    context 'phab T42 spite', ->
+      hubot 'phab T42 spite', 'user_with_phid'
+      it 'reports a http error', ->
+        expect(hubotResponse()).to.eql 'oops T42 http error 400'
 
   # ---------------------------------------------------------------------------------
   context 'permissions system', ->

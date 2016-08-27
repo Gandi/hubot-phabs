@@ -389,11 +389,13 @@ class Phabricator
 
 
   recordId: (user, id) ->
+    user = @robot.brain.userForName user.name
     user.lastTask = moment().utc()
     user.lastId = id
 
 
   retrieveId: (user, id = null) ->
+    user = @robot.brain.userForName user.name
     if id?
       if id is 'last'
         if user.lastId?
@@ -427,44 +429,52 @@ class Phabricator
 
   updateStatus: (user, id, status, comment, cb) ->
     if @ready() is true
-      @withBotPHID (bot_phid) =>
-        query = {
-          'objectIdentifier': id,
-          'transactions[0][type]': 'status',
-          'transactions[0][value]': @statuses[status],
-          'transactions[1][type]': 'subscribers.remove',
-          'transactions[1][value][0]': "#{bot_phid}",
-          'transactions[2][type]': 'owner',
-          'transactions[2][value]': user.phid,
-          'transactions[3][type]': 'comment'
-        }
-        if comment?
-          query['transactions[3][value]'] = "#{comment} (#{user.name})"
+      @withUser user, user, (userPhid) =>
+        if userPhid.error_info?
+          cb userPhid
         else
-          query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
-        @phabGet query, 'maniphest.edit', (json_body) ->
-          cb json_body
+          @withBotPHID (bot_phid) =>
+            query = {
+              'objectIdentifier': id,
+              'transactions[0][type]': 'status',
+              'transactions[0][value]': @statuses[status],
+              'transactions[1][type]': 'subscribers.remove',
+              'transactions[1][value][0]': "#{bot_phid}",
+              'transactions[2][type]': 'owner',
+              'transactions[2][value]': userPhid,
+              'transactions[3][type]': 'comment'
+            }
+            if comment?
+              query['transactions[3][value]'] = "#{comment} (#{user.name})"
+            else
+              query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
+            @phabGet query, 'maniphest.edit', (json_body) ->
+              cb json_body
 
 
   updatePriority: (user, id, priority, comment, cb) ->
     if @ready() is true
-      @withBotPHID (bot_phid) =>
-        query = {
-          'objectIdentifier': id,
-          'transactions[0][type]': 'priority',
-          'transactions[0][value]': @priorities[priority],
-          'transactions[1][type]': 'subscribers.remove',
-          'transactions[1][value][0]': "#{bot_phid}",
-          'transactions[2][type]': 'owner',
-          'transactions[2][value]': user.phid,
-          'transactions[3][type]': 'comment'
-        }
-        if comment?
-          query['transactions[3][value]'] = "#{comment} (#{user.name})"
+      @withUser user, user, (userPhid) =>
+        if userPhid.error_info?
+          cb userPhid
         else
-          query['transactions[3][value]'] = "priority set to #{priority} by #{user.name}"
-        @phabGet query, 'maniphest.edit', (json_body) ->
-          cb json_body
+          @withBotPHID (bot_phid) =>
+            query = {
+              'objectIdentifier': id,
+              'transactions[0][type]': 'priority',
+              'transactions[0][value]': @priorities[priority],
+              'transactions[1][type]': 'subscribers.remove',
+              'transactions[1][value][0]': "#{bot_phid}",
+              'transactions[2][type]': 'owner',
+              'transactions[2][value]': userPhid,
+              'transactions[3][type]': 'comment'
+            }
+            if comment?
+              query['transactions[3][value]'] = "#{comment} (#{user.name})"
+            else
+              query['transactions[3][value]'] = "priority set to #{priority} by #{user.name}"
+            @phabGet query, 'maniphest.edit', (json_body) ->
+              cb json_body
 
 
   assignTask: (tid, userphid, cb) ->

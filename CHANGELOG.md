@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.5.7 - wip
+- fix access to teporary memory while in private message
+
 ### 1.5.6 - 2016-08-26
 - add an announce param to the createTask event
 
