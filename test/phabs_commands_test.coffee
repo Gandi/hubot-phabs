@@ -1417,7 +1417,7 @@ describe 'phabs_commands module', ->
         hubot 'phab T424242 is open', 'user'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).
-            to.eql 'oops T424242 Sorry, I can\'t figure out your email address :( ' + 
+            to.eql 'oops T424242 Sorry, I can\'t figure out your email address :( ' +
             'Can you tell me with `.phab me as you@yourdomain.com`?'
 
     context 'when the task is present', ->
@@ -1607,7 +1607,7 @@ describe 'phabs_commands module', ->
         hubot 'phab T424242 is low', 'user'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).
-            to.eql 'oops T424242 Sorry, I can\'t figure out your email address :( ' + 
+            to.eql 'oops T424242 Sorry, I can\'t figure out your email address :( ' +
             'Can you tell me with `.phab me as you@yourdomain.com`?'
 
 

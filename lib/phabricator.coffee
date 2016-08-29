@@ -429,6 +429,7 @@ class Phabricator
 
   updateStatus: (user, id, status, comment, cb) ->
     if @ready() is true
+      user = @robot.brain.userForName user.name
       @withUser user, user, (userPhid) =>
         if userPhid.error_info?
           cb userPhid
@@ -454,6 +455,7 @@ class Phabricator
 
   updatePriority: (user, id, priority, comment, cb) ->
     if @ready() is true
+      user = @robot.brain.userForName user.name
       @withUser user, user, (userPhid) =>
         if userPhid.error_info?
           cb userPhid
@@ -506,6 +508,7 @@ class Phabricator
       query = {
         task_id: id
       }
+      user = @robot.brain.userForName user.name
       @phabGet query, 'maniphest.info', (json_body) =>
         if json_body.error_info?
           cb json_body

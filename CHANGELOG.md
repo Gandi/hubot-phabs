@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.5.8 - 2016-08-29
+- extend private message memory fix to status and priority
+
 ### 1.5.7 - 2016-08-27
 - fix access to temporary memory while in private message
 
