@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.5.9 - wip
+### 1.5.9 - 2016-09-01
 - add flexibility on status and priority change, 
   to be able to use + instead of = for comment addition
 
