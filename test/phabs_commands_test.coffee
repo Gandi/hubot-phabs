@@ -1676,6 +1676,21 @@ describe 'phabs_commands module', ->
           it 'reports the priority to be Unbreak Now!', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority none'
 
+      context 'phab T42 is none + maintainer left', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.edit')
+            .reply(200, { result: { object: { id: 42 } } })
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab T42 none + maintainer left', ->
+          hubot 'phab T42 none + maintainer left', 'user_with_phid'
+          it 'reports the priority to be Unbreak Now!', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority none'
+
       context 'phab T42 is urgent', ->
         beforeEach ->
           do nock.disableNetConnect

@@ -142,7 +142,7 @@ module.exports = (robot) ->
   #   hubot phab Txx is <status> - modifies task Txxx status
   robot.respond new RegExp(
     "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.statuses).join('|')})" +
-    '(?: = (.+))? *$'
+    '(?: (?:=|\\+) (.+))? *$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
@@ -162,7 +162,7 @@ module.exports = (robot) ->
   #   hubot phab Txx is <priority> - modifies task Txxx priority
   robot.respond new RegExp(
     "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.priorities).join('|')})" +
-    '(?: = (.+))? *$'
+    '(?: (?:=|\\+) (.+))? *$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])

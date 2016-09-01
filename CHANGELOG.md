@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.5.9 - wip
+- add flexibility on status and priority change, 
+  to be able to use + instead of = for comment addition
+
 ### 1.5.8 - 2016-08-29
 - extend private message memory fix to status and priority
 
