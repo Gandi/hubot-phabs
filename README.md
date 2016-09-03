@@ -8,6 +8,8 @@ Hubot Phabricator Plugin
 [![Coverage Status](http://img.shields.io/codeclimate/coverage/github/Gandi/hubot-phabs.svg)](https://codeclimate.com/github/Gandi/hubot-phabs/coverage)
 [![Code Climate](https://img.shields.io/codeclimate/github/Gandi/hubot-phabs.svg)](https://codeclimate.com/github/Gandi/hubot-phabs)
 
+[![NPM](https://nodei.co/npm/hubot-phabs.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/hubot-phabs/)
+
 This plugin is designed to work as an addon for [Hubot](https://hubot.github.com/). Its role is to make interactions possible between a chat room (irc, slack, gitter) and a [phabricator](https://www.phacility.com/phabricator/) instance.
 
 When installed this plugin will check the channels where the bot lurks, to see if someone is talking about Phabricator objects (T32 or P156 or F1526) to complement the conversation with the name of the referred item.
