@@ -70,7 +70,7 @@ describe 'phabs_commands module with no bot_phid', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context.only 'when user is known and his phid is in the brain', ->
+      context 'when user is known and his phid is in the brain', ->
         hubot 'phab new proj1 a task', 'user_with_phid'
         it 'replies with the object id', ->
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'

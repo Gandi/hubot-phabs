@@ -18,8 +18,7 @@ describe 'phabs_events module', ->
     process.env.PHABRICATOR_API_KEY = 'xxx'
     process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
     room = helper.createRoom { httpd: false }
-    room.robot.brain.userForId 'user_with_phid', {
-      name: 'user_with_phid',
+    room.robot.brain.data.phabricator.users['user_with_phid'] = {
       phid: 'PHID-USER-123456789'
     }
 
@@ -42,6 +41,7 @@ describe 'phabs_events module', ->
         }
         room.robot.logger = sinon.spy()
         room.robot.logger.info = sinon.spy()
+        room.robot.logger.error = sinon.spy()
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.edit')
@@ -51,7 +51,7 @@ describe 'phabs_events module', ->
           template: undefined,
           name: 'a task',
           description: undefined,
-          user: { name: 'user_with_phid' },
+          user: { id: 'user_with_phid' },
           assign: 'user_with_phid'
         }
         setTimeout (done), 40
@@ -61,6 +61,7 @@ describe 'phabs_events module', ->
         nock.cleanAll()
 
       it 'logs a success', ->
+        expect(room.robot.logger.error).not.called
         expect(room.robot.logger.info).calledOnce
         expect(room.robot.logger.info).calledWith 'Task T42 created = http://example.com/T42'
         expect(room.messages[0]).not.to.be.defined
@@ -148,7 +149,7 @@ describe 'phabs_events module', ->
           template: undefined,
           name: 'a task',
           description: undefined,
-          user: { name: 'user_with_phid' },
+          user: { id: 'user_with_phid' },
           announce: 'room1'
         }
         setTimeout (done), 40

@@ -325,7 +325,7 @@ class Phabricator
               @withBotPHID (bot_phid) =>
                 adapter = @robot.adapterName
                 if params.user?.name?
-                  user = @robot.brain.userForName params.user.name
+                  user = params.user
                 else
                   if @robot.brain.data.users[params.user]?
                     user = @robot.brain.userForName params.user
@@ -352,8 +352,8 @@ class Phabricator
                       query["transactions[#{next}][type]"] = 'description'
                       query["transactions[#{next}][value]"] = "#{params.description}"
                       next += 1
-                    if params.assign? and @robot.brain.data.users[params.assign]?.phid
-                      owner = @robot.brain.data.users[params.assign]?.phid
+                    if params.assign? and @data.users[params.assign]?.phid
+                      owner = @data.users[params.assign]?.phid
                       query["transactions[#{next}][type]"] = 'owner'
                       query["transactions[#{next}][value]"] = owner
                     @phabGet query, 'maniphest.edit', (json_body) ->
