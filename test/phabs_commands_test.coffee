@@ -791,13 +791,13 @@ describe 'phabs_commands module', ->
   # ---------------------------------------------------------------------------------
   context 'user asks about a user', ->
 
-    context 'phab toto', ->
-      hubot 'phab toto'
+    context 'phab user toto', ->
+      hubot 'phab user toto'
       it 'warns when that user is unknown', ->
         expect(hubotResponse()).to.eql 'Sorry, I have no idea who toto is. Did you mistype it?'
 
-    context 'phab user', ->
-      hubot 'phab user'
+    context 'phab user user', ->
+      hubot 'phab user user'
       it 'warns when that user has no email', ->
         expect(hubotResponse()).to.eql "Sorry, I can't figure user email address. " +
                                        'Can you help me with .phab user = <email>'
@@ -812,8 +812,8 @@ describe 'phabs_commands module', ->
       afterEach ->
         nock.cleanAll()
 
-      context 'phab user_with_email', ->
-        hubot 'phab user_with_email'
+      context 'phab user user_with_email', ->
+        hubot 'phab user user_with_email'
         it 'gets the phid for the user if he has an email', ->
           phid = room.robot.brain.data.phabricator.users['user_with_email'].phid
           expect(hubotResponse()).to.eql "Hey I know user_with_email, he's PHID-USER-999"
@@ -829,13 +829,13 @@ describe 'phabs_commands module', ->
       afterEach ->
         nock.cleanAll()
 
-      context 'phab user_with_email', ->
-        hubot 'phab user_with_email'
+      context 'phab user user_with_email', ->
+        hubot 'phab user user_with_email'
         it 'gets a message complaining about the impossibility to match an email', ->
           expect(hubotResponse()).to.eql 'Sorry, I cannot find user@example.com :('
 
-    context 'phab user_with_phid', ->
-      hubot 'phab user_with_phid'
+    context 'phab user user_with_phid', ->
+      hubot 'phab user user_with_phid'
       it 'warns when that user has no email', ->
         expect(hubotResponse()).to.eql "Hey I know user_with_phid, he's PHID-USER-123456789"
 
@@ -851,12 +851,12 @@ describe 'phabs_commands module', ->
 
   # ---------------------------------------------------------------------------------
   context 'user declares email for somebody else', ->
-    context 'phab toto = toto@example.com', ->
-      hubot 'phab toto = toto@example.com'
+    context 'phab user toto = toto@example.com', ->
+      hubot 'phab user toto = toto@example.com'
       it 'complains if the user is unknown', ->
         expect(hubotResponse()).to.eql 'Sorry I have no idea who toto is. Did you mistype it?'
-    context 'phab user = user@example.com', ->
-      hubot 'phab user = user@example.com'
+    context 'phab user user = user@example.com', ->
+      hubot 'phab user user = user@example.com'
       it 'sets the email for the user', ->
         email_address = room.robot.brain.data.phabricator.users['user'].email_address
         expect(hubotResponse()).to.eql "Okay, I'll remember user email as user@example.com"

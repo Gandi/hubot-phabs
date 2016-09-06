@@ -253,15 +253,10 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab <user> - checks if user is known or not
-  robot.respond /ph(?:ab)? ([^ ]*) *$/, (msg) ->
+  robot.respond /ph(?:ab)? (?:user|who) ([^ ]*) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      name = msg.match[1]
-      assignee = robot.brain.userForName(name)
-      unless assignee
-        msg.send "Sorry, I have no idea who #{name} is. Did you mistype it?"
-        msg.finish()
-        return
-      phab.withUser msg.envelope.user, assignee, (userPhid) ->
+      name = { name: msg.match[1] }
+      phab.withUser msg.envelope.user, name, (userPhid) ->
         if userPhid.error_info?
           msg.send userPhid.error_info
         else
@@ -272,23 +267,18 @@ module.exports = (robot) ->
   robot.respond /ph(?:ab)? me as (.*@.*) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       email = msg.match[1]
-      assignee = robot.brain.userForName(msg.envelope.user.name)
+      assignee = msg.envelope.user
       robot.brain.data.phabricator.users[assignee.id] ?= { }
       robot.brain.data.phabricator.users[assignee.id].email_address = email
-      robot.brain.save()
       msg.send "Okay, I'll remember your email is #{email}"
     msg.finish()
 
   #   hubot phab <user> = <email> - associates user to email
-  robot.respond /ph(?:ab)? ([^ ]*) *?= *?([^ ]*@.*) *$/, (msg) ->
+  robot.respond /ph(?:ab)? user ([^ ]*) *?= *?([^ ]*@.*) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
       who = msg.match[1]
       email = msg.match[2]
-      assignee = robot.brain.userForName(who)
-      unless assignee
-        msg.send "Sorry I have no idea who #{who} is. Did you mistype it?"
-        msg.finish()
-        return
+      assignee = { name: who }
       robot.brain.data.phabricator.users[assignee.id] ?= { }
       robot.brain.data.phabricator.users[assignee.id].email_address = email
       msg.send "Okay, I'll remember #{who} email as #{email}"
@@ -311,20 +301,17 @@ module.exports = (robot) ->
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
-      assignee = robot.brain.userForName(who)
-      if assignee?
-        phab.withUser msg.envelope.user, assignee, (userPhid) ->
-          if userPhid.error_info?
-            msg.send userPhid.error_info
-          else
-            phab.assignTask id, userPhid, (body) ->
-              if body['error_info']?
-                msg.send "#{body['error_info']}"
-              else
-                msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
-              msg.finish()
-      else
-        msg.send "Sorry I don't know who is #{who}, can you .phab #{who} = <email>"
+      assignee = { id: who }
+      phab.withUser msg.envelope.user, assignee, (userPhid) ->
+        if userPhid.error_info?
+          msg.send userPhid.error_info
+        else
+          phab.assignTask id, userPhid, (body) ->
+            if body['error_info']?
+              msg.send "#{body['error_info']}"
+            else
+              msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
+            msg.finish()
     msg.finish()
 
   #   hubot phab all <project> search terms - searches for terms in project

@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.6.0 - wip
+- remove all dependency on brain.users to
+  make it compatible with last version of hubot-slack
+
 ### 1.5.9 - 2016-09-01
 - add flexibility on status and priority change, 
   to be able to use + instead of = for comment addition

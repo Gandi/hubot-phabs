@@ -192,6 +192,8 @@ class Phabricator
 
   withUser: (from, user, cb) =>
     if @ready() is true
+      unless user.id?
+        user.name = user.id
       if @data.users[user.id]?.phid?
         cb @data.users[user.id].phid
       else
@@ -367,7 +369,6 @@ class Phabricator
   createPaste: (user, title, cb) ->
     if @ready() is true
       adapter = @robot.adapterName
-      user = @robot.brain.userForName user.name
       @withUser user, user, (userPhid) =>
         if userPhid.error_info?
           cb userPhid
@@ -511,7 +512,6 @@ class Phabricator
         if json_body.error_info?
           cb json_body
         else
-          user = @robot.brain.userForName user.name
           @recordId user, id
           lines = json_body.result.description.split('\n')
           reg = new RegExp("^\\[ \\] .*#{key or ''}", 'i')

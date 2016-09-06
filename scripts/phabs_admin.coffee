@@ -26,7 +26,7 @@ path = require 'path'
 module.exports = (robot) ->
 
   phab = new Phabricator robot, process.env
-  data = robot.brain.data['phabricator']
+  data = robot.brain.data.phabricator
 
   #   hubot phad projects
   robot.respond (/phad (?:projects|list) *$/), (msg) ->
