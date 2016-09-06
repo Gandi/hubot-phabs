@@ -273,7 +273,8 @@ module.exports = (robot) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       email = msg.match[1]
       assignee = robot.brain.userForName(msg.envelope.user.name)
-      assignee.email_address = email
+      robot.brain.data.phabricator.users[assignee.id] ?= { }
+      robot.brain.data.phabricator.users[assignee.id].email_address = email
       robot.brain.save()
       msg.send "Okay, I'll remember your email is #{email}"
     msg.finish()
@@ -288,7 +289,8 @@ module.exports = (robot) ->
         msg.send "Sorry I have no idea who #{who} is. Did you mistype it?"
         msg.finish()
         return
-      assignee.email_address = email
+      robot.brain.data.phabricator.users[assignee.id] ?= { }
+      robot.brain.data.phabricator.users[assignee.id].email_address = email
       msg.send "Okay, I'll remember #{who} email as #{email}"
     msg.finish()
 

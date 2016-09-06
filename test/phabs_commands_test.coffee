@@ -34,14 +34,13 @@ describe 'phabs_commands module with no bot_phid', ->
     process.env.PHABRICATOR_URL = 'http://example.com'
     process.env.PHABRICATOR_API_KEY = 'xxx'
     room = helper.createRoom { httpd: false }
-    room.robot.brain.userForId 'user_with_phid', {
-      name: 'user_with_phid',
+    room.robot.brain.data.phabricator.users['user_with_phid'] = {
       phid: 'PHID-USER-123456789'
     }
     room.receive = (userName, message) ->
       new Promise (resolve) =>
         @messages.push [userName, message]
-        user = room.robot.brain.userForId userName
+        user = { name: userName, id: userName }
         @robot.receive(new Hubot.TextMessage(user, message), resolve)
 
   afterEach ->
@@ -71,7 +70,7 @@ describe 'phabs_commands module with no bot_phid', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'when user is known and his phid is in the brain', ->
+      context.only 'when user is known and his phid is in the brain', ->
         hubot 'phab new proj1 a task', 'user_with_phid'
         it 'replies with the object id', ->
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
@@ -816,8 +815,9 @@ describe 'phabs_commands module', ->
       context 'phab user_with_email', ->
         hubot 'phab user_with_email'
         it 'gets the phid for the user if he has an email', ->
+          phid = room.robot.brain.data.phabricator.users['user_with_email'].phid
           expect(hubotResponse()).to.eql "Hey I know user_with_email, he's PHID-USER-999"
-          expect(room.robot.brain.userForId('user_with_email').phid).to.eql 'PHID-USER-999'
+          expect(phid).to.eql 'PHID-USER-999'
 
     context 'user has an email, but unknown to phabricator', ->
       beforeEach ->
@@ -845,8 +845,9 @@ describe 'phabs_commands module', ->
     context 'phab me as momo@example.com', ->
       hubot 'phab me as momo@example.com'
       it 'says all is going to be fine', ->
+        email_address = room.robot.brain.data.phabricator.users['momo'].email_address
         expect(hubotResponse()).to.eql "Okay, I'll remember your email is momo@example.com"
-        expect(room.robot.brain.userForId('momo').email_address).to.eql 'momo@example.com'
+        expect(email_address).to.eql 'momo@example.com'
 
   # ---------------------------------------------------------------------------------
   context 'user declares email for somebody else', ->
@@ -857,8 +858,9 @@ describe 'phabs_commands module', ->
     context 'phab user = user@example.com', ->
       hubot 'phab user = user@example.com'
       it 'sets the email for the user', ->
+        email_address = room.robot.brain.data.phabricator.users['user'].email_address
         expect(hubotResponse()).to.eql "Okay, I'll remember user email as user@example.com"
-        expect(room.robot.brain.userForId('user').email_address).to.eql 'user@example.com'
+        expect(email_address).to.eql 'user@example.com'
 
   # ---------------------------------------------------------------------------------
   context 'user creates a new task, ', ->
@@ -889,8 +891,9 @@ describe 'phabs_commands module', ->
       context 'when user is doing it for the first time and has set an email addresse', ->
         hubot 'phab new proj1 a task', 'user_with_email'
         it 'replies with the object id, and records phid for user', ->
+          phid = room.robot.brain.data.phabricator.users['user_with_email'].phid
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
-          expect(room.robot.brain.userForId('user_with_email').phid).to.eql 'PHID-USER-42'
+          expect(phid).to.eql 'PHID-USER-42'
       context 'when user is known and his phid is in the brain', ->
         hubot 'phab new proj1 a task', 'user_with_phid'
         it 'replies with the object id', ->
@@ -979,7 +982,7 @@ describe 'phabs_commands module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/user.query')
-          .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+          .reply(200, { result: [ { phid: 'PHID-USER-42', userName: 'user_with_phid' } ] })
           .get('/api/maniphest.edit')
           .reply(200, { result: { object: { id: 24 } } })
           .get('/api/maniphest.info')
@@ -1204,7 +1207,7 @@ describe 'phabs_commands module', ->
           .get('/api/maniphest.info')
           .reply(200, { result: { description: 'some templated description' } })
           .get('/api/user.query')
-          .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+          .reply(200, { result: [ { phid: 'PHID-USER-42', userName: 'user_with_phid' } ] })
           .get('/api/maniphest.edit')
           .reply(200, { result: { object: { id: 24 } } })
           .get('/api/maniphest.info')
