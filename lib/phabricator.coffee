@@ -189,33 +189,43 @@ class Phabricator
         else
           cb { error_info: "Sorry, #{project} not found." }
 
-
+  # user can be an object with an id and name fields
   withUser: (from, user, cb) =>
     if @ready() is true
       unless user.id?
-        user.name = user.id
+        user.id = user.name
       if @data.users[user.id]?.phid?
         cb @data.users[user.id].phid
       else
-        @data.users[user.id] ?= { }
+        @data.users[user.id] ?= {
+          name: user.name,
+          id: user.id
+        }
         if user.phid?
           @data.users[user.id].phid = user.phid
           cb @data.users[user.id].phid
         else
-          email = @data.users[user.id].email_address or 
-                  user.email_address or 
-                  user.pagerdutyEmail
+          email = @data.users[user.id].email_address or
+                  @robot.brain.userForId(user.id)?.email_address or
+                  user.email_address
           unless email
             if from.name is user.name
               cb {
                 error_info: "Sorry, I can't figure out your email address :( " +
-                            'Can you tell me with `.phab me as you@yourdomain.com`?'
+                            'Can you tell me with `.phab me as <email>`?'
                 }
             else
-              cb {
-                error_info: "Sorry, I can't figure #{user.name} email address. " +
-                            "Can you help me with .phab #{user.name} = <email>"
-                }
+              if @robot.auth? and (@robot.auth.hasRole(user, ['phadmin']) or 
+                  robot.auth.isAdmin(user))
+                cb {
+                  error_info: "Sorry, I can't figure #{user.name} email address. " +
+                              "Can you help me with `.phab user #{user.name} = <email>`?"
+                  }
+              else
+                cb {
+                  error_info: "Sorry, I can't figure #{user.name} email address. " +
+                              "Can you ask them to `.phab me as <email>`?"
+                  }
           else
             user = @data.users[user.id]
             query = { 'emails[0]': email }
@@ -227,6 +237,43 @@ class Phabricator
               else
                 user.phid = json_body['result']['0']['phid']
                 cb user.phid
+
+  recordId: (user, id) ->
+    unless user.id?
+      user.id = user.name
+    @data.users[user.id] ?= { 
+      name: "#{user.name}",
+      id: "#{user.id}"
+    }
+    @data.users[user.id].lastTask = moment().utc().format()
+    @data.users[user.id].lastId = id
+
+
+  retrieveId: (user, id = null) ->
+    unless user.id?
+      user.id = user.name
+    @data.users[user.id] ?= { 
+      name: "#{user.name}",
+      id: "#{user.id}"
+    }
+    user = @data.users[user.id]
+    if id?
+      if id is 'last'
+        if user? and user.lastId?
+          user.lastId
+        else
+          null
+      else
+        @recordId user, id
+        id
+    else
+      user.lastTask ?= moment().utc().format()
+      expires_at = moment(user.lastTask).add(5, 'minutes')
+      if user.lastId? and moment().utc().isBefore(expires_at)
+        user.lastTask = moment().utc().format()
+        user.lastId
+      else
+        null
 
 
   withUserByPhid: (phid, cb) =>
@@ -326,13 +373,14 @@ class Phabricator
             else
               @withBotPHID (bot_phid) =>
                 adapter = @robot.adapterName
-                if params.user?.name?
-                  user = params.user
-                else
-                  if @robot.brain.data.users[params.user]?
-                    user = @robot.brain.userForName params.user
+                if params.user?
+                  if params.user?.name?
+                    user = params.user
                   else
-                    user = { name: @robot.name, phid: bot_phid }
+                    user = { name: params.user }
+                else
+                  user = { name: @robot.name, phid: bot_phid }
+                  userPhid = bot_phid                  
                 @withUser user, user, (userPhid) =>
                   if userPhid.error_info?
                     cb userPhid
@@ -387,32 +435,6 @@ class Phabricator
             @phabGet query, 'paste.edit', (json_body) ->
               cb json_body
 
-
-  recordId: (user, id) ->
-    @data.users[user.id] ?= { }
-    @data.users[user.id].lastTask = moment().utc()
-    @data.users[user.id].lastId = id
-
-
-  retrieveId: (user, id = null) ->
-    @data.users[user.id] ?= { }
-    user = @data.users[user.id]
-    if id?
-      if id is 'last'
-        if user.lastId?
-          user.lastId
-        else
-          null
-      else
-        id
-    else
-      user.lastTask ?= moment().utc()
-      expires_at = moment(user.lastTask).add(5, 'minutes')
-      if user.lastId? and moment().utc().isBefore(expires_at)
-        user.lastTask = moment().utc()
-        user.lastId
-      else
-        null
 
 
   addComment: (user, id, comment, cb) ->

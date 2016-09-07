@@ -252,7 +252,7 @@ module.exports = (robot) ->
             msg.send "Previous on T#{id}: #{body.line[1]}"
     msg.finish()
 
-  #   hubot phab <user> - checks if user is known or not
+  #   hubot phab user <user> - checks if user is known or not
   robot.respond /ph(?:ab)? (?:user|who) ([^ ]*) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       name = { name: msg.match[1] }
@@ -260,28 +260,29 @@ module.exports = (robot) ->
         if userPhid.error_info?
           msg.send userPhid.error_info
         else
-          msg.send "Hey I know #{name}, he's #{userPhid}"
+          msg.send "Hey I know #{name.name}, he's #{userPhid}"
     msg.finish()
 
   #   hubot phab me as <email> - makes caller known with <email>
   robot.respond /ph(?:ab)? me as (.*@.*) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      email = msg.match[1]
-      assignee = msg.envelope.user
-      robot.brain.data.phabricator.users[assignee.id] ?= { }
-      robot.brain.data.phabricator.users[assignee.id].email_address = email
-      msg.send "Okay, I'll remember your email is #{email}"
+      msg.envelope.user.email_address = msg.match[1]
+      phab.withUser msg.envelope.user, msg.envelope.user, (userPhid) ->
+        if userPhid.error_info?
+          msg.send userPhid.error_info
+        else
+          msg.send "Hey I know you, you are #{userPhid}"
     msg.finish()
 
-  #   hubot phab <user> = <email> - associates user to email
+  #   hubot phab user <user> = <email> - associates user to email
   robot.respond /ph(?:ab)? user ([^ ]*) *?= *?([^ ]*@.*) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phadmin', ->
-      who = msg.match[1]
-      email = msg.match[2]
-      assignee = { name: who }
-      robot.brain.data.phabricator.users[assignee.id] ?= { }
-      robot.brain.data.phabricator.users[assignee.id].email_address = email
-      msg.send "Okay, I'll remember #{who} email as #{email}"
+      assignee = { name: msg.match[1], email_address: msg.match[2] }
+      phab.withUser msg.envelope.user, assignee, (userPhid) ->
+        if userPhid.error_info?
+          msg.send userPhid.error_info
+        else
+          msg.send "Hey I know #{assignee.name}, he's #{userPhid}"
     msg.finish()
 
   #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
@@ -301,7 +302,7 @@ module.exports = (robot) ->
         msg.send "Sorry, you don't have any task active right now."
         msg.finish()
         return
-      assignee = { id: who }
+      assignee = { name: who }
       phab.withUser msg.envelope.user, assignee, (userPhid) ->
         if userPhid.error_info?
           msg.send userPhid.error_info

@@ -113,10 +113,13 @@ describe 'phabs_commands module', ->
       name: 'user_with_phid',
       phid: 'PHID-USER-123456789'
     }
+    room.robot.brain.data.phabricator.users['user_with_phid'] = {
+      phid: 'PHID-USER-123456789'
+    }
     room.receive = (userName, message) ->
       new Promise (resolve) =>
         @messages.push [userName, message]
-        user = room.robot.brain.userForId userName
+        user = { name: userName, id: userName }
         @robot.receive(new Hubot.TextMessage(user, message), resolve)
 
   afterEach ->
@@ -794,20 +797,15 @@ describe 'phabs_commands module', ->
     context 'phab user toto', ->
       hubot 'phab user toto'
       it 'warns when that user is unknown', ->
-        expect(hubotResponse()).to.eql 'Sorry, I have no idea who toto is. Did you mistype it?'
-
-    context 'phab user user', ->
-      hubot 'phab user user'
-      it 'warns when that user has no email', ->
-        expect(hubotResponse()).to.eql "Sorry, I can't figure user email address. " +
-                                       'Can you help me with .phab user = <email>'
+        expect(hubotResponse()).to.eql 'Sorry, I can\'t figure toto email address. ' +
+                                       'Can you ask them to `.phab me as <email>`?'
 
     context 'user has an email', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/user.query')
-          .reply(200, { result: [{ userName: 'user_with_email', phid: 'PHID-USER-999' }] })
+          .reply(200, { result: [{ phid: 'PHID-USER-999' }] })
 
       afterEach ->
         nock.cleanAll()
@@ -836,31 +834,47 @@ describe 'phabs_commands module', ->
 
     context 'phab user user_with_phid', ->
       hubot 'phab user user_with_phid'
-      it 'warns when that user has no email', ->
+      it 'gives the phid', ->
         expect(hubotResponse()).to.eql "Hey I know user_with_phid, he's PHID-USER-123456789"
-
+      it 'records the user data in phabricator brain', ->
+        expect(room.robot.brain.data.phabricator.users.user_with_phid.phid).
+          to.eql 'PHID-USER-123456789'
 
   # ---------------------------------------------------------------------------------
   context 'user declares his own email', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/user.query')
+        .reply(200, { result: [{ phid: 'PHID-USER-999' }] })
+
+    afterEach ->
+      nock.cleanAll()
+
     context 'phab me as momo@example.com', ->
-      hubot 'phab me as momo@example.com'
+      hubot 'phab me as momo@example.com', 'user'
       it 'says all is going to be fine', ->
-        email_address = room.robot.brain.data.phabricator.users['momo'].email_address
-        expect(hubotResponse()).to.eql "Okay, I'll remember your email is momo@example.com"
-        expect(email_address).to.eql 'momo@example.com'
+        phid = room.robot.brain.data.phabricator.users['user'].phid
+        expect(hubotResponse()).to.eql "Hey I know you, you are PHID-USER-999"
+        expect(phid).to.eql 'PHID-USER-999'
 
   # ---------------------------------------------------------------------------------
   context 'user declares email for somebody else', ->
-    context 'phab user toto = toto@example.com', ->
-      hubot 'phab user toto = toto@example.com'
-      it 'complains if the user is unknown', ->
-        expect(hubotResponse()).to.eql 'Sorry I have no idea who toto is. Did you mistype it?'
+    beforeEach ->
+      do nock.disableNetConnect
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/user.query')
+        .reply(200, { result: [{ phid: 'PHID-USER-999' }] })
+
+    afterEach ->
+      nock.cleanAll()
+
     context 'phab user user = user@example.com', ->
       hubot 'phab user user = user@example.com'
       it 'sets the email for the user', ->
-        email_address = room.robot.brain.data.phabricator.users['user'].email_address
-        expect(hubotResponse()).to.eql "Okay, I'll remember user email as user@example.com"
-        expect(email_address).to.eql 'user@example.com'
+        phid = room.robot.brain.data.phabricator.users['user'].phid
+        expect(hubotResponse()).to.eql "Hey I know user, he's PHID-USER-999"
+        expect(phid).to.eql 'PHID-USER-999'
 
   # ---------------------------------------------------------------------------------
   context 'user creates a new task, ', ->
@@ -887,7 +901,7 @@ describe 'phabs_commands module', ->
         hubot 'phab new proj1 a task'
         it 'invites the user to set his email address', ->
           expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
-                                         'Can you tell me with `.phab me as you@yourdomain.com`?'
+                                         'Can you tell me with `.phab me as <email>`?'
       context 'when user is doing it for the first time and has set an email addresse', ->
         hubot 'phab new proj1 a task', 'user_with_email'
         it 'replies with the object id, and records phid for user', ->
@@ -1001,6 +1015,7 @@ describe 'phabs_commands module', ->
         hubot 'phab new proj2 a task', 'user_with_phid'
         hubot 'ph', 'user_with_phid'
         it 'replies with the object id', ->
+          # console.log room.robot.brain.data.phabricator.users.user_with_phid
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
           expect(hubotResponse(3)).to.eql 'T24 has status open, priority Low, owner user_with_phid'
 
@@ -1299,7 +1314,7 @@ describe 'phabs_commands module', ->
         hubot 'ph paste a new paste'
         it 'invites the user to set his email address', ->
           expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
-                                         'Can you tell me with `.phab me as you@yourdomain.com`?'
+                                         'Can you tell me with `.phab me as <email>`?'
       context 'ph paste a new paste', ->
         hubot 'ph paste a new paste', 'user_with_phid'
         it 'gives the link to fill up the paste Paste', ->
@@ -1421,7 +1436,7 @@ describe 'phabs_commands module', ->
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).
             to.eql 'oops T424242 Sorry, I can\'t figure out your email address :( ' +
-            'Can you tell me with `.phab me as you@yourdomain.com`?'
+            'Can you tell me with `.phab me as <email>`?'
 
     context 'when the task is present', ->
 
@@ -1611,7 +1626,7 @@ describe 'phabs_commands module', ->
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).
             to.eql 'oops T424242 Sorry, I can\'t figure out your email address :( ' +
-            'Can you tell me with `.phab me as you@yourdomain.com`?'
+            'Can you tell me with `.phab me as <email>`?'
 
 
     context 'when the task is present', ->
@@ -1749,13 +1764,13 @@ describe 'phabs_commands module', ->
       context 'phab assign T424242 to xxx', ->
         hubot 'phab assign T424242 to xxx'
         it 'warns the user that xx is unknown', ->
-          expect(hubotResponse()).to.eql "Sorry I don't know who is xxx, " +
-                                         'can you .phab xxx = <email>'
+          expect(hubotResponse()).to.eql "Sorry, I can't figure xxx email address." +
+                                         ' Can you ask them to `.phab me as <email>`?'
       context 'phab assign T424242 to momo', ->
         hubot 'phab assign T424242 to momo'
         it 'warns the user that his email is not known', ->
           expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
-                                         'Can you tell me with `.phab me as you@yourdomain.com`?'
+                                         'Can you tell me with `.phab me as <email>`?'
 
     context 'task is unknown', ->
       beforeEach ->
@@ -2497,28 +2512,53 @@ describe 'phabs_commands module', ->
   context 'permissions system', ->
     beforeEach ->
       process.env.HUBOT_AUTH_ADMIN = 'admin_user'
+      room.robot.brain.data.phabricator = { users: { } }
       room.robot.loadFile path.resolve('node_modules/hubot-auth/src'), 'auth.coffee'
       room.robot.brain.userForId 'admin_user', {
+        id: 'admin_user',
         name: 'admin_user',
         phid: 'PHID-USER-123456789'
       }
+      room.robot.brain.data.phabricator.users.admin_user = {
+        name: 'admin_user',
+        id: 'admin_user',
+        phid: 'PHID-USER-123456789'
+      }
       room.robot.brain.userForId 'phadmin_user', {
+        id: 'phadmin_user',
         name: 'phadmin_user',
         phid: 'PHID-USER-123456789',
         roles: [
           'phadmin'
         ]
       }
+      room.robot.brain.data.phabricator.users.phadmin_user = {
+        name: 'phadmin_user',
+        id: 'phadmin_user',
+        phid: 'PHID-USER-123456789'
+      }
       room.robot.brain.userForId 'phuser_user', {
+        id: 'phuser_user',
         name: 'phuser_user',
         phid: 'PHID-USER-123456789',
         roles: [
           'phuser'
         ]
       }
+      room.robot.brain.data.phabricator.users.phuser_user = {
+        name: 'phuser_user',
+        id: 'phuser_user',
+        phid: 'PHID-USER-123456789'
+      }
 
     context 'user wants to create comment on a task', ->
       beforeEach ->
+        room.receive = (userName, message) ->
+          new Promise (resolve) =>
+            @messages.push [userName, message]
+            user = @robot.brain.userForName(userName)
+            @robot.receive(new Hubot.TextMessage(user, message), resolve)
+
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.edit')

@@ -51,7 +51,7 @@ describe 'phabs_events module', ->
           template: undefined,
           name: 'a task',
           description: undefined,
-          user: { id: 'user_with_phid' },
+          user: { name: 'user_with_phid' },
           assign: 'user_with_phid'
         }
         setTimeout (done), 40
@@ -149,7 +149,7 @@ describe 'phabs_events module', ->
           template: undefined,
           name: 'a task',
           description: undefined,
-          user: { id: 'user_with_phid' },
+          user: { name: 'user_with_phid' },
           announce: 'room1'
         }
         setTimeout (done), 40
