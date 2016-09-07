@@ -4,6 +4,11 @@ Hubot-phabs Changelog
 ### 1.6.0 - wip
 - remove all dependency on brain.users to
   make it compatible with last version of hubot-slack
+- change syntax for user commands to .phab user <name>
+- when user registers email with .phab me as <email> 
+  it checks for phid immediately
+- check for premission before advising to use
+  .phab user <name> = <email>
 
 ### 1.5.9 - 2016-09-01
 - add flexibility on status and priority change, 

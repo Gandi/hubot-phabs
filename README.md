@@ -79,14 +79,14 @@ Configuration
 
 If you use `hubot-auth`
 - `HUBOT_AUTH_ADMIN` - hardcoded list of hubot admins
-- `PHABRICATOR_TRUSTED_USERS` - if set to 'y', bypasses the requirement of belonging to `phuser` group for  commands restricted to users. Makes sense in places where all users are internal or invited-only and trustable.
+- `PHABRICATOR_TRUSTED_USERS` - if set to 'y', bypasses the requirement of belonging to `phuser` group for  commands restricted to users. Makes sense in places where all users are internal or invited-only and trustworthy.
 
 You also should use `hubot-restrict-ip` to limit the access to the web endpoints (api and feeds endpoints), or serve only on localhost (`EXPRESS_BIND_ADDRESS=127.0.0.1`) and use a proxy to access those endpoints.
 
 Features
 ----------------
 
-The `hubot-phabs` plugin has a lot of features, and some of them could be useless, or dangerous if activated under an un-protected environment. There are 2 envirnment variables that can be used to limit what features are lodaed and active:
+The `hubot-phabs` plugin has a lot of features, and some of them could be useless, or dangerous if activated under an un-protected environment. There are 2 environment variables that can be used to limit what features are loaded and active:
 
 - `PHABS_ENABLED_FEATURES` can be a comma-separated list of the only plugins enabled. 
 - `PHABS_DISABLED_FEATURES` is also a comma-separated list of features, to only restrict a few ones. It won't be any use if the `PHABS_ENABLED_FEATURES` is declared, as it would take priority.
@@ -118,9 +118,9 @@ There is some events available for interaction with other plugins, to chain acti
         - template (null if none)
         - title
         - description
-        - user (either a user object or a string)
+        - user (an object with at least a name property)
         - assign (as a user name)
-        - announce (optinoal: the name of a room where to announce the task creation and id)
+        - announce (optional: the name of a room where to announce the task creation and id)
         It will create a task from an event, 
         and talk on the logger when done or if it fails.
 
@@ -277,7 +277,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         in the modification
         permission: phuser
 
-    .phab <someone>
+    .phab user <someone>
         will check is <someone> is linked to his Phabricator account 
         (using email address)
         permission: phuser
@@ -287,7 +287,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         registered in Phabricator
         permission: phuser
 
-    .phab <someone> = <email@example.com>
+    .phab user <someone> = <email@example.com>
         registers email for another user, follows the same concept as 
         .phab me as ..
         permission: phadmin
