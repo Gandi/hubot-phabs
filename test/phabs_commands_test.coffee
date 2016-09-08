@@ -114,7 +114,14 @@ describe 'phabs_commands module', ->
       phid: 'PHID-USER-123456789'
     }
     room.robot.brain.data.phabricator.users['user_with_phid'] = {
-      phid: 'PHID-USER-123456789'
+      phid: 'PHID-USER-123456789',
+      id: 'user_with_phid',
+      name: 'user_with_phid'
+    }
+    room.robot.brain.data.phabricator.users['user_phab'] = {
+      phid: 'PHID-USER-123456789',
+      id: 'user_phab',
+      name: 'user_phab'
     }
     room.receive = (userName, message) ->
       new Promise (resolve) =>
@@ -794,11 +801,61 @@ describe 'phabs_commands module', ->
   # ---------------------------------------------------------------------------------
   context 'user asks about a user', ->
 
-    context 'phab user toto', ->
+    context 'an unknown user', ->
       hubot 'phab user toto'
       it 'warns when that user is unknown', ->
         expect(hubotResponse()).to.eql 'Sorry, I can\'t figure toto email address. ' +
                                        'Can you ask them to `.phab me as <email>`?'
+
+    context 'an unknown user but hubot-auth is loaded', ->
+      beforeEach ->
+        process.env.HUBOT_AUTH_ADMIN = 'admin_user'
+        room.robot.brain.data.phabricator = { users: { } }
+        room.robot.loadFile path.resolve('node_modules/hubot-auth/src'), 'auth.coffee'
+        room.robot.brain.userForId 'admin_user', {
+          id: 'admin_user',
+          name: 'admin_user',
+          phid: 'PHID-USER-123456789'
+        }
+        room.robot.brain.userForId 'phadmin_user', {
+          id: 'phadmin_user',
+          name: 'phadmin_user',
+          phid: 'PHID-USER-123456789',
+          roles: [
+            'phadmin'
+          ]
+        }
+        room.robot.brain.userForId 'phuser_user', {
+          id: 'phuser_user',
+          name: 'phuser_user',
+          phid: 'PHID-USER-123456789',
+          roles: [
+            'phuser'
+          ]
+        }
+        room.receive = (userName, message) ->
+          new Promise (resolve) =>
+            @messages.push [userName, message]
+            user = @robot.brain.userForName(userName)
+            @robot.receive(new Hubot.TextMessage(user, message), resolve)
+
+      context 'and you are admin', ->
+        beforeEach ->
+        hubot 'phab user toto', 'admin_user'
+        it 'warns when that user is unknown', ->
+          expect(hubotResponse()).to.eql 'Sorry, I can\'t figure toto email address. ' +
+                                         'Can you help me with `.phab user toto = <email>`?'
+      context 'and you are phadmin', ->
+        hubot 'phab user toto', 'phadmin_user'
+        it 'warns when that user is unknown', ->
+          expect(hubotResponse()).to.eql 'Sorry, I can\'t figure toto email address. ' +
+                                         'Can you help me with `.phab user toto = <email>`?'
+
+      context 'and you are not admin', ->
+        hubot 'phab user toto', 'phuser_user'
+        it 'warns when that user is unknown', ->
+          expect(hubotResponse()).to.eql 'Sorry, I can\'t figure toto email address. ' +
+                                         'Can you ask them to `.phab me as <email>`?'
 
     context 'user has an email', ->
       beforeEach ->
@@ -908,7 +965,7 @@ describe 'phabs_commands module', ->
           phid = room.robot.brain.data.phabricator.users['user_with_email'].phid
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
           expect(phid).to.eql 'PHID-USER-42'
-      context 'when user is known and his phid is in the brain', ->
+      context 'when user is known and his phid is in the brain (users)', ->
         hubot 'phab new proj1 a task', 'user_with_phid'
         it 'replies with the object id', ->
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'

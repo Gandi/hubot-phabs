@@ -215,8 +215,8 @@ class Phabricator
                             'Can you tell me with `.phab me as <email>`?'
                 }
             else
-              if @robot.auth? and (@robot.auth.hasRole(user, ['phadmin']) or 
-                  robot.auth.isAdmin(user))
+              if @robot.auth? and (@robot.auth.hasRole(from, ['phadmin']) or 
+                  @robot.auth.isAdmin(from))
                 cb {
                   error_info: "Sorry, I can't figure #{user.name} email address. " +
                               "Can you help me with `.phab user #{user.name} = <email>`?"

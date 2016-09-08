@@ -255,12 +255,12 @@ module.exports = (robot) ->
   #   hubot phab user <user> - checks if user is known or not
   robot.respond /ph(?:ab)? (?:user|who) ([^ ]*) *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      name = { name: msg.match[1] }
-      phab.withUser msg.envelope.user, name, (userPhid) ->
+      assignee = { name: msg.match[1] }
+      phab.withUser msg.envelope.user, assignee, (userPhid) ->
         if userPhid.error_info?
           msg.send userPhid.error_info
         else
-          msg.send "Hey I know #{name.name}, he's #{userPhid}"
+          msg.send "Hey I know #{assignee.name}, he's #{userPhid}"
     msg.finish()
 
   #   hubot phab me as <email> - makes caller known with <email>
