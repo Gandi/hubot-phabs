@@ -287,7 +287,7 @@ module.exports = (robot) ->
 
   #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
   robot.respond new RegExp(
-    'ph(?:ab)?(?: assign)? (?:([^ ]+)(?: (?:to|on) (?:(T)([0-9]+)|(last)))?|' +
+    'ph(?:ab)?(?: assign)? (?:([^ ]+) (?:to|on) (?:(T)([0-9]+)|(last))|' +
     '(?:T([0-9]+) |(last) )?(?:to|on) ([^ ]+)) *$'
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->

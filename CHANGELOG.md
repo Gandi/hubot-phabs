@@ -1,9 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.6.0 - wip
+### 1.6.0 - 2016-09-08
 - remove all dependency on brain.users to
   make it compatible with last version of hubot-slack
+  (hubot-auth still use it though)
 - change syntax for user commands to .phab user <name>
 - when user registers email with .phab me as <email> 
   it checks for phid immediately
