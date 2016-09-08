@@ -239,8 +239,6 @@ class Phabricator
                 cb user.phid
 
   recordId: (user, id) ->
-    unless user.id?
-      user.id = user.name
     @data.users[user.id] ?= { 
       name: "#{user.name}",
       id: "#{user.id}"
@@ -250,8 +248,6 @@ class Phabricator
 
 
   retrieveId: (user, id = null) ->
-    unless user.id?
-      user.id = user.name
     @data.users[user.id] ?= { 
       name: "#{user.name}",
       id: "#{user.id}"
