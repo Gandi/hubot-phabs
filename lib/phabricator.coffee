@@ -209,23 +209,7 @@ class Phabricator
                   @robot.brain.userForId(user.id)?.email_address or
                   user.email_address
           unless email
-            if from.name is user.name
-              cb {
-                error_info: "Sorry, I can't figure out your email address :( " +
-                            'Can you tell me with `.phab me as <email>`?'
-                }
-            else
-              if @robot.auth? and (@robot.auth.hasRole(from, ['phadmin']) or 
-                  @robot.auth.isAdmin(from))
-                cb {
-                  error_info: "Sorry, I can't figure #{user.name} email address. " +
-                              "Can you help me with `.phab user #{user.name} = <email>`?"
-                  }
-              else
-                cb {
-                  error_info: "Sorry, I can't figure #{user.name} email address. " +
-                              "Can you ask them to `.phab me as <email>`?"
-                  }
+            cb { error_info: @_ask_for_email(from, user) }
           else
             user = @data.users[user.id]
             query = { 'emails[0]': email }
@@ -238,8 +222,21 @@ class Phabricator
                 user.phid = json_body['result']['0']['phid']
                 cb user.phid
 
+  _ask_for_email: (from, user) ->
+    if from.name is user.name
+      "Sorry, I can't figure out your email address :( " +
+      'Can you tell me with `.phab me as <email>`?'
+    else
+      if @robot.auth? and (@robot.auth.hasRole(from, ['phadmin']) or
+          @robot.auth.isAdmin(from))
+        "Sorry, I can't figure #{user.name} email address. " +
+        "Can you help me with `.phab user #{user.name} = <email>`?"
+      else
+        "Sorry, I can't figure #{user.name} email address. " +
+        'Can you ask them to `.phab me as <email>`?'
+
   recordId: (user, id) ->
-    @data.users[user.id] ?= { 
+    @data.users[user.id] ?= {
       name: "#{user.name}",
       id: "#{user.id}"
     }
@@ -248,7 +245,7 @@ class Phabricator
 
 
   retrieveId: (user, id = null) ->
-    @data.users[user.id] ?= { 
+    @data.users[user.id] ?= {
       name: "#{user.name}",
       id: "#{user.id}"
     }
@@ -367,8 +364,9 @@ class Phabricator
             if projectData.error_info?
               cb projectData
             else
+              params.projectphid = projectData.data.phid
               @withBotPHID (bot_phid) =>
-                adapter = @robot.adapterName
+                params.bot_phid = bot_phid
                 if params.user?
                   if params.user?.name?
                     user = params.user
@@ -376,22 +374,24 @@ class Phabricator
                     user = { name: params.user }
                 else
                   user = { name: @robot.name, phid: bot_phid }
-                  userPhid = bot_phid                  
+                  userPhid = bot_phid
                 @withUser user, user, (userPhid) =>
                   if userPhid.error_info?
                     cb userPhid
                   else
+                    params.userPhid = userPhid
+                    params.adapter = @robot.adapterName
                     query = {
                       'transactions[0][type]': 'title',
                       'transactions[0][value]': "#{params.title}",
                       'transactions[1][type]': 'comment',
-                      'transactions[1][value]': "(created by #{user.name} on #{adapter})",
+                      'transactions[1][value]': "(created by #{user.name} on #{params.adapter})",
                       'transactions[2][type]': 'subscribers.add',
-                      'transactions[2][value][0]': "#{userPhid}",
+                      'transactions[2][value][0]': "#{params.userPhid}",
                       'transactions[3][type]': 'subscribers.remove',
-                      'transactions[3][value][0]': "#{bot_phid}",
+                      'transactions[3][value][0]': "#{params.bot_phid}",
                       'transactions[4][type]': 'projects.add',
-                      'transactions[4][value][]': "#{projectData.data.phid}"
+                      'transactions[4][value][]': "#{params.projectphid}"
                     }
                     next = 5
                     if params.description?

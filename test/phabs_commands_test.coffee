@@ -840,7 +840,6 @@ describe 'phabs_commands module', ->
             @robot.receive(new Hubot.TextMessage(user, message), resolve)
 
       context 'and you are admin', ->
-        beforeEach ->
         hubot 'phab user toto', 'admin_user'
         it 'warns when that user is unknown', ->
           expect(hubotResponse()).to.eql 'Sorry, I can\'t figure toto email address. ' +
@@ -912,7 +911,7 @@ describe 'phabs_commands module', ->
       hubot 'phab me as momo@example.com', 'user'
       it 'says all is going to be fine', ->
         phid = room.robot.brain.data.phabricator.users['user'].phid
-        expect(hubotResponse()).to.eql "Hey I know you, you are PHID-USER-999"
+        expect(hubotResponse()).to.eql 'Hey I know you, you are PHID-USER-999'
         expect(phid).to.eql 'PHID-USER-999'
 
   # ---------------------------------------------------------------------------------
