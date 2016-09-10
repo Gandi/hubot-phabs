@@ -138,6 +138,29 @@ module.exports = (robot) ->
           msg.send "Ok. Added comment \"#{comment}\" to T#{id}."
     msg.finish()
 
+  #   hubot phab Txx in <project-tag> - add a tag to task Txx
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))?((?: (?:not in|in) [^ ]+)+) *$/, (msg) ->
+    phab.withPermission msg, msg.envelope.user, 'phuser', ->
+      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
+      unless id?
+        msg.send "Sorry, you don't have any task active right now."
+        msg.finish()
+        return
+      ins = msg.match[3].trim().split('not in ')
+      tagin = ins.shift().split('in ')
+      tagout = [ ]
+      console.log tagin
+      console.log ins
+
+      msg.finish()
+      return
+      comment = msg.match[3]
+      phab.addComment msg.envelope.user, id, comment, (body) ->
+        if body['error_info']?
+          msg.send "oops T#{id} #{body['error_info']}"
+        else
+          msg.send "Ok. Added comment \"#{comment}\" to T#{id}."
+    msg.finish()
 
   #   hubot phab Txx is <status> - modifies task Txxx status
   robot.respond new RegExp(
