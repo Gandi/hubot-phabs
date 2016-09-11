@@ -447,6 +447,64 @@ class Phabricator
           cb json_body
 
 
+  changeTags: (user, id, tagin, tagout, cb) ->
+    if @ready() is true
+      query = { 'task_id': id }
+      @phabGet query, 'maniphest.info', (json_body) =>
+        if json_body.error_info?
+          cb json_body
+        else
+          projs = json_body.projectPHIDs
+        @withUser user, user, (userPhid) =>
+          if userPhid.error_info?
+            cb userPhid
+          else
+            @withBotPHID (bot_phid) =>
+              query = {
+                'objectIdentifier': id,
+                'transactions[0][type]': 'subscribers.remove',
+                'transactions[0][value][0]': "#{bot_phid}",
+                'transactions[1][type]': 'comment',
+                'transactions[1][value]': "tags changed by #{user.name}"
+              }
+              ind = 1
+              addTags = [ ]
+              removeTags = [ ]
+              for tag in tagin
+                @withProject tag, (projectData) ->
+                  if projectData.error_info?
+                    cb projectData
+                  else
+                    phid = projectData.data.phid
+                    if phid in projs
+                      cb { message: "T#{id} already has the tag '#{tag}'." }
+                    else
+                      addTags.push phid
+              for tag in tagout
+                @withProject tag, (projectData) ->
+                  if projectData.error_info?
+                    cb projectData
+                  else
+                    phid = projectData.data.phid
+                    if phid not in projs
+                      cb { message: "T#{id} is not having the tag '#{tag}'." }
+                    else
+                      removeTags.push phid
+              if addTags.length > 0
+                ind += 1
+                query["transactions[#{ind}][type]"] = 'projects.add'
+                query["transactions[#{ind}][value]"] = addTags
+              if removeTags.length > 0
+                ind += 1
+                query["transactions[#{ind}][type]"] = 'projects.remove'
+                query["transactions[#{ind}][value]"] = removeTags
+              console.log query
+              if ind > 1
+                console.log 'doit'
+                # @phabGet query, 'maniphest.edit', (json_body) ->
+                #   cb json_body
+
+
   updateStatus: (user, id, status, comment, cb) ->
     if @ready() is true
       @withUser user, user, (userPhid) =>

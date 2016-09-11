@@ -1917,68 +1917,68 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
 
   # ---------------------------------------------------------------------------------
-  context 'user adds a tag/project on a task', ->
+  # context 'user adds a tag/project on a task', ->
 
-    context 'task is unknown', ->
-      beforeEach ->
-        do nock.disableNetConnect
-        nock(process.env.PHABRICATOR_URL)
-          .get('/api/maniphest.edit')
-          .reply(200, { error_info: 'No such Maniphest task exists.' })
+  #   context 'task is unknown', ->
+  #     beforeEach ->
+  #       do nock.disableNetConnect
+  #       nock(process.env.PHABRICATOR_URL)
+  #         .get('/api/maniphest.edit')
+  #         .reply(200, { error_info: 'No such Maniphest task exists.' })
 
-      afterEach ->
-        nock.cleanAll()
+  #     afterEach ->
+  #       nock.cleanAll()
 
-      context 'and user wants to tag it', ->
-        hubot 'phab T424242 in tag', 'user_with_phid'
-        it 'warns the user that the task does not exist', ->
-          expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
+  #     context 'and user wants to tag it', ->
+  #       hubot 'phab T424242 in tag', 'user_with_phid'
+  #       it 'warns the user that the task does not exist', ->
+  #         expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
 
-    context 'task is known', ->
-      beforeEach ->
-        room.robot.brain.data.phabricator.projects = {
-          'tag': { phid: 'PHID-PROJ-1234567' },
-        }
-        do nock.disableNetConnect
-        nock(process.env.PHABRICATOR_URL)
-          .get('/api/maniphest.info')
-          .reply(200, { 
-            result: {
-              status: 'open',
-              priority: 'Low',
-              name: 'Test task',
-              projectPHIDs: [
-                "PHID-PROJ-1234567"
-              ],
-              ownerPHID: 'PHID-USER-42'
-              }
-            }
-          )
-          .get('/api/maniphest.edit')
-          .reply(200, { result: { id: 24 } })
+  #   context 'task is known', ->
+  #     beforeEach ->
+  #       room.robot.brain.data.phabricator.projects = {
+  #         'tag': { phid: 'PHID-PROJ-1234567' },
+  #       }
+  #       do nock.disableNetConnect
+  #       nock(process.env.PHABRICATOR_URL)
+  #         .get('/api/maniphest.info')
+  #         .reply(200, { 
+  #           result: {
+  #             status: 'open',
+  #             priority: 'Low',
+  #             name: 'Test task',
+  #             projectPHIDs: [
+  #               "PHID-PROJ-1234567"
+  #             ],
+  #             ownerPHID: 'PHID-USER-42'
+  #             }
+  #           }
+  #         )
+  #         .get('/api/maniphest.edit')
+  #         .reply(200, { result: { id: 24 } })
 
-      afterEach ->
-        nock.cleanAll()
+  #     afterEach ->
+  #       nock.cleanAll()
 
-      context 'and user tags it', ->
-        context 'and the tag was not already there', ->
-          hubot 'phab T24 in tagnot', 'user_with_phid'
-          it 'gives a feedback that the tag was added', ->
-            expect(hubotResponse()).to.eql 'Ok. Added the tag \'tagnot\' to T24.'
-        context 'but the tag is already there', ->
-          hubot 'phab T24 in tag', 'user_with_phid'
-          it 'gives a feedback that the tag was added', ->
-            expect(hubotResponse()).to.eql 'T24 already has the tag \'tag\'.'
+  #     context 'and user tags it', ->
+  #       context 'and the tag was not already there', ->
+  #         hubot 'phab T24 in tagnot', 'user_with_phid'
+  #         it 'gives a feedback that the tag was added', ->
+  #           expect(hubotResponse()).to.eql 'Ok. Added the tag \'tagnot\' to T24.'
+  #       context 'but the tag is already there', ->
+  #         hubot 'phab T24 in tag', 'user_with_phid'
+  #         it 'gives a feedback that the tag was added', ->
+  #           expect(hubotResponse()).to.eql 'T24 already has the tag \'tag\'.'
 
-      context 'and user untags it', ->
-        context 'and the tag was not already there', ->
-          hubot 'phab T24 not in tagnot', 'user_with_phid'
-          it 'gives a feedback that the tag was removed', ->
-            expect(hubotResponse()).to.eql 'T24 is not having the tag \'tagnot\'.'
-        context 'but the tag is already there', ->
-          hubot 'phab T24 not in tag', 'user_with_phid'
-          it 'gives a feedback that the tag was added', ->
-            expect(hubotResponse()).to.eql 'Ok. Removed the tag "tag" from T24.'
+  #     context 'and user untags it', ->
+  #       context 'and the tag was not already there', ->
+  #         hubot 'phab T24 not in tagnot', 'user_with_phid'
+  #         it 'gives a feedback that the tag was removed', ->
+  #           expect(hubotResponse()).to.eql 'T24 is not having the tag \'tagnot\'.'
+  #       context 'but the tag is already there', ->
+  #         hubot 'phab T24 not in tag', 'user_with_phid'
+  #         it 'gives a feedback that the tag was added', ->
+  #           expect(hubotResponse()).to.eql 'Ok. Removed the tag "tag" from T24.'
 
   # ---------------------------------------------------------------------------------
   context 'user searches through all tasks', ->

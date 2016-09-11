@@ -147,19 +147,19 @@ module.exports = (robot) ->
         msg.finish()
         return
       ins = msg.match[3].trim().split('not in ')
-      tagin = ins.shift().split('in ')
+      tagin = ins.shift().split('in ').map (e) -> e.trim()
+      tagin.shift()
       tagout = [ ]
-      console.log tagin
-      console.log ins
-
-      msg.finish()
-      return
-      comment = msg.match[3]
-      phab.addComment msg.envelope.user, id, comment, (body) ->
+      for t in ins
+        els = t.split('in ')
+        tagout.push(els.shift().trim())
+        tagin = tagin.concat(els.map (e) -> e.trim())
+      phab.changeTags msg.envelope.user, id, tagin, tagout, (body) ->
         if body['error_info']?
-          msg.send "oops T#{id} #{body['error_info']}"
+          robot.logger.warning body['error_info']
+          msg.send body['error_info']
         else
-          msg.send "Ok. Added comment \"#{comment}\" to T#{id}."
+          msg.send body['message']
     msg.finish()
 
   #   hubot phab Txx is <status> - modifies task Txxx status
