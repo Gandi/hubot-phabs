@@ -1942,7 +1942,7 @@ describe 'phabs_commands module', ->
   #       do nock.disableNetConnect
   #       nock(process.env.PHABRICATOR_URL)
   #         .get('/api/maniphest.info')
-  #         .reply(200, { 
+  #         .reply(200, {
   #           result: {
   #             status: 'open',
   #             priority: 'Low',

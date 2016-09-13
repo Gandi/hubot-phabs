@@ -110,7 +110,6 @@ class Phabricator
   request: (query, endpoint) ->
     return new Promise (res, err) =>
       query['api.token'] = process.env.PHABRICATOR_API_KEY
-      # console.log query
       body = querystring.stringify(query)
       @robot.http(process.env.PHABRICATOR_URL)
         .path("api/#{endpoint}")
@@ -140,6 +139,7 @@ class Phabricator
       pos = @data.blacklist.indexOf id
       @data.blacklist.splice(pos, 1)
 
+  # --------------- OLD
   withBotPHID: (cb) =>
     if @data.bot_phid?
       cb @data.bot_phid
@@ -147,6 +147,19 @@ class Phabricator
       @phabGet { }, 'user.whoami', (json_body) =>
         @data.bot_phid = json_body.result.phid
         cb @data.bot_phid
+
+  # --------------- NEW withBotPHID
+  getBotPHID: =>
+    return new Promise (res, err) =>
+      if @data.bot_phid?
+        res @data.bot_phid
+      else
+        @request({ }, 'user.whoami')
+          .then (body) ->
+            @data.bot_phid = body.result.phid
+            res @data.bot_phid
+          .catch (e) ->
+            err e
 
   withFeed: (payload, cb) =>
     # console.log payload.storyData
@@ -237,7 +250,7 @@ class Phabricator
         if projectData.phid?
           res { aliases: aliases, data: projectData }
         else
-          @projectQuery(projectData.name)
+          @requestProject(projectData.name)
             .then (projectinfo) ->
               projectData.phid = projectinfo.phid
               res { aliases: aliases, data: projectData }
@@ -246,7 +259,7 @@ class Phabricator
       else
         data = @data
         query = { 'names[0]': project }
-        @projectQuery(project)
+        @requestProject(project)
           .then (projectinfo) ->
             data.projects[projectinfo.name.toLowerCase()] = projectinfo
             res { aliases: aliases, data: projectinfo }
@@ -254,7 +267,7 @@ class Phabricator
             err e
 
   # --------------- NEW from withProject
-  projectQuery: (project_name) ->
+  requestProject: (project_name) ->
     return new Promise (res, err) =>
       query = { 'names[0]': project_name }
       @request(query, 'project.query')
