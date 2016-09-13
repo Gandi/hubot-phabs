@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 1.6.1 - wip
+- fix case issue with project names occurring in some occasions
+
 ### 1.6.0 - 2016-09-08
 - remove all dependency on brain.users to
   make it compatible with last version of hubot-slack

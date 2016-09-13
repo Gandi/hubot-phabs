@@ -14,6 +14,7 @@
 
 querystring = require 'querystring'
 moment = require 'moment'
+Promise = require 'bluebird'
 
 class Phabricator
 
@@ -151,6 +152,7 @@ class Phabricator
       cb { rooms: [ ] }
 
   withProject: (project, cb) =>
+    project = project.toLowerCase()
     if @data.projects[project]?
       projectData = @data.projects[project]
       projectData.name = project
@@ -188,6 +190,60 @@ class Phabricator
           cb { aliases: aliases, data: projectData }
         else
           cb { error_info: "Sorry, #{project} not found." }
+
+
+  getProject: (project) ->
+    return new Promise (res, err) =>
+      project = project.toLowerCase()
+      if @data.projects[project]?
+        projectData = @data.projects[project]
+        projectData.name = project
+      else
+        for a, p of @data.aliases
+          p = p.toLowerCase()
+          if a is project and @data.projects[p]?
+            projectData = @data.projects[p]
+            projectData.name = p
+            break
+      aliases = []
+      if projectData?
+        for a, p of @data.aliases
+          if p is projectData.name
+            aliases.push a
+        if projectData.phid?
+          res { aliases: aliases, data: projectData }
+        else
+          @projectQuery(projectData.name)
+            .then (projectinfo) ->
+              projectData.phid = projectinfo.phid
+              res { aliases: aliases, data: projectData }
+            .catch (e) ->
+              err e
+      else
+        data = @data
+        query = { 'names[0]': project }
+        @projectQuery(project)
+          .then (projectinfo) ->
+            data.projects[projectinfo.name.toLowerCase()] = projectinfo
+            res { aliases: aliases, data: projectinfo }
+          .catch (e) ->
+            err e
+
+
+  projectQuery: (project_name) ->
+    return new Promise (res, err) =>
+      query = { 'names[0]': project_name }
+      @phabGet query, 'project.query', (json_body) ->
+        if json_body.error_info?
+          err json_body.error_info
+        else
+          if json_body.result.data.length > 0 or Object.keys(json_body.result.data).length > 0
+            phid = Object.keys(json_body.result.data)[0]
+            name = json_body.result.data[phid].name
+            res { name: name, phid: phid }
+          else
+            err "Sorry, #{project_name} not found."
+
 
   # user can be an object with an id and name fields
   withUser: (from, user, cb) =>

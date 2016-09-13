@@ -43,13 +43,21 @@ module.exports = (robot) ->
     msg.send "hubot-phabs module is version #{pkg.version}"
     msg.finish()
 
+  robot.respond /ph phid (.+) *$/, (msg) ->
+    phab.getProject(msg.match[1].toLowerCase())
+      .then (proj) ->
+        msg.send proj.data.phid
+      .catch (e) ->
+        msg.send e
+    msg.finish()
+
   #   hubot phab new <project>[:<template>] <name of the task>
   robot.respond (
     /ph(?:ab)? new ([-_a-zA-Z0-9]+)(?::([-_a-zA-Z0-9]+))? ([^=]+)(?: = (.*))? *$/
   ), (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
       data = {
-        project: msg.match[1]
+        project: msg.match[1].toLowerCase()
         template: msg.match[2]
         title: msg.match[3]
         description: msg.match[4]
@@ -340,36 +348,36 @@ module.exports = (robot) ->
 
   #   hubot phab all <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)? all ([^ ]+) (.+)$/, (msg) ->
-    project = msg.match[1]
+    project = msg.match[1].toLowerCase()
     terms = msg.match[2]
-    phab.withProject project, (projectData) ->
-      if projectData.error_info?
-        msg.send projectData.error_info
-      else
-        phab.searchAllTask projectData.data.phid, terms, (payload) ->
+    phab.getProject(project)
+      .then (proj) ->
+        phab.searchAllTask proj.data.phid, terms, (payload) ->
           if payload.result.data.length is 0
-            msg.send "There is no task matching '#{terms}' in project '#{projectData.data.name}'."
+            msg.send "There is no task matching '#{terms}' in project '#{proj.data.name}'."
           else
             for task in payload.result.data
               msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
             if payload.result.cursor.after?
               msg.send '... and there is more.'
+      .catch (e) ->
+        msg.send e
     msg.finish()
 
   #   hubot phab <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)? ([^ ]+) (.+)$/, (msg) ->
-    project = msg.match[1]
+    project = msg.match[1].toLowerCase()
     terms = msg.match[2]
-    phab.withProject project, (projectData) ->
-      if projectData.error_info?
-        msg.send projectData.error_info
-      else
-        phab.searchTask projectData.data.phid, terms, (payload) ->
+    phab.getProject(project)
+      .then (proj) ->
+        phab.searchTask proj.data.phid, terms, (payload) ->
           if payload.result.data.length is 0
-            msg.send "There is no task matching '#{terms}' in project '#{projectData.data.name}'."
+            msg.send "There is no task matching '#{terms}' in project '#{proj.data.name}'."
           else
             for task in payload.result.data
               msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
             if payload.result.cursor.after?
               msg.send '... and there is more.'
+      .catch (e) ->
+        msg.send e
     msg.finish()

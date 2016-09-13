@@ -219,9 +219,9 @@ describe 'phabs_admin module', ->
           hubot 'phad info Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed."
+              .to.eql "'bug report' is 'Bug Report', with no alias, with no feed."
           it 'should remember the phid from asking to phabricator', ->
-            expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
+            expect(room.robot.brain.data.phabricator.projects['bug report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
 
 
@@ -277,9 +277,9 @@ describe 'phabs_admin module', ->
           hubot 'phad show Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed."
+              .to.eql "'bug report' is 'Bug Report', with no alias, with no feed."
           it 'should remember the phid from asking to phabricator', ->
-            expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
+            expect(room.robot.brain.data.phabricator.projects['bug report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
 
 
@@ -318,7 +318,7 @@ describe 'phabs_admin module', ->
           hubot 'phad info Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql 'Sorry, Bug Report not found.'
+              .to.eql 'Sorry, bug report not found.'
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     context 'when project has phid recorded, and aliases', ->
@@ -570,7 +570,7 @@ describe 'phabs_admin module', ->
     context 'but the feed already exists', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
-          'Bug Report': {
+          'bug report': {
             phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
             feeds: [
               '#dev'
@@ -579,8 +579,8 @@ describe 'phabs_admin module', ->
           'project with phid': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
-          bugs: 'Bug Report',
-          bug: 'Bug Report'
+          bugs: 'bug report',
+          bug: 'bug report'
         }
         do nock.disableNetConnect
 
@@ -592,20 +592,20 @@ describe 'phabs_admin module', ->
         hubot 'phad feed bug to #dev'
         it 'should say that the feed is already there', ->
           expect(hubotResponse())
-            .to.eql "The feed from 'Bug Report' to '#dev' already exist."
+            .to.eql "The feed from 'bug report' to '#dev' already exist."
 
     context 'and the feed do not already exists', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
-          'Bug Report': {
+          'bug report': {
             phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
             feeds: [ ]
           },
           'project with phid': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
-          bugs: 'Bug Report',
-          bug: 'Bug Report'
+          bugs: 'bug report',
+          bug: 'bug report'
         }
         do nock.disableNetConnect
 
@@ -617,8 +617,8 @@ describe 'phabs_admin module', ->
         hubot 'phad feed bug to #dev'
         it 'should say that the feed was created', ->
           expect(hubotResponse())
-            .to.eql "Ok, 'Bug Report' is now feeding '#dev'."
-          expect(room.robot.brain.data.phabricator.projects['Bug Report'].feeds)
+            .to.eql "Ok, 'bug report' is now feeding '#dev'."
+          expect(room.robot.brain.data.phabricator.projects['bug report'].feeds)
             .to.include '#dev'
 
   # ---------------------------------------------------------------------------------
@@ -664,7 +664,7 @@ describe 'phabs_admin module', ->
     context 'and the feed exists', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
-          'Bug Report': {
+          'bug report': {
             phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
             feeds: [
               '#dev'
@@ -673,8 +673,8 @@ describe 'phabs_admin module', ->
           'project with phid': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
-          bugs: 'Bug Report',
-          bug: 'Bug Report'
+          bugs: 'bug report',
+          bug: 'bug report'
         }
         do nock.disableNetConnect
 
@@ -686,22 +686,22 @@ describe 'phabs_admin module', ->
         hubot 'phad remove bug from #dev'
         it 'should say that the feed was removed', ->
           expect(hubotResponse())
-            .to.eql "Ok, The feed from 'Bug Report' to '#dev' was removed."
-          expect(room.robot.brain.data.phabricator.projects['Bug Report'].feeds)
+            .to.eql "Ok, The feed from 'bug report' to '#dev' was removed."
+          expect(room.robot.brain.data.phabricator.projects['bug report'].feeds)
             .not.to.include '#dev'
 
     context 'but the feed do not already exists', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
-          'Bug Report': {
+          'bug report': {
             phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
             feeds: [ ]
           },
           'project with phid': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
-          bugs: 'Bug Report',
-          bug: 'Bug Report'
+          bugs: 'bug report',
+          bug: 'bug report'
         }
         do nock.disableNetConnect
 
@@ -713,7 +713,7 @@ describe 'phabs_admin module', ->
         hubot 'phad remove bug from #dev'
         it 'should say that the feed could not be removed', ->
           expect(hubotResponse())
-            .to.eql "Sorry, 'Bug Report' is not feeding '#dev'."
+            .to.eql "Sorry, 'bug report' is not feeding '#dev'."
 
   # ---------------------------------------------------------------------------------
   context 'permissions system', ->
