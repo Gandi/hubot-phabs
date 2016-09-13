@@ -72,7 +72,7 @@ class Phabricator
       return false
     true
 
-
+  # --------------- OLD
   phabGet: (query, endpoint, cb) =>
     query['api.token'] = process.env.PHABRICATOR_API_KEY
     # console.log query
@@ -105,6 +105,28 @@ class Phabricator
             error_info: err.message
           }
         cb json_body
+
+  # --------------- NEW phabGet
+  request: (query, endpoint) ->
+    return new Promise (res, err) =>
+      query['api.token'] = process.env.PHABRICATOR_API_KEY
+      # console.log query
+      body = querystring.stringify(query)
+      @robot.http(process.env.PHABRICATOR_URL)
+        .path("api/#{endpoint}")
+        .get(body) (error, result, payload) ->
+          if result?
+            switch result.statusCode
+              when 200
+                if result.headers['content-type'] is 'application/json'
+                  res JSON.parse(payload)
+                else
+                  err 'api did not deliver json'
+              else
+                err "http error #{result.statusCode}"
+          else
+            err "#{error.code} #{error.message}"
+
 
   isBlacklisted: (id) ->
     @data.blacklist.indexOf(id) > -1
@@ -151,6 +173,7 @@ class Phabricator
     else
       cb { rooms: [ ] }
 
+  # --------------- OLD
   withProject: (project, cb) =>
     project = project.toLowerCase()
     if @data.projects[project]?
@@ -192,6 +215,7 @@ class Phabricator
           cb { error_info: "Sorry, #{project} not found." }
 
 
+  # --------------- NEW withProject
   getProject: (project) ->
     return new Promise (res, err) =>
       project = project.toLowerCase()
@@ -229,20 +253,21 @@ class Phabricator
           .catch (e) ->
             err e
 
-
+  # --------------- NEW from withProject
   projectQuery: (project_name) ->
     return new Promise (res, err) =>
       query = { 'names[0]': project_name }
-      @phabGet query, 'project.query', (json_body) ->
-        if json_body.error_info?
-          err json_body.error_info
-        else
-          if json_body.result.data.length > 0 or Object.keys(json_body.result.data).length > 0
-            phid = Object.keys(json_body.result.data)[0]
-            name = json_body.result.data[phid].name
+      @request(query, 'project.query')
+        .then (body) ->
+          data = body.result.data
+          if data.length > 0 or Object.keys(data).length > 0
+            phid = Object.keys(data)[0]
+            name = data[phid].name
             res { name: name, phid: phid }
           else
             err "Sorry, #{project_name} not found."
+        .catch (e) ->
+          err e
 
 
   # user can be an object with an id and name fields
