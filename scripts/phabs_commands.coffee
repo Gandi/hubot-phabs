@@ -139,11 +139,11 @@ module.exports = (robot) ->
         msg.finish()
         return
       comment = msg.match[3]
-      phab.addComment msg.envelope.user, id, comment, (body) ->
-        if body['error_info']?
-          msg.send "oops T#{id} #{body['error_info']}"
-        else
+      phab.addComment(msg.envelope.user, id, comment)
+        .then (body) ->
           msg.send "Ok. Added comment \"#{comment}\" to T#{id}."
+        .catch (e) ->
+          msg.send "oops T#{id} #{e}"
     msg.finish()
 
   #   hubot phab Txx in <project-tag> - add a tag to task Txx

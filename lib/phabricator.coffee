@@ -118,7 +118,11 @@ class Phabricator
             switch result.statusCode
               when 200
                 if result.headers['content-type'] is 'application/json'
-                  res JSON.parse(payload)
+                  json = JSON.parse(payload)
+                  if json.error_info?
+                    err json.error_info
+                  else
+                    res json
                 else
                   err 'api did not deliver json'
               else
@@ -525,21 +529,25 @@ class Phabricator
             @phabGet query, 'paste.edit', (json_body) ->
               cb json_body
 
-
-
+  # --------------- NEW addComment
   addComment: (user, id, comment, cb) ->
-    if @ready() is true
-      @withBotPHID (bot_phid) =>
-        query = {
-          'objectIdentifier': id,
-          'transactions[0][type]': 'comment',
-          'transactions[0][value]': "#{comment} (#{user.name})",
-          'transactions[1][type]': 'subscribers.remove',
-          'transactions[1][value][0]': "#{bot_phid}"
-        }
-        @phabGet query, 'maniphest.edit', (json_body) ->
-          cb json_body
-
+    return new Promise (res, err) =>
+      @getBotPHID()
+        .then (bot_phid) =>
+          query = {
+            'objectIdentifier': id,
+            'transactions[0][type]': 'comment',
+            'transactions[0][value]': "#{comment} (#{user.name})",
+            'transactions[1][type]': 'subscribers.remove',
+            'transactions[1][value][0]': "#{bot_phid}"
+          }
+          @request(query, 'maniphest.edit')
+            .then (body) ->
+              res body
+            .catch (e) ->
+              err e
+        .catch (e) ->
+          err e
 
   changeTags: (user, id, tagin, tagout, cb) ->
     if @ready() is true
