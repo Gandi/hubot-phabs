@@ -236,18 +236,19 @@ module.exports = (robot) ->
 
   #   hubot phab Txx next [<key>]- outputs the next checkbox in a given task
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? next(?: (.+))? *$/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
-      unless id?
-        msg.send "Sorry, you don't have any task active right now."
-        msg.finish()
-        return
-      key = msg.match[3]
-      phab.nextCheckbox msg.envelope.user, id, key, (body) ->
-        if body.error_info?
-          msg.send body.error_info
-        else
-          msg.send "Next on T#{id} is: #{body.line}"
+    what = msg.match[1] or msg.match[2]
+    key = msg.match[3]
+    id = null
+    phab.getPermission(msg.envelope.user, 'phuser')
+      .bind(id)
+      .then ->
+        phab.getId(msg.envelope.user, what)
+      .then (@id) ->
+        phab.nextCheckbox(msg.envelope.user, @id, key)
+      .then (line) ->
+        msg.send "Next on T#{@id} is: #{line}"
+      .catch (e) ->
+        msg.send e
     msg.finish()
 
   #   hubot phab Txx prev [<key>]- outputs the last checked checkbox in a given task
