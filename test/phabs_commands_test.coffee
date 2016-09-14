@@ -1472,7 +1472,7 @@ describe 'phabs_commands module', ->
       afterEach ->
         nock.cleanAll()
 
-      context.only 'phab T424242 is open', ->
+      context 'phab T424242 is open', ->
         hubot 'phab T424242 is open', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).to.eql 'oops T424242 No object exists with ID "4456874864".'
@@ -2611,7 +2611,7 @@ describe 'phabs_commands module', ->
     context 'phab T42 spite', ->
       hubot 'phab T42 spite', 'user_with_phid'
       it 'reports a lib error', ->
-        expect(hubotResponse()).to.eql 'oops T42 something awful happened'
+        expect(hubotResponse()).to.eql 'oops T42 AWFUL_ERROR something awful happened'
 
   context 'error: lib error', ->
     beforeEach ->

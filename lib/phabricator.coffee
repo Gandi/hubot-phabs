@@ -632,49 +632,27 @@ class Phabricator
                 #   cb json_body
 
 
-  updateStatus: (user, id, status, comment, cb) ->
+  updateStatus: (user, id, status, comment) ->
+    userPhid = null
     @getUser(user, user)
       .then (userPhid) =>
         @getBotPHID()
-          .then (bot_phid) =>
-            query = {
-              'objectIdentifier': id,
-              'transactions[0][type]': 'status',
-              'transactions[0][value]': @statuses[status],
-              'transactions[1][type]': 'subscribers.remove',
-              'transactions[1][value][0]': "#{bot_phid}",
-              'transactions[2][type]': 'owner',
-              'transactions[2][value]': userPhid,
-              'transactions[3][type]': 'comment'
-            }
-            if comment?
-              query['transactions[3][value]'] = "#{comment} (#{user.name})"
-            else
-              query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
-            @request(query, 'maniphest.edit')
-
-
-      @withUser user, user, (userPhid) =>
-        if userPhid.error_info?
-          cb userPhid
+      .then (bot_phid) =>
+        query = {
+          'objectIdentifier': id,
+          'transactions[0][type]': 'status',
+          'transactions[0][value]': @statuses[status],
+          'transactions[1][type]': 'subscribers.remove',
+          'transactions[1][value][0]': "#{bot_phid}",
+          'transactions[2][type]': 'owner',
+          'transactions[2][value]': userPhid,
+          'transactions[3][type]': 'comment'
+        }
+        if comment?
+          query['transactions[3][value]'] = "#{comment} (#{user.name})"
         else
-          @withBotPHID (bot_phid) =>
-            query = {
-              'objectIdentifier': id,
-              'transactions[0][type]': 'status',
-              'transactions[0][value]': @statuses[status],
-              'transactions[1][type]': 'subscribers.remove',
-              'transactions[1][value][0]': "#{bot_phid}",
-              'transactions[2][type]': 'owner',
-              'transactions[2][value]': userPhid,
-              'transactions[3][type]': 'comment'
-            }
-            if comment?
-              query['transactions[3][value]'] = "#{comment} (#{user.name})"
-            else
-              query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
-            @phabGet query, 'maniphest.edit', (json_body) ->
-              cb json_body
+          query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
+        @request(query, 'maniphest.edit')
 
 
   updatePriority: (user, id, priority, comment, cb) ->
