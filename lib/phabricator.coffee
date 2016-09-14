@@ -107,7 +107,7 @@ class Phabricator
         cb json_body
 
   # --------------- NEW phabGet
-  request: (query, endpoint) ->
+  request: (query, endpoint) =>
     return new Promise (res, err) =>
       query['api.token'] = process.env.PHABRICATOR_API_KEY
       body = querystring.stringify(query)
@@ -320,6 +320,38 @@ class Phabricator
                 user.phid = json_body['result']['0']['phid']
                 cb user.phid
 
+  getUser: (from, user) =>
+    return new Promise (res, err) =>
+      unless user.id?
+        user.id = user.name
+      if @data.users[user.id]?.phid?
+        res @data.users[user.id].phid
+      else
+        @data.users[user.id] ?= {
+          name: user.name,
+          id: user.id
+        }
+        if user.phid?
+          @data.users[user.id].phid = user.phid
+          res @data.users[user.id].phid
+        else
+          email = @data.users[user.id].email_address or
+                  @robot.brain.userForId(user.id)?.email_address or
+                  user.email_address
+          unless email
+            err @_ask_for_email(from, user)
+          else
+            user = @data.users[user.id]
+            query = { 'emails[0]': email }
+            @request(query, 'user.query')
+              .then (body) ->
+                if body.result['0']?
+                  user.phid = body['result']['0']['phid']
+                  res user.phid
+                else
+                  err "Sorry, I cannot find #{email} :("
+
+
   _ask_for_email: (from, user) ->
     if from.name is user.name
       "Sorry, I can't figure out your email address :( " +
@@ -531,23 +563,16 @@ class Phabricator
 
   # --------------- NEW addComment
   addComment: (user, id, comment, cb) ->
-    return new Promise (res, err) =>
-      @getBotPHID()
-        .then (bot_phid) =>
-          query = {
-            'objectIdentifier': id,
-            'transactions[0][type]': 'comment',
-            'transactions[0][value]': "#{comment} (#{user.name})",
-            'transactions[1][type]': 'subscribers.remove',
-            'transactions[1][value][0]': "#{bot_phid}"
-          }
-          @request(query, 'maniphest.edit')
-            .then (body) ->
-              res body
-            .catch (e) ->
-              err e
-        .catch (e) ->
-          err e
+    @getBotPHID()
+      .then (bot_phid) =>
+        query = {
+          'objectIdentifier': id,
+          'transactions[0][type]': 'comment',
+          'transactions[0][value]': "#{comment} (#{user.name})",
+          'transactions[1][type]': 'subscribers.remove',
+          'transactions[1][value][0]': "#{bot_phid}"
+        }
+        @request(query, 'maniphest.edit')
 
   changeTags: (user, id, tagin, tagout, cb) ->
     if @ready() is true
@@ -608,7 +633,27 @@ class Phabricator
 
 
   updateStatus: (user, id, status, comment, cb) ->
-    if @ready() is true
+    @getUser(user, user)
+      .then (userPhid) =>
+        @getBotPHID()
+          .then (bot_phid) =>
+            query = {
+              'objectIdentifier': id,
+              'transactions[0][type]': 'status',
+              'transactions[0][value]': @statuses[status],
+              'transactions[1][type]': 'subscribers.remove',
+              'transactions[1][value][0]': "#{bot_phid}",
+              'transactions[2][type]': 'owner',
+              'transactions[2][value]': userPhid,
+              'transactions[3][type]': 'comment'
+            }
+            if comment?
+              query['transactions[3][value]'] = "#{comment} (#{user.name})"
+            else
+              query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
+            @request(query, 'maniphest.edit')
+
+
       @withUser user, user, (userPhid) =>
         if userPhid.error_info?
           cb userPhid

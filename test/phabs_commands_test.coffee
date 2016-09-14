@@ -1472,7 +1472,7 @@ describe 'phabs_commands module', ->
       afterEach ->
         nock.cleanAll()
 
-      context 'phab T424242 is open', ->
+      context.only 'phab T424242 is open', ->
         hubot 'phab T424242 is open', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).to.eql 'oops T424242 No object exists with ID "4456874864".'

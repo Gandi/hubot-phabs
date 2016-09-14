@@ -183,11 +183,11 @@ module.exports = (robot) ->
         return
       status = msg.match[3]
       comment = msg.match[4]
-      phab.updateStatus msg.envelope.user, id, status, comment, (body) ->
-        if body['error_info']?
-          msg.send "oops T#{id} #{body['error_info']}"
-        else
+      phab.updateStatus(msg.envelope.user, id, status, comment)
+        .then (body) ->
           msg.send "Ok, T#{id} now has status #{phab.statuses[status]}."
+        .catch (e) ->
+          msg.send "oops T#{id} #{e}"
     msg.finish()
 
   #   hubot phab Txx is <priority> - modifies task Txxx priority
