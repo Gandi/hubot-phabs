@@ -1467,7 +1467,7 @@ describe 'phabs_commands module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.edit')
-          .reply(200, { error_info: 'No object exists with ID "4456874864".' })
+          .reply(200, { error_info: 'No object exists with ID "424242".' })
 
       afterEach ->
         nock.cleanAll()
@@ -1475,14 +1475,14 @@ describe 'phabs_commands module', ->
       context 'phab T424242 is open', ->
         hubot 'phab T424242 is open', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'oops T424242 No object exists with ID "4456874864".'
+          expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
 
     context 'when the user is unknown', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.edit')
-          .reply(200, { error_info: 'No object exists with ID "4456874864".' })
+          .reply(200, { error_info: 'No object exists with ID "424242".' })
 
       afterEach ->
         nock.cleanAll()
@@ -1491,7 +1491,7 @@ describe 'phabs_commands module', ->
         hubot 'phab T424242 is open', 'user'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).
-            to.eql 'oops T424242 Sorry, I can\'t figure out your email address :( ' +
+            to.eql 'Sorry, I can\'t figure out your email address :( ' +
             'Can you tell me with `.phab me as <email>`?'
 
     context 'when the task is present', ->
@@ -1552,7 +1552,7 @@ describe 'phabs_commands module', ->
         context 'phab last open', ->
           hubot 'phab last open', 'user_with_phid'
           it 'warns the user that there is no active task in memory', ->
-            expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
+            expect(hubotResponse()).to.eql "Sorry, you don't have any task active."
 
         context 'phab T42 is open', ->
           hubot 'phab T42 is open', 'user_with_phid'
@@ -1665,7 +1665,7 @@ describe 'phabs_commands module', ->
       context 'phab T424242 is low', ->
         hubot 'phab T424242 is low', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
+          expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
 
     context 'when the user is unknown', ->
       beforeEach ->
@@ -1681,7 +1681,7 @@ describe 'phabs_commands module', ->
         hubot 'phab T424242 is low', 'user'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).
-            to.eql 'oops T424242 Sorry, I can\'t figure out your email address :( ' +
+            to.eql 'Sorry, I can\'t figure out your email address :( ' +
             'Can you tell me with `.phab me as <email>`?'
 
 
@@ -2596,7 +2596,7 @@ describe 'phabs_commands module', ->
     context 'phab T42 spite', ->
       hubot 'phab T42 spite', 'user_with_phid'
       it 'reports an api error', ->
-        expect(hubotResponse()).to.eql 'oops T42 api did not deliver json'
+        expect(hubotResponse()).to.eql 'api did not deliver json'
 
   context 'error: lib error', ->
     beforeEach ->
@@ -2611,7 +2611,7 @@ describe 'phabs_commands module', ->
     context 'phab T42 spite', ->
       hubot 'phab T42 spite', 'user_with_phid'
       it 'reports a lib error', ->
-        expect(hubotResponse()).to.eql 'oops T42 AWFUL_ERROR something awful happened'
+        expect(hubotResponse()).to.eql 'AWFUL_ERROR something awful happened'
 
   context 'error: lib error', ->
     beforeEach ->
@@ -2626,7 +2626,7 @@ describe 'phabs_commands module', ->
     context 'phab T42 spite', ->
       hubot 'phab T42 spite', 'user_with_phid'
       it 'reports a http error', ->
-        expect(hubotResponse()).to.eql 'oops T42 http error 400'
+        expect(hubotResponse()).to.eql 'http error 400'
 
   # ---------------------------------------------------------------------------------
   context 'permissions system', ->

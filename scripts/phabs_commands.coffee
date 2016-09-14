@@ -175,19 +175,18 @@ module.exports = (robot) ->
     "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.statuses).join('|')})" +
     '(?: (?:=|\\+) (.+))? *$'
   ), (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
-      unless id?
-        msg.send "Sorry, you don't have any task active right now."
-        msg.finish()
-        return
-      status = msg.match[3]
-      comment = msg.match[4]
-      phab.updateStatus(msg.envelope.user, id, status, comment)
-        .then (body) ->
-          msg.send "Ok, T#{id} now has status #{phab.statuses[status]}."
-        .catch (e) ->
-          msg.send "oops T#{id} #{e}"
+    what = msg.match[1] or msg.match[2]
+    status = msg.match[3]
+    comment = msg.match[4]
+    phab.getPermission(msg.envelope.user, 'phuser')
+      .then ->
+        phab.getId(msg.envelope.user, what)
+      .then (id) ->
+        phab.updateStatus(msg.envelope.user, id, status, comment)
+      .then (id) ->
+        msg.send "Ok, T#{id} now has status #{phab.statuses[status]}."
+      .catch (e) ->
+        msg.send e
     msg.finish()
 
   #   hubot phab Txx is <priority> - modifies task Txxx priority
@@ -195,19 +194,18 @@ module.exports = (robot) ->
     "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.priorities).join('|')})" +
     '(?: (?:=|\\+) (.+))? *$'
   ), (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
-      unless id?
-        msg.send "Sorry, you don't have any task active right now."
-        msg.finish()
-        return
-      priority = msg.match[3]
-      comment = msg.match[4]
-      phab.updatePriority(msg.envelope.user, id, priority, comment)
-        .then (body) ->
-          msg.send "Ok, T#{id} now has priority #{priority}."
-        .catch (e) ->
-          msg.send "oops T#{id} #{e}"
+    what = msg.match[1] or msg.match[2]
+    priority = msg.match[3]
+    comment = msg.match[4]
+    phab.getPermission(msg.envelope.user, 'phuser')
+      .then ->
+        phab.getId(msg.envelope.user, what)
+      .then (id) ->
+        phab.updatePriority(msg.envelope.user, id, priority, comment)
+      .then (id) ->
+        msg.send "Ok, T#{id} now has priority #{priority}."
+      .catch (e) ->
+        msg.send e
     msg.finish()
 
   #   hubot phab Txx next [<key>]- outputs the next checkbox in a given task

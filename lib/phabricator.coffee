@@ -287,6 +287,7 @@ class Phabricator
           err e
 
 
+  # --------------- OLD
   # user can be an object with an id and name fields
   withUser: (from, user, cb) =>
     if @ready() is true
@@ -320,6 +321,7 @@ class Phabricator
                 user.phid = json_body['result']['0']['phid']
                 cb user.phid
 
+  # --------------- NEW
   getUser: (from, user) =>
     return new Promise (res, err) =>
       unless user.id?
@@ -374,6 +376,7 @@ class Phabricator
     @data.users[user.id].lastId = id
 
 
+  # --------------- OLD
   retrieveId: (user, id = null) ->
     @data.users[user.id] ?= {
       name: "#{user.name}",
@@ -398,6 +401,32 @@ class Phabricator
       else
         null
 
+  # --------------- NEW
+  getId: (user, id = null) ->
+    return new Promise (res, err) =>
+      @data.users[user.id] ?= {
+        name: "#{user.name}",
+        id: "#{user.id}"
+      }
+      user = @data.users[user.id]
+      if id?
+        if id is 'last'
+          if user? and user.lastId?
+            res user.lastId
+          else
+            err "Sorry, you don't have any task active."
+        else
+          @recordId user, id
+          res id
+      else
+        user.lastTask ?= moment().utc().format()
+        expires_at = moment(user.lastTask).add(10, 'minutes')
+        if user.lastId? and moment().utc().isBefore(expires_at)
+          user.lastTask = moment().utc().format()
+          res user.lastId
+        else
+          err "Sorry, you don't have any task active right now."
+
 
   withUserByPhid: (phid, cb) =>
     if phid?
@@ -411,6 +440,7 @@ class Phabricator
       cb { name: 'nobody' }
 
 
+  # --------------- OLD
   withPermission: (msg, user, group, cb) =>
     if group is 'phuser' and process.env.PHABRICATOR_TRUSTED_USERS is 'y'
       isAuthorized = true
@@ -422,6 +452,20 @@ class Phabricator
       msg.finish()
     else
       cb()
+
+
+  # --------------- NEW
+  getPermission: (user, group) =>
+    return new Promise (res, err) =>
+      if group is 'phuser' and process.env.PHABRICATOR_TRUSTED_USERS is 'y'
+        isAuthorized = true
+      else
+        isAuthorized = @robot.auth?.hasRole(user, [group, 'phadmin']) or
+                       @robot.auth?.isAdmin(user)
+      if @robot.auth? and not isAuthorized
+        err "You don't have permission to do that."
+      else
+        res()
 
 
   taskInfo: (id, cb) ->
@@ -653,6 +697,8 @@ class Phabricator
         else
           query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
         @request(query, 'maniphest.edit')
+      .then (body) ->
+        id
 
 
   updatePriority: (user, id, priority, comment) ->
@@ -676,6 +722,8 @@ class Phabricator
         else
           query['transactions[3][value]'] = "priority set to #{priority} by #{user.name}"
         @request(query, 'maniphest.edit')
+      .then (body) ->
+        id
 
 
   assignTask: (tid, userphid, cb) ->
