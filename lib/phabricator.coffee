@@ -655,29 +655,27 @@ class Phabricator
         @request(query, 'maniphest.edit')
 
 
-  updatePriority: (user, id, priority, comment, cb) ->
-    if @ready() is true
-      @withUser user, user, (userPhid) =>
-        if userPhid.error_info?
-          cb userPhid
+  updatePriority: (user, id, priority, comment) ->
+    userPhid = null
+    @getUser(user, user)
+      .then (userPhid) =>
+        @getBotPHID()
+      .then (bot_phid) =>
+        query = {
+          'objectIdentifier': id,
+          'transactions[0][type]': 'priority',
+          'transactions[0][value]': @priorities[priority],
+          'transactions[1][type]': 'subscribers.remove',
+          'transactions[1][value][0]': "#{bot_phid}",
+          'transactions[2][type]': 'owner',
+          'transactions[2][value]': userPhid,
+          'transactions[3][type]': 'comment'
+        }
+        if comment?
+          query['transactions[3][value]'] = "#{comment} (#{user.name})"
         else
-          @withBotPHID (bot_phid) =>
-            query = {
-              'objectIdentifier': id,
-              'transactions[0][type]': 'priority',
-              'transactions[0][value]': @priorities[priority],
-              'transactions[1][type]': 'subscribers.remove',
-              'transactions[1][value][0]': "#{bot_phid}",
-              'transactions[2][type]': 'owner',
-              'transactions[2][value]': userPhid,
-              'transactions[3][type]': 'comment'
-            }
-            if comment?
-              query['transactions[3][value]'] = "#{comment} (#{user.name})"
-            else
-              query['transactions[3][value]'] = "priority set to #{priority} by #{user.name}"
-            @phabGet query, 'maniphest.edit', (json_body) ->
-              cb json_body
+          query['transactions[3][value]'] = "priority set to #{priority} by #{user.name}"
+        @request(query, 'maniphest.edit')
 
 
   assignTask: (tid, userphid, cb) ->

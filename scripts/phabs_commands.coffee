@@ -203,11 +203,11 @@ module.exports = (robot) ->
         return
       priority = msg.match[3]
       comment = msg.match[4]
-      phab.updatePriority msg.envelope.user, id, priority, comment, (body) ->
-        if body['error_info']?
-          msg.send "oops T#{id} #{body['error_info']}"
-        else
-          msg.send "Ok, T#{id} now has priority #{priority}"
+      phab.updatePriority(msg.envelope.user, id, priority, comment)
+        .then (body) ->
+          msg.send "Ok, T#{id} now has priority #{priority}."
+        .catch (e) ->
+          msg.send "oops T#{id} #{e}"
     msg.finish()
 
   #   hubot phab Txx next [<key>]- outputs the next checkbox in a given task

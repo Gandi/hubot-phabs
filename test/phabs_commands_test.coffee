@@ -1705,15 +1705,15 @@ describe 'phabs_commands module', ->
         context 'phab T42 is broken', ->
           hubot 'phab T42 is broken', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority broken'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority broken.'
         context 'phab T42 broken', ->
           hubot 'phab T42 broken', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority broken'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority broken.'
         context 'phab T42 unbreak', ->
           hubot 'phab T42 unbreak', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority unbreak'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority unbreak.'
 
   
       context 'phab T42 is none', ->
@@ -1729,11 +1729,11 @@ describe 'phabs_commands module', ->
         context 'phab T42 none', ->
           hubot 'phab T42 none', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority none'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority none.'
         context 'phab T42 unknown', ->
           hubot 'phab T42 unknown', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority unknown'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority unknown.'
 
       context 'phab T42 is none = maintainer left', ->
         beforeEach ->
@@ -1748,7 +1748,7 @@ describe 'phabs_commands module', ->
         context 'phab T42 none = maintainer left', ->
           hubot 'phab T42 none = maintainer left', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority none'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority none.'
 
       context 'phab T42 is none + maintainer left', ->
         beforeEach ->
@@ -1763,7 +1763,7 @@ describe 'phabs_commands module', ->
         context 'phab T42 none + maintainer left', ->
           hubot 'phab T42 none + maintainer left', 'user_with_phid'
           it 'reports the priority to be Unbreak Now!', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority none'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority none.'
 
       context 'phab T42 is urgent', ->
         beforeEach ->
@@ -1778,11 +1778,11 @@ describe 'phabs_commands module', ->
         context 'phab T42 urgent', ->
           hubot 'phab T42 urgent', 'user_with_phid'
           it 'reports the priority to be High', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority urgent'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority urgent.'
         context 'phab T42 high', ->
           hubot 'phab T42 high', 'user_with_phid'
           it 'reports the priority to be High', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority high'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority high.'
 
       context 'phab T42 is normal', ->
         beforeEach ->
@@ -1797,7 +1797,7 @@ describe 'phabs_commands module', ->
         context 'phab T42 normal', ->
           hubot 'phab T42 normal', 'user_with_phid'
           it 'reports the priority to be Normal', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority normal'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority normal.'
 
       context 'phab T42 is low', ->
         beforeEach ->
@@ -1812,7 +1812,7 @@ describe 'phabs_commands module', ->
         context 'phab T42 low', ->
           hubot 'phab T42 low', 'user_with_phid'
           it 'reports the priority to be Low', ->
-            expect(hubotResponse()).to.eql 'Ok, T42 now has priority low'
+            expect(hubotResponse()).to.eql 'Ok, T42 now has priority low.'
 
   # ---------------------------------------------------------------------------------
   context 'user assigns someone to a task', ->
