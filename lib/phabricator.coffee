@@ -754,6 +754,7 @@ class Phabricator
         cb json_body
 
 
+  # --------------- NEW
   nextCheckbox: (user, id, key) ->
     return new Promise (res, err) =>
       query = { task_id: id }
@@ -778,17 +779,14 @@ class Phabricator
           err e
 
 
-  prevCheckbox: (user, id, key, cb) ->
-    if @ready() is true
-      query = {
-        task_id: id
-      }
-      @phabGet query, 'maniphest.info', (json_body) =>
-        if json_body.error_info?
-          cb json_body
-        else
+  # --------------- NEW
+  prevCheckbox: (user, id, key) ->
+    return new Promise (res, err) =>
+      query = { task_id: id }
+      @request(query, 'maniphest.info')
+        .then (body) =>
           @recordId user, id
-          lines = json_body.result.description.split('\n').reverse()
+          lines = body.result.description.split('\n').reverse()
           reg = new RegExp("^\\[x\\] .*#{key or ''}", 'i')
           found = null
           for line in lines
@@ -796,12 +794,15 @@ class Phabricator
               found = line
               break
           if found?
-            cb { line: found }
+            res found
           else
             if key?
-              cb { error_info: "The task T#{id} has no checked checkbox matching #{key}." }
+              err "The task T#{id} has no checked checkbox matching #{key}."
             else
-              cb { error_info: "The task T#{id} has no checked checkboxes." }
+              err "The task T#{id} has no checked checkboxes."
+        .catch (e) ->
+          err e
+
 
   updateTask: (id, description, comment, cb) =>
     @withBotPHID (bot_phid) =>
