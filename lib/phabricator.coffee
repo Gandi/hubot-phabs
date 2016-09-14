@@ -676,6 +676,7 @@ class Phabricator
                 #   cb json_body
 
 
+  # --------------- NEW
   updateStatus: (user, id, status, comment) ->
     userPhid = null
     @getUser(user, user)
@@ -701,6 +702,7 @@ class Phabricator
         id
 
 
+  # --------------- NEW
   updatePriority: (user, id, priority, comment) ->
     userPhid = null
     @getUser(user, user)
@@ -726,18 +728,20 @@ class Phabricator
         id
 
 
-  assignTask: (tid, userphid, cb) ->
-    if @ready() is true
-      @withBotPHID (bot_phid) =>
+  # --------------- NEW
+  assignTask: (id, userphid, cb) ->
+    @getBotPHID()
+      .then (bot_phid) =>
         query = {
-          'objectIdentifier': "T#{tid}",
+          'objectIdentifier': "T#{id}",
           'transactions[0][type]': 'owner',
           'transactions[0][value]': "#{userphid}",
           'transactions[1][type]': 'subscribers.remove',
           'transactions[1][value][0]': "#{bot_phid}"
         }
-        @phabGet query, 'maniphest.edit', (json_body) ->
-          cb json_body
+        @request(query, 'maniphest.edit')
+      .then (body) ->
+        body.result.id
 
 
   listTasks: (projphid, cb) ->

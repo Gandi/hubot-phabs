@@ -208,6 +208,32 @@ module.exports = (robot) ->
         msg.send e
     msg.finish()
 
+  #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
+  robot.respond new RegExp(
+    'ph(?:ab)?(?: assign)? (?:([^ ]+) (?:to|on) (?:(T)([0-9]+)|(last))|' +
+    '(?:T([0-9]+) |(last) )?(?:to|on) ([^ ]+)) *$'
+  ), (msg) ->
+    if msg.match[2] is 'T'
+      who = msg.match[1]
+      what = msg.match[3] or msg.match[4]
+    else
+      who = msg.match[7]
+      what = msg.match[5] or msg.match[6]
+    assignee = { name: who }
+    id = null
+    phab.getPermission(msg.envelope.user, 'phuser')
+      .then ->
+        phab.getId(msg.envelope.user, what)
+      .then (id) ->
+        phab.getUser(msg.envelope.user, assignee)
+      .then (userPhid) ->
+        phab.assignTask(id, userPhid)
+      .then (id) ->
+        msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
+      .catch (e) ->
+        msg.send e
+    msg.finish()
+
   #   hubot phab Txx next [<key>]- outputs the next checkbox in a given task
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? next(?: (.+))? *$/, (msg) ->
     phab.withPermission msg, msg.envelope.user, 'phuser', ->
@@ -316,36 +342,6 @@ module.exports = (robot) ->
         msg.send "Now I know #{assignee.name}, he's #{userPhid}"
       .catch (e) ->
         msg.send e
-    msg.finish()
-
-  #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
-  robot.respond new RegExp(
-    'ph(?:ab)?(?: assign)? (?:([^ ]+) (?:to|on) (?:(T)([0-9]+)|(last))|' +
-    '(?:T([0-9]+) |(last) )?(?:to|on) ([^ ]+)) *$'
-  ), (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      if msg.match[2] is 'T'
-        who = msg.match[1]
-        what = msg.match[3] or msg.match[4]
-      else
-        who = msg.match[7]
-        what = msg.match[5] or msg.match[6]
-      id = phab.retrieveId(msg.envelope.user, what)
-      unless id?
-        msg.send "Sorry, you don't have any task active right now."
-        msg.finish()
-        return
-      assignee = { name: who }
-      phab.withUser msg.envelope.user, assignee, (userPhid) ->
-        if userPhid.error_info?
-          msg.send userPhid.error_info
-        else
-          phab.assignTask id, userPhid, (body) ->
-            if body['error_info']?
-              msg.send "#{body['error_info']}"
-            else
-              msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
-            msg.finish()
     msg.finish()
 
   #   hubot phab all <project> search terms - searches for terms in project
