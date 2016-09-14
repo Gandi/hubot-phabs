@@ -911,7 +911,7 @@ describe 'phabs_commands module', ->
       hubot 'phab me as momo@example.com', 'user'
       it 'says all is going to be fine', ->
         phid = room.robot.brain.data.phabricator.users['user'].phid
-        expect(hubotResponse()).to.eql 'Hey I know you, you are PHID-USER-999'
+        expect(hubotResponse()).to.eql 'Now I know you, you are PHID-USER-999'
         expect(phid).to.eql 'PHID-USER-999'
 
   # ---------------------------------------------------------------------------------
@@ -929,7 +929,7 @@ describe 'phabs_commands module', ->
       hubot 'phab user user = user@example.com'
       it 'sets the email for the user', ->
         phid = room.robot.brain.data.phabricator.users['user'].phid
-        expect(hubotResponse()).to.eql "Hey I know user, he's PHID-USER-999"
+        expect(hubotResponse()).to.eql "Now I know user, he's PHID-USER-999"
         expect(phid).to.eql 'PHID-USER-999'
 
   # ---------------------------------------------------------------------------------
