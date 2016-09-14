@@ -803,30 +803,29 @@ class Phabricator
         .catch (e) ->
           err e
 
+  # --------------- NEW
+  updateTask: (id, description, comment) =>
+    @getBotPHID()
+      .then (bot_phid) =>
+        editquery = {
+          'objectIdentifier': "T#{id}",
+          'transactions[0][type]': 'description'
+          'transactions[0][value]': "#{description}"
+          'transactions[1][type]': 'subscribers.remove',
+          'transactions[1][value][0]': "#{bot_phid}",
+          'transactions[2][type]': 'comment',
+          'transactions[2][value]': "#{comment}"
+        }
+        @request(editquery, 'maniphest.edit')
 
-  updateTask: (id, description, comment, cb) =>
-    @withBotPHID (bot_phid) =>
-      editquery = {
-        'objectIdentifier': "T#{id}",
-        'transactions[0][type]': 'description'
-        'transactions[0][value]': "#{description}"
-        'transactions[1][type]': 'subscribers.remove',
-        'transactions[1][value][0]': "#{bot_phid}",
-        'transactions[2][type]': 'comment',
-        'transactions[2][value]': "#{comment}"
-      }
-      @phabGet editquery, 'maniphest.edit', (json_body) ->
-        cb json_body
-
-  checkCheckbox: (user, id, key, withNext, usercomment, cb) ->
-    if @ready() is true
+  # --------------- NEW
+  checkCheckbox: (user, id, key, withNext, usercomment) ->
+    return new Promise (res, err) =>
       query = { task_id: id }
-      @phabGet query, 'maniphest.info', (json_body) =>
-        if json_body.error_info?
-          cb json_body
-        else
+      @request(query, 'maniphest.info')
+        .then (body) =>
           @recordId user, id
-          lines = json_body.result.description.split('\n')
+          lines = body.result.description.split('\n')
           reg = new RegExp("^\\[ \\] .*#{key or ''}", 'i')
           found = null
           foundNext = null
@@ -843,26 +842,27 @@ class Phabricator
             comment = "#{user.name} checked:\n#{found}"
             comment += "\n#{usercomment}" if usercomment?
             description = updated.join('\n')
-            @updateTask id, description, comment, (json_body) ->
-              if json_body.error_info?
-                cb json_body
-              else
+            @updateTask(id, description, comment)
+              .then (body) ->
                 if withNext? and not foundNext?
                   foundNext = "there is no more unchecked checkbox#{extra}."
-                cb { line: [ found, foundNext ] }
+                res [ found, foundNext ]
+              .catch (e) ->
+                err e
           else
-            cb { error_info: "The task T#{id} has no unchecked checkbox#{extra}." }
+            err "The task T#{id} has no unchecked checkbox#{extra}."
+        .catch (e) ->
+          err e
 
 
-  uncheckCheckbox: (user, id, key, withNext, usercomment, cb) ->
-    if @ready() is true
+  # --------------- NEW
+  uncheckCheckbox: (user, id, key, withNext, usercomment) ->
+    return new Promise (res, err) =>
       query = { task_id: id }
-      @phabGet query, 'maniphest.info', (json_body) =>
-        if json_body.error_info?
-          cb json_body
-        else
+      @request(query, 'maniphest.info')
+        .then (body) =>
           @recordId user, id
-          lines = json_body.result.description.split('\n').reverse()
+          lines = body.result.description.split('\n').reverse()
           reg = new RegExp("^\\[x\\] .*#{key or ''}", 'i')
           found = null
           foundNext = null
@@ -879,15 +879,17 @@ class Phabricator
             comment = "#{user.name} unchecked:\n#{found}"
             comment += "\n#{usercomment}" if usercomment?
             description = updated.reverse().join('\n')
-            @updateTask id, description, comment, (json_body) ->
-              if json_body.error_info?
-                cb json_body
-              else
+            @updateTask(id, description, comment)
+              .then (body) ->
                 if withNext? and not foundNext?
                   foundNext = "there is no more checked checkbox#{extra}."
-                cb { line: [ found, foundNext ] }
+                res [ found, foundNext ]
+              .catch (e) ->
+                err e
           else
-            cb { error_info: "The task T#{id} has no checked checkbox#{extra}." }
+            err "The task T#{id} has no checked checkbox#{extra}."
+        .catch (e) ->
+          err e
 
 
   # templates ---------------------------------------------------
