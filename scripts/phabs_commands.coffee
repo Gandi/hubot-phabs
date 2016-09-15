@@ -113,37 +113,40 @@ module.exports = (robot) ->
 
   #   hubot phab Txx - gives information about task Txxx
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? *$/, (msg) ->
-    id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
-    unless id?
-      msg.send "Sorry, you don't have any task active right now."
-      msg.finish()
-      return
-    phab.taskInfo id, (body) ->
-      if body['error_info']?
-        msg.send "oops T#{id} #{body['error_info']}"
-      else
-        phab.withUserByPhid body.result.ownerPHID, (owner) ->
-          status = body.result.status
-          priority = body.result.priority
-          phab.recordId msg.envelope.user, id
-          msg.send "T#{id} has status #{status}, " +
-                   "priority #{priority}, owner #{owner.name}"
+    what = msg.match[1] or msg.match[2]
+    id = null
+    body = null
+    phab.getId(msg.envelope.user, what)
+      .bind(id)
+      .bind(body)
+      .then (@id) ->
+        phab.getTask(@id)
+      .then (@body) ->
+        phab.getUserByPhid(@body.result.ownerPHID)
+      .then (owner) ->
+        status = @body.result.status
+        priority = @body.result.priority
+        title = @body.result.title
+        phab.recordId msg.envelope.user, @id
+        msg.send "T#{@id} - #{title} (#{status}, #{priority}, owner #{owner})"
+      .catch (e) ->
+        msg.send e
     msg.finish()
 
   #   hubot phab Txx + <some comment> - add a comment to task Txx
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? \+ (.+) *$/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
-      unless id?
-        msg.send "Sorry, you don't have any task active right now."
-        msg.finish()
-        return
-      comment = msg.match[3]
-      phab.addComment(msg.envelope.user, id, comment)
-        .then (body) ->
-          msg.send "Ok. Added comment \"#{comment}\" to T#{id}."
-        .catch (e) ->
-          msg.send "oops T#{id} #{e}"
+    what = msg.match[1] or msg.match[2]
+    comment = msg.match[3]
+    id = null
+    phab.getPermission(msg.envelope.user, 'phuser')
+      .then ->
+        phab.getId(msg.envelope.user, what)
+      .then (id) ->
+        phab.addComment(msg.envelope.user, id, comment)
+      .then (id) ->
+        msg.send "Ok. Added comment \"#{comment}\" to T#{id}."
+      .catch (e) ->
+        msg.send e
     msg.finish()
 
   #   hubot phab Txx in <project-tag> - add a tag to task Txx

@@ -428,6 +428,7 @@ class Phabricator
           err "Sorry, you don't have any task active right now."
 
 
+  # --------------- OLD
   withUserByPhid: (phid, cb) =>
     if phid?
       query = { 'phids[0]': phid }
@@ -438,6 +439,22 @@ class Phabricator
           cb { name: 'unknown' }
     else
       cb { name: 'nobody' }
+
+  # --------------- NEW
+  getUserByPhid: (phid) ->
+    return new Promise (res, err) =>
+      if phid?
+        query = { 'phids[0]': phid }
+        @request(query, 'user.query')
+          .then (body) ->
+            if body['result']['0']?
+              res body['result']['0']['userName']
+            else
+              res 'unknown'
+          .catch (e) ->
+            err e
+      else
+        res 'nobody'
 
 
   # --------------- OLD
@@ -468,11 +485,17 @@ class Phabricator
         res()
 
 
+  # --------------- NEW
   taskInfo: (id, cb) ->
     if @ready() is true
       query = { 'task_id': id }
       @phabGet query, 'maniphest.info', (json_body) ->
         cb json_body
+
+  # --------------- NEW
+  getTask: (id) ->
+    query = { 'task_id': id }
+    @request query, 'maniphest.info'
 
 
   fileInfo: (id, cb) ->
@@ -617,6 +640,8 @@ class Phabricator
           'transactions[1][value][0]': "#{bot_phid}"
         }
         @request(query, 'maniphest.edit')
+      .then (body) ->
+        id
 
   changeTags: (user, id, tagin, tagout, cb) ->
     if @ready() is true

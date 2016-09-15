@@ -190,6 +190,7 @@ describe 'phabs_commands module', ->
             'api.token': 'xxx'
           })
           .reply(200, { result: {
+            title: 'some task',
             status: 'open',
             priority: 'Low',
             name: 'Test task',
@@ -208,12 +209,12 @@ describe 'phabs_commands module', ->
       context 'phab T42', ->
         hubot 'phab T42'
         it 'gives information about the task Txxx', ->
-          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
+          expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner toto)'
 
       context 'ph T42 # with an ending space', ->
         hubot 'ph T42 '
         it 'gives information about the task Txxx', ->
-          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner toto'
+          expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner toto)'
 
     context 'task id is provided but doesn not exist', ->
       beforeEach ->
@@ -228,7 +229,7 @@ describe 'phabs_commands module', ->
       context 'phab T42', ->
         hubot 'phab T42'
         it 'gives information about the task Txxx', ->
-          expect(hubotResponse()).to.eql 'oops T42 No such Maniphest task exists.'
+          expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
 
 
     context 'failed implicit re-use of the object id', ->
@@ -247,6 +248,7 @@ describe 'phabs_commands module', ->
             'api.token': 'xxx'
           })
           .reply(200, { result: {
+            title: 'some task',
             status: 'open',
             priority: 'Low',
             name: 'Test task',
@@ -259,7 +261,7 @@ describe 'phabs_commands module', ->
       context 'phab T42', ->
         hubot 'phab T42'
         it 'gives information about the task Txxx', ->
-          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner nobody'
+          expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner nobody)'
 
     context 'task id is provided, and owner is set, but not in brain', ->
       beforeEach ->
@@ -271,6 +273,7 @@ describe 'phabs_commands module', ->
             'api.token': 'xxx'
           })
           .reply(200, { result: {
+            title: 'some task',
             status: 'open',
             priority: 'Low',
             name: 'Test task',
@@ -289,7 +292,7 @@ describe 'phabs_commands module', ->
       context 'phab T42', ->
         hubot 'phab T42'
         it 'gives information about the task Txxx', ->
-          expect(hubotResponse()).to.eql 'T42 has status open, priority Low, owner unknown'
+          expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner unknown)'
 
   # ---------------------------------------------------------------------------------
   context 'user asks for next checkbox of a task', ->
@@ -1057,6 +1060,7 @@ describe 'phabs_commands module', ->
           .reply(200, { result: { object: { id: 24 } } })
           .get('/api/maniphest.info')
           .reply(200, { result: {
+            title: 'some task',
             status: 'open',
             priority: 'Low',
             name: 'Test task',
@@ -1073,7 +1077,7 @@ describe 'phabs_commands module', ->
         it 'replies with the object id', ->
           # console.log room.robot.brain.data.phabricator.users.user_with_phid
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
-          expect(hubotResponse(3)).to.eql 'T24 has status open, priority Low, owner user_with_phid'
+          expect(hubotResponse(3)).to.eql 'T24 - some task (open, Low, owner user_with_phid)'
 
 
     context 'phab new proj3 a task', ->
@@ -1283,6 +1287,7 @@ describe 'phabs_commands module', ->
           .reply(200, { result: { object: { id: 24 } } })
           .get('/api/maniphest.info')
           .reply(200, { result: {
+            title: 'some task',
             status: 'open',
             priority: 'Low',
             name: 'Test task',
@@ -1298,7 +1303,7 @@ describe 'phabs_commands module', ->
         hubot 'ph', 'user_with_phid'
         it 'replies with the object id', ->
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
-          expect(hubotResponse(3)).to.eql 'T24 has status open, priority Low, owner user_with_phid'
+          expect(hubotResponse(3)).to.eql 'T24 - some task (open, Low, owner user_with_phid)'
 
 
     context 'phab new proj3:template1 a task', ->
@@ -1894,7 +1899,7 @@ describe 'phabs_commands module', ->
       context 'phab T424242 + some comment', ->
         hubot 'phab T424242 + some comment', 'user_with_phid'
         it 'warns the user that the task does not exist', ->
-          expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
+          expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
 
     context 'task is known', ->
       beforeEach ->
@@ -2700,7 +2705,7 @@ describe 'phabs_commands module', ->
       context 'and user is not in phabs groups', ->
         hubot 'phab T24 + some comment', 'user_with_phid'
         it 'warns the user that he has no permission to use that command', ->
-          expect(hubotResponse()).to.eql '@user_with_phid You don\'t have permission to do that.'
+          expect(hubotResponse()).to.eql 'You don\'t have permission to do that.'
 
       context 'and user is not in phabs groups, but users are trusted', ->
         beforeEach ->
