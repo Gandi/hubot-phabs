@@ -284,15 +284,15 @@ describe 'phabs_feeds module', ->
       room.robot.brain.data.phabricator = { }
       room.destroy()
 
-    it 'should announce it to the appropriate room', (done) ->
+    it 'should announce it to the appropriate room', ->
       expected = {
         message: 'mose triaged T2569: setup webhooks as High priority.',
         rooms: [ 'room1' ]
       }
       phab = new Phabricator room.robot, process.env
-      phab.withFeed JSON.parse(@postData), (announce) ->
-        expect(announce).to.eql expected
-        done()
+      phab.getFeed(JSON.parse(@postData))
+        .then (announce) ->
+          expect(announce).to.eql expected
 
   # ---------------------------------------------------------------------------------
   context 'test the http responses', ->

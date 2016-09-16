@@ -165,32 +165,6 @@ class Phabricator
           .catch (e) ->
             err e
 
-  # --------------- OLD
-  withFeed: (payload, cb) =>
-    # console.log payload.storyData
-    if /^PHID-TASK-/.test payload.storyData.objectPHID
-      query = {
-        'constraints[phids][0]': payload.storyData.objectPHID,
-        'attachments[projects]': 1
-      }
-      data = @data
-      @phabGet query, 'maniphest.search', (json_body) ->
-        announces = {
-          message: payload.storyText
-        }
-        announces.rooms = []
-        if json_body.result.data?
-          for phid in json_body.result.data[0].attachments.projects.projectPHIDs
-            for name, project of data.projects
-              if project.phid? and phid is project.phid
-                project.feeds ?= [ ]
-                for room in project.feeds
-                  if announces.rooms.indexOf(room) is -1
-                    announces.rooms.push room
-        cb announces
-    else
-      cb { rooms: [ ] }
-
   # --------------- NEW
   getFeed: (payload) =>
     return new Promise (res, err) =>
