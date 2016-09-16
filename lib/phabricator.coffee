@@ -165,6 +165,7 @@ class Phabricator
           .catch (e) ->
             err e
 
+  # --------------- OLD
   withFeed: (payload, cb) =>
     # console.log payload.storyData
     if /^PHID-TASK-/.test payload.storyData.objectPHID
@@ -189,6 +190,33 @@ class Phabricator
         cb announces
     else
       cb { rooms: [ ] }
+
+  # --------------- NEW
+  getFeed: (payload) =>
+    return new Promise (res, err) =>
+      if /^PHID-TASK-/.test payload.storyData.objectPHID
+        query = {
+          'constraints[phids][0]': payload.storyData.objectPHID,
+          'attachments[projects]': 1
+        }
+        data = @data
+        @request(query, 'maniphest.search')
+          .then (body) ->
+            announces = { message: payload.storyText }
+            announces.rooms = []
+            if body.result.data?
+              for phid in body.result.data[0].attachments.projects.projectPHIDs
+                for name, project of data.projects
+                  if project.phid? and phid is project.phid
+                    project.feeds ?= [ ]
+                    for room in project.feeds
+                      if announces.rooms.indexOf(room) is -1
+                        announces.rooms.push room
+            res announces
+          .catch (e) ->
+            err e
+      else
+        err "no room to announce in"
 
   # --------------- OLD
   withProject: (project, cb) =>

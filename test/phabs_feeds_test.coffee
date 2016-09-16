@@ -9,9 +9,10 @@ Phabricator = require '../lib/phabricator'
 http        = require('http')
 nock        = require('nock')
 sinon       = require('sinon')
-expect      = require('chai').use(require('sinon-chai')).expect
+chai        = require('chai')
+chai.use(require('sinon-chai'))
+expect      = chai.expect
 querystring = require('querystring')
-
 room = null
 
 describe 'phabs_feeds module', ->
@@ -80,8 +81,12 @@ describe 'phabs_feeds module', ->
         rooms: [ ]
       }
       phab = new Phabricator room.robot, process.env
-      phab.withFeed JSON.parse(@postData), (announce) ->
-        expect(announce.rooms).to.eql [ ]
+      phab.getFeed(JSON.parse(@postData))
+        .then (announce) ->
+          null
+        .catch (e) ->
+          expect(e).to.eql 'no room to announce in'
+
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   context 'it is a task but is not in any feed', ->
@@ -176,15 +181,15 @@ describe 'phabs_feeds module', ->
       room.robot.brain.data.phabricator = { }
       room.destroy()
 
-    it 'should not react', (done) ->
+    it 'should not react', ->
       expected = {
         message: 'mose triaged T2569: setup webhooks as High priority.',
         rooms: [ ]
       }
       phab = new Phabricator room.robot, process.env
-      phab.withFeed JSON.parse(@postData), (announce) ->
-        expect(announce).to.eql expected
-        done()
+      phab.getFeed(JSON.parse(@postData))
+        .then (announce) ->
+          expect(announce).to.eql expected
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   context 'it is a task and it is in one feed', ->
@@ -291,6 +296,10 @@ describe 'phabs_feeds module', ->
 
   # ---------------------------------------------------------------------------------
   context 'test the http responses', ->
+    beforeEach ->
+      room.robot.logger = sinon.spy()
+      room.robot.logger.info = sinon.spy()
+
     afterEach ->
       room.destroy()
 

@@ -27,9 +27,14 @@ module.exports = (robot) ->
 
   robot.router.post "/#{robot.name}/phabs/feeds", (req, res) ->
     if req.body.storyID?
-      phab.withFeed req.body, (announce) ->
-        for room in announce.rooms
-          robot.messageRoom room, announce.message
+      phab.getFeed(req.body)
+        .then (announce) ->
+          for room in announce.rooms
+            robot.messageRoom room, announce.message
+          robot.logger.info "#{req.ip} - ok - #{res.statusCode}"
+        .catch (e) ->
+          robot.logger.info "#{req.ip} - no - #{res.statusCode} - #{e}"
       res.status(200).end()
     else
+      robot.logger.info "#{req.ip} - no - #{res.statusCode} - no story"
       res.status(422).end()
