@@ -430,18 +430,6 @@ class Phabricator
           err "Sorry, you don't have any task active right now."
 
 
-  # --------------- OLD
-  withUserByPhid: (phid, cb) =>
-    if phid?
-      query = { 'phids[0]': phid }
-      @phabGet query, 'user.query', (json_body) ->
-        if json_body['result']['0']?
-          cb { name: json_body['result']['0']['userName'] }
-        else
-          cb { name: 'unknown' }
-    else
-      cb { name: 'nobody' }
-
   # --------------- NEW
   getUserByPhid: (phid) ->
     return new Promise (res, err) =>
