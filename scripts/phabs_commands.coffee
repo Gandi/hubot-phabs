@@ -151,26 +151,23 @@ module.exports = (robot) ->
 
   #   hubot phab Txx in <project-tag> - add a tag to task Txx
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))?((?: (?:not in|in) [^ ]+)+) *$/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      id = phab.retrieveId(msg.envelope.user, msg.match[1] or msg.match[2])
-      unless id?
-        msg.send "Sorry, you don't have any task active right now."
-        msg.finish()
-        return
-      ins = msg.match[3].trim().split('not in ')
-      tagin = ins.shift().split('in ').map (e) -> e.trim()
-      tagin.shift()
-      tagout = [ ]
-      for t in ins
-        els = t.split('in ')
-        tagout.push(els.shift().trim())
-        tagin = tagin.concat(els.map (e) -> e.trim())
-      phab.changeTags msg.envelope.user, id, tagin, tagout, (body) ->
-        if body['error_info']?
-          robot.logger.warning body['error_info']
-          msg.send body['error_info']
-        else
-          msg.send body['message']
+    ins = msg.match[3].trim().split('not in ')
+    tagin = ins.shift().split('in ').map (e) -> e.trim()
+    tagin.shift()
+    tagout = [ ]
+    for t in ins
+      els = t.split('in ')
+      tagout.push(els.shift().trim())
+      tagin = tagin.concat(els.map (e) -> e.trim())
+    phab.getPermission(msg.envelope.user, 'phuser')
+      .then ->
+        phab.getId(msg.envelope.user, what)
+      .then (id) ->
+        phab.changeTags(msg.envelope.user, id, tagin, tagout)
+      .then (msg) ->
+        msg.send msg
+      .catch (e) ->
+        msg.send e
     msg.finish()
 
   #   hubot phab Txx is <status> - modifies task Txxx status
