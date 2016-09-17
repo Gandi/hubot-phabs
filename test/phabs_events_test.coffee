@@ -51,7 +51,7 @@ describe 'phabs_events module', ->
           template: undefined,
           name: 'a task',
           description: undefined,
-          user: { name: 'user_with_phid' },
+          user: null,
           assign: 'user_with_phid'
         }
         setTimeout (done), 40
@@ -161,5 +161,3 @@ describe 'phabs_events module', ->
       it 'logs an error', ->
         expect(room.robot.logger.error).calledOnce
         expect(room.robot.logger.error).calledWith 'failed'
-      it 'announces on a channel', ->
-        expect(room.messages[0][1]).to.eql 'failed'

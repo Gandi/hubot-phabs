@@ -55,20 +55,21 @@ module.exports = (robot) ->
   robot.respond (
     /ph(?:ab)? new ([-_a-zA-Z0-9]+)(?::([-_a-zA-Z0-9]+))? ([^=]+)(?: = (.*))? *$/
   ), (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      data = {
-        project: msg.match[1].toLowerCase()
-        template: msg.match[2]
-        title: msg.match[3]
-        description: msg.match[4]
-        user: msg.envelope.user
-      }
-      phab.createTask data, (res) ->
-        if res.error_info?
-          msg.send res.error_info
-        else
-          phab.recordId res.user, res.id
-          msg.send "Task T#{res.id} created = #{res.url}"
+    data = {
+      project: msg.match[1].toLowerCase()
+      template: msg.match[2]
+      title: msg.match[3]
+      description: msg.match[4]
+      user: msg.envelope.user
+    }
+    phab.getPermission(msg.envelope.user, 'phuser')
+      .then ->
+        phab.createTask(data)
+      .then (res) ->
+        phab.recordId res.user, res.id
+        msg.send "Task T#{res.id} created = #{res.url}"
+      .catch (e) ->
+        msg.send e
     msg.finish()
 
   #   hubot phab paste <name of the paste> - creates a new paste

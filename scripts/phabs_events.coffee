@@ -33,12 +33,10 @@ module.exports = (robot) ->
   #     robot.emit 'phab.createTask', data
 
   robot.on 'phab.createTask', (data) ->
-    phab.createTask data, (res) ->
-      if res.error_info?
-        robot.logger.error res.error_info
-        if data.announce?
-          robot.messageRoom data.announce, res.error_info
-      else
+    phab.createTask(data)
+      .then (res) =>
         robot.logger.info "Task T#{res.id} created = #{res.url}"
         if data.announce?
           robot.messageRoom data.announce, "Task T#{res.id} created = #{res.url}"
+      .catch (e) ->
+        robot.logger.error e

@@ -159,7 +159,7 @@ class Phabricator
         res @data.bot_phid
       else
         @request({ }, 'user.whoami')
-          .then (body) ->
+          .then (body) =>
             @data.bot_phid = body.result.phid
             res @data.bot_phid
           .catch (e) ->
@@ -536,66 +536,54 @@ class Phabricator
         cb json_body
    
 
-  createTask: (params, cb) ->
-    if @ready() is true
-      @withTemplate params.template, (description) =>
-        if description?.error_info?
-          cb description
+  # --------------- NEW
+  createTask: (params) ->
+    params.adapter = @robot.adapterName or 'test'
+    @getBotPHID()
+      .then (bot_phid) =>
+        params.bot_phid = bot_phid
+        if params.user?
+          if not params.user?.name?
+            params.user = { name: params.user }
         else
-          if description?
-            if params.description?
-              params.description += "\n\n#{description}"
-            else
-              params.description = description
-          @withProject params.project, (projectData) =>
-            if projectData.error_info?
-              cb projectData
-            else
-              params.projectphid = projectData.data.phid
-              @withBotPHID (bot_phid) =>
-                params.bot_phid = bot_phid
-                if params.user?
-                  if params.user?.name?
-                    user = params.user
-                  else
-                    user = { name: params.user }
-                else
-                  user = { name: @robot.name, phid: bot_phid }
-                  userPhid = bot_phid
-                @withUser user, user, (userPhid) =>
-                  if userPhid.error_info?
-                    cb userPhid
-                  else
-                    params.userPhid = userPhid
-                    params.adapter = @robot.adapterName
-                    query = {
-                      'transactions[0][type]': 'title',
-                      'transactions[0][value]': "#{params.title}",
-                      'transactions[1][type]': 'comment',
-                      'transactions[1][value]': "(created by #{user.name} on #{params.adapter})",
-                      'transactions[2][type]': 'subscribers.add',
-                      'transactions[2][value][0]': "#{params.userPhid}",
-                      'transactions[3][type]': 'subscribers.remove',
-                      'transactions[3][value][0]': "#{params.bot_phid}",
-                      'transactions[4][type]': 'projects.add',
-                      'transactions[4][value][]': "#{params.projectphid}"
-                    }
-                    next = 5
-                    if params.description?
-                      query["transactions[#{next}][type]"] = 'description'
-                      query["transactions[#{next}][value]"] = "#{params.description}"
-                      next += 1
-                    if params.assign? and @data.users[params.assign]?.phid
-                      owner = @data.users[params.assign]?.phid
-                      query["transactions[#{next}][type]"] = 'owner'
-                      query["transactions[#{next}][value]"] = owner
-                    @phabGet query, 'maniphest.edit', (json_body) ->
-                      if json_body.error_info?
-                        cb json_body
-                      else
-                        id = json_body.result.object.id
-                        url = process.env.PHABRICATOR_URL + "/T#{id}"
-                        cb { id: id, url: url, user: user }
+          params.user = { name: @robot.name, phid: params.bot_phid }
+        @getTemplate(params.template)
+      .then (descrption) =>
+        if description?
+          if params.description?
+            params.description += "\n\n#{description}"
+          else
+            params.description = description
+        @getProject(params.project)
+      .then (projectparams) =>
+        @getUser(params.user, params.user)
+      .then (userPHID) =>
+        query = {
+          'transactions[0][type]': 'title',
+          'transactions[0][value]': "#{params.title}",
+          'transactions[1][type]': 'comment',
+          'transactions[1][value]': "(created by #{params.user.name} on #{params.adapter})",
+          'transactions[2][type]': 'subscribers.add',
+          'transactions[2][value][0]': "#{params.userPhid}",
+          'transactions[3][type]': 'subscribers.remove',
+          'transactions[3][value][0]': "#{params.bot_phid}",
+          'transactions[4][type]': 'projects.add',
+          'transactions[4][value][]': "#{params.projectphid}"
+        }
+        next = 5
+        if params.description?
+          query["transactions[#{next}][type]"] = 'description'
+          query["transactions[#{next}][value]"] = "#{params.description}"
+          next += 1
+        if params.assign? and params.users?[params.assign]?.phid
+          owner = params.users[params.assign]?.phid
+          query["transactions[#{next}][type]"] = 'owner'
+          query["transactions[#{next}][value]"] = owner
+        @request(query, 'maniphest.edit')
+      .then (body) ->
+        id = body.result.object.id
+        url = process.env.PHABRICATOR_URL + "/T#{id}"
+        { id: id, url: url, user: params.user }
 
   # --------------- NEW
   createPaste: (user, title) ->
@@ -760,7 +748,7 @@ class Phabricator
 
 
   # --------------- NEW
-  assignTask: (id, userphid, cb) ->
+  assignTask: (id, userphid) ->
     @getBotPHID()
       .then (bot_phid) =>
         query = {
@@ -925,21 +913,22 @@ class Phabricator
 
   # templates ---------------------------------------------------
 
-  withTemplate: (name, cb) =>
-    if name?
-      if @data.templates[name]?
-        query = {
-          task_id: @data.templates[name].task
-        }
-        @phabGet query, 'maniphest.info', (json_body) ->
-          if json_body.error_info?
-            cb json_body
-          else
-            cb json_body.result.description
+  getTemplate: (name) =>
+    return new Promise (res, err) =>
+      if name?
+        if @data.templates[name]?
+          query = {
+            task_id: @data.templates[name].task
+          }
+          @request(query, 'maniphest.info')
+            .then (body) ->
+              res body.result.description
+            .catch (e) ->
+              err e
+        else
+          err "There is no template named '#{name}'."
       else
-        cb { error_info: "There is no template named '#{name}'." }
-    else
-      cb null
+        res null
 
   addTemplate: (name, taskid, cb) ->
     if @ready() is true

@@ -59,10 +59,10 @@ describe 'phabs_commands module with no bot_phid', ->
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.whoami')
+          .reply(200, { result: { phid: 'PHID-USER-123456789' } })
           .get('/api/user.query')
           .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
-          .get('/api/user.whoami')
-          .reply(200, { result: [ { phid: 'PHID-USER-123456789' } ] })
           .get('/api/maniphest.edit')
           .reply(200, { result: { object: { id: 42 } } })
 
