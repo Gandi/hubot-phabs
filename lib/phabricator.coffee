@@ -106,7 +106,7 @@ class Phabricator
           }
         cb json_body
 
-  # --------------- NEW phabGet
+  # --------------- NEW
   request: (query, endpoint) =>
     return new Promise (res, err) =>
       query['api.token'] = process.env.PHABRICATOR_API_KEY
@@ -143,16 +143,7 @@ class Phabricator
       pos = @data.blacklist.indexOf id
       @data.blacklist.splice(pos, 1)
 
-  # --------------- OLD
-  withBotPHID: (cb) =>
-    if @data.bot_phid?
-      cb @data.bot_phid
-    else
-      @phabGet { }, 'user.whoami', (json_body) =>
-        @data.bot_phid = json_body.result.phid
-        cb @data.bot_phid
-
-  # --------------- NEW withBotPHID
+  # --------------- NEW
   getBotPHID: =>
     return new Promise (res, err) =>
       if @data.bot_phid?
@@ -190,7 +181,7 @@ class Phabricator
           .catch (e) ->
             err e
       else
-        err "no room to announce in"
+        err 'no room to announce in'
 
   # --------------- OLD
   withProject: (project, cb) =>
@@ -288,41 +279,6 @@ class Phabricator
         .catch (e) ->
           err e
 
-
-  # --------------- OLD
-  # user can be an object with an id and name fields
-  withUser: (from, user, cb) =>
-    if @ready() is true
-      unless user.id?
-        user.id = user.name
-      if @data.users[user.id]?.phid?
-        cb @data.users[user.id].phid
-      else
-        @data.users[user.id] ?= {
-          name: user.name,
-          id: user.id
-        }
-        if user.phid?
-          @data.users[user.id].phid = user.phid
-          cb @data.users[user.id].phid
-        else
-          email = @data.users[user.id].email_address or
-                  @robot.brain.userForId(user.id)?.email_address or
-                  user.email_address
-          unless email
-            cb { error_info: @_ask_for_email(from, user) }
-          else
-            user = @data.users[user.id]
-            query = { 'emails[0]': email }
-            @phabGet query, 'user.query', (json_body) ->
-              unless json_body['result']['0']?
-                cb {
-                  error_info: "Sorry, I cannot find #{email} :("
-                }
-              else
-                user.phid = json_body['result']['0']['phid']
-                cb user.phid
-
   # --------------- NEW
   getUser: (from, user) =>
     return new Promise (res, err) =>
@@ -376,32 +332,6 @@ class Phabricator
     }
     @data.users[user.id].lastTask = moment().utc().format()
     @data.users[user.id].lastId = id
-
-
-  # --------------- OLD
-  retrieveId: (user, id = null) ->
-    @data.users[user.id] ?= {
-      name: "#{user.name}",
-      id: "#{user.id}"
-    }
-    user = @data.users[user.id]
-    if id?
-      if id is 'last'
-        if user? and user.lastId?
-          user.lastId
-        else
-          null
-      else
-        @recordId user, id
-        id
-    else
-      user.lastTask ?= moment().utc().format()
-      expires_at = moment(user.lastTask).add(5, 'minutes')
-      if user.lastId? and moment().utc().isBefore(expires_at)
-        user.lastTask = moment().utc().format()
-        user.lastId
-      else
-        null
 
   # --------------- NEW
   getId: (user, id = null) ->
@@ -675,7 +605,7 @@ class Phabricator
     msg = [ ]
     add = Promise.map tagin, (tag) =>
       @getProject(tag)
-        .then (projectData) =>
+        .then (projectData) ->
           phid = projectData.data.phid
           if phid not in projs
             { tag: tag, phid: phid }
@@ -685,7 +615,7 @@ class Phabricator
       tag?
     remove = Promise.map tagout, (tag) =>
       @getProject(tag)
-        .then (projectData) =>
+        .then (projectData) ->
           phid = projectData.data.phid
           if phid in projs
             { tag: tag, phid: phid }

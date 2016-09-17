@@ -34,7 +34,7 @@ module.exports = (robot) ->
 
   robot.on 'phab.createTask', (data) ->
     phab.createTask(data)
-      .then (res) =>
+      .then (res) ->
         robot.logger.info "Task T#{res.id} created = #{res.url}"
         if data.announce?
           robot.messageRoom data.announce, "Task T#{res.id} created = #{res.url}"
