@@ -597,29 +597,31 @@ class Phabricator
                         url = process.env.PHABRICATOR_URL + "/T#{id}"
                         cb { id: id, url: url, user: user }
 
-  createPaste: (user, title, cb) ->
-    if @ready() is true
-      adapter = @robot.adapterName
-      @withUser user, user, (userPhid) =>
-        if userPhid.error_info?
-          cb userPhid
-        else
-          @withBotPHID (bot_phid) =>
-            query = {
-              'transactions[0][type]': 'title',
-              'transactions[0][value]': "#{title}",
-              'transactions[1][type]': 'text',
-              'transactions[1][value]': "(created by #{user.name} on #{adapter})",
-              'transactions[2][type]': 'subscribers.add',
-              'transactions[2][value][0]': "#{userPhid}",
-              'transactions[3][type]': 'subscribers.remove',
-              'transactions[3][value][0]': "#{bot_phid}"
-            }
-            @phabGet query, 'paste.edit', (json_body) ->
-              cb json_body
+  # --------------- NEW
+  createPaste: (user, title) ->
+    adapter = @robot.adapterName
+    bot_phid = null
+    @getBotPHID()
+      .bind(bot_phid)
+      .then (bot_phid) =>
+        @getUser(user, user)
+      .then (userPhid) =>
+        query = {
+          'transactions[0][type]': 'title',
+          'transactions[0][value]': "#{title}",
+          'transactions[1][type]': 'text',
+          'transactions[1][value]': "(created by #{user.name} on #{adapter})",
+          'transactions[2][type]': 'subscribers.add',
+          'transactions[2][value][0]': "#{userPhid}",
+          'transactions[3][type]': 'subscribers.remove',
+          'transactions[3][value][0]': "#{@bot_phid}"
+        }
+        @request(query, 'paste.edit')
+      .then (body) ->
+        body.result.object.id
 
-  # --------------- NEW addComment
-  addComment: (user, id, comment, cb) ->
+  # --------------- NEW
+  addComment: (user, id, comment) ->
     @getBotPHID()
       .then (bot_phid) =>
         query = {
@@ -633,61 +635,77 @@ class Phabricator
       .then (body) ->
         id
 
-  changeTags: (user, id, tagin, tagout, cb) ->
+  # --------------- NEW
+  changeTags: (user, id, alltags) ->
+    bot_phid = null
     @getBotPHID()
-      .then ->
+      .bind(bot_phid)
+      .then (bot_phid) =>
         @getUser(user, user)
-      .then (userPhid) ->
+      .then (userPhid) =>
         query = { 'task_id': id }
         @request(query, 'maniphest.info')
       .then (body) =>
-        projs = body.projectPHIDs
+        @makeTags(body.result.projectPHIDs, alltags)
+      .then (tags) =>
+        [ add, remove, messages ] = tags
         query = {
           'objectIdentifier': id,
           'transactions[0][type]': 'subscribers.remove',
-          'transactions[0][value][0]': "#{bot_phid}",
+          'transactions[0][value][0]': "#{@bot_phid}",
           'transactions[1][type]': 'comment',
           'transactions[1][value]': "tags changed by #{user.name}"
         }
         ind = 1
-        addTags = [ ]
-        removeTags = [ ]
-        for tag in tagin
-          @withProject tag, (projectData) ->
-            if projectData.error_info?
-              cb projectData
-            else
-              phid = projectData.data.phid
-              if phid in projs
-                cb { message: "T#{id} already has the tag '#{tag}'." }
-              else
-                addTags.push phid
-        for tag in tagout
-          @withProject tag, (projectData) ->
-            if projectData.error_info?
-              cb projectData
-            else
-              phid = projectData.data.phid
-              if phid not in projs
-                cb { message: "T#{id} is not having the tag '#{tag}'." }
-              else
-                removeTags.push phid
-        Promise.all([addTags, removeTags])
-          .then ->
-            if addTags.length > 0
-              ind += 1
-              query["transactions[#{ind}][type]"] = 'projects.add'
-              query["transactions[#{ind}][value]"] = addTags
-            if removeTags.length > 0
-              ind += 1
-              query["transactions[#{ind}][type]"] = 'projects.remove'
-              query["transactions[#{ind}][value]"] = removeTags
-            console.log query
-            if ind > 1
-              console.log 'doit'
-              # @phabGet query, 'maniphest.edit', (json_body) ->
-              #   cb json_body
+        if add.length > 0
+          ind += 1
+          query["transactions[#{ind}][type]"] = 'projects.add'
+          query["transactions[#{ind}][value]"] = add.map (t) -> t.phid
+          messages.push "T#{id} added to #{add.map((t) -> t.tag).join(', ')}"
+        if remove.length > 0
+          ind += 1
+          query["transactions[#{ind}][type]"] = 'projects.remove'
+          query["transactions[#{ind}][value]"] = remove.map (t) -> t.phid
+          messages.push "T#{id} removed from #{add.map((t) -> t.tag).join(', ')}"
+        console.log query
+        console.log messages
+        if ind > 1
+          @request(query, 'maniphest.edit')
+            .then (body) ->
+              messages
 
+  # --------------- NEW
+  makeTags: (projs, alltags) ->
+    ins = alltags.trim().split('not in ')
+    tagin = ins.shift().split('in ').map (e) -> e.trim()
+    tagin.shift()
+    tagout = [ ]
+    for t in ins
+      els = t.split('in ')
+      tagout.push(els.shift().trim())
+      tagin = tagin.concat(els.map (e) -> e.trim())
+    msg = [ ]
+    add = Promise.map tagin, (tag) =>
+      @getProject(tag)
+        .then (projectData) =>
+          phid = projectData.data.phid
+          if phid not in projs
+            { tag: tag, phid: phid }
+          else
+            msg.push "already in #{tag}"
+    .filter (tag) ->
+      tag?
+    remove = Promise.map tagout, (tag) =>
+      @getProject(tag)
+        .then (projectData) =>
+          phid = projectData.data.phid
+          if phid in projs
+            { tag: tag, phid: phid }
+          else
+            msg.push "not in #{tag}"
+    .filter (tag) ->
+      tag?
+    return Promise.all([add, remove, msg])
 
   # --------------- NEW
   updateStatus: (user, id, status, comment) ->

@@ -73,15 +73,15 @@ module.exports = (robot) ->
 
   #   hubot phab paste <name of the paste> - creates a new paste
   robot.respond /ph(?:ab)? paste (.*)$/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      title = msg.match[1]
-      phab.createPaste msg.envelope.user, title, (body) ->
-        if body['error_info']?
-          msg.send "#{body['error_info']}"
-        else
-          id = body['result']['object']['id']
-          url = process.env.PHABRICATOR_URL + "/paste/edit/#{id}"
-          msg.send "Paste P#{id} created = edit on #{url}"
+    title = msg.match[1]
+    phab.getPermission(msg.envelope.user, 'phuser')
+      .then ->
+        phab.createPaste(msg.envelope.user, title)
+      .then (id) ->
+        url = process.env.PHABRICATOR_URL + "/paste/edit/#{id}"
+        msg.send "Paste P#{id} created = edit on #{url}"
+      .catch (e) ->
+        msg.send e
     msg.finish()
 
   #   hubot phab count <project> - counts how many tasks a project has
@@ -151,21 +151,16 @@ module.exports = (robot) ->
 
   #   hubot phab Txx in <project-tag> - add a tag to task Txx
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))?((?: (?:not in|in) [^ ]+)+) *$/, (msg) ->
-    ins = msg.match[3].trim().split('not in ')
-    tagin = ins.shift().split('in ').map (e) -> e.trim()
-    tagin.shift()
-    tagout = [ ]
-    for t in ins
-      els = t.split('in ')
-      tagout.push(els.shift().trim())
-      tagin = tagin.concat(els.map (e) -> e.trim())
+    what = msg.match[1] or msg.match[2]
+    alltags = msg.match[3]
     phab.getPermission(msg.envelope.user, 'phuser')
       .then ->
         phab.getId(msg.envelope.user, what)
       .then (id) ->
-        phab.changeTags(msg.envelope.user, id, tagin, tagout)
-      .then (msg) ->
-        msg.send msg
+        phab.changeTags(msg.envelope.user, id, alltags)
+      .then (message) ->
+        for m in messages
+          msg.send m
       .catch (e) ->
         msg.send e
     msg.finish()
