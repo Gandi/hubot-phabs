@@ -199,6 +199,21 @@ describe 'phabs_hear module', ->
         it "warns the user that this Paste doesn't exist", ->
           expect(hubotResponse()).to.eql 'oops P424242 was not found.'
 
+    context 'when the request returns an error', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/paste.query')
+          .reply(404, { message: 'not found' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about P424242 or something', ->
+        hubot 'whatever about P424242 or something'
+        it "warns the user that this Paste doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops P424242 http error 404'
+
     context 'when it is an existing Paste without a language set', ->
       beforeEach ->
         do nock.disableNetConnect
@@ -266,6 +281,22 @@ describe 'phabs_hear module', ->
         hubot 'whatever about M424242 or something'
         it "warns the user that this Mock doesn't exist", ->
           expect(hubotResponse()).to.eql 'oops M424242 was not found.'
+
+    context 'when the request returns an error', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(404, { message: 'not found' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about M424242 or something', ->
+        hubot 'whatever about M424242 or something'
+        it "warns the user that this Paste doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops M424242 http error 404'
+
 
     context 'when it is an existing Mock without a status closed', ->
       beforeEach ->
@@ -643,6 +674,21 @@ describe 'phabs_hear module', ->
         hubot 'whatever about rP156f7196453c or something'
         it "warns the user that this commit doesn't exist", ->
           expect(hubotResponse()).to.eql 'oops rP156f7196453c was not found.'
+
+    context 'when the request returns an error', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(404, { message: 'not found' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about rP156f7196453c or something', ->
+        hubot 'whatever about rP156f7196453c or something'
+        it "warns the user that this Paste doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops rP156f7196453c http error 404'
 
     context 'when it is an existing commit without a status closed', ->
       beforeEach ->

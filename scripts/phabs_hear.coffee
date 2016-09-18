@@ -97,7 +97,7 @@ module.exports = (robot) ->
                 fullname = v['fullName'].replace("#{type}#{id}: ", '').replace("#{type}#{id} ", '')
                 msg.send "#{v['uri']} - #{fullname}#{status}"
           .catch (e) ->
-            msg.send e
+            msg.send "oops #{type}#{id} #{e}"
 
         when /^r[A-Z]+[a-f0-9]{10,}$/.test type
           phab.genericInfo(type)
@@ -115,4 +115,4 @@ module.exports = (robot) ->
                 fullname = v['fullName'].replace "#{type}: ", ''
                 msg.send "#{v['uri']} - #{fullname}#{status}"
           .catch (e) ->
-            msg.send e
+            msg.send "oops #{type} #{e}"
