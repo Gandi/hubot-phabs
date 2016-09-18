@@ -661,6 +661,36 @@ describe 'phabs_admin module', ->
           expect(hubotResponse())
             .to.eql 'Sorry, project1 not found.'
 
+    context 'and phabricator reports an error', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'Bug Report': { },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'project with phid',
+          bug: 'project with phid'
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/project.query')
+          .query({
+            'names[0]': 'project1',
+            'api.token': 'xxx'
+          })
+          .reply(500, { message: 'Internal error' })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad remove project1 from #dev', ->
+        hubot 'phad remove project1 from #dev'
+        it 'should reply with proper info', ->
+          expect(hubotResponse())
+            .to.eql 'http error 500'
+
+
     context 'and the feed exists', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
@@ -801,8 +831,14 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad alias project with phid as pwp', ->
-          hubot 'phad alias project with phid as pwp', 'phuser_user'
+        context 'phad del project', ->
+          hubot 'phad del project', 'phuser_user'
+          it 'warns the user that he has no permission to use that command', ->
+            expect(hubotResponse())
+              .to.eql "You don't have permission to do that."
+
+        context 'phad forget project', ->
+          hubot 'phad forget project', 'phuser_user'
           it 'warns the user that he has no permission to use that command', ->
             expect(hubotResponse())
               .to.eql "You don't have permission to do that."
