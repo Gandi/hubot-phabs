@@ -36,36 +36,37 @@ module.exports = (robot) ->
       switch
         
         when 'T' is type
-          phab.taskInfo id, (body) ->
-            if body['error_info']?
-              msg.send "oops #{type}#{id} #{body['error_info']}"
+          phab.taskInfo(id)
+          .then (body) ->
+            closed = ''
+            if body['result']['isClosed'] is true
+              closed = " (#{body['result']['status']})"
+            if url?
+              msg.send "#{type}#{id}#{closed} - #{body['result']['title']} " +
+                       "(#{body['result']['priority']})"
             else
-              closed = ''
-              if body['result']['isClosed'] is true
-                closed = " (#{body['result']['status']})"
-              if url?
-                msg.send "#{type}#{id}#{closed} - #{body['result']['title']} " +
-                         "(#{body['result']['priority']})"
-              else
-                msg.send "#{body['result']['uri']}#{closed} - #{body['result']['title']} " +
-                         "(#{body['result']['priority']})"
-              phab.recordId msg.envelope.user, id
+              msg.send "#{body['result']['uri']}#{closed} - #{body['result']['title']} " +
+                       "(#{body['result']['priority']})"
+            phab.recordId msg.envelope.user, id
+          .catch (e) ->
+            msg.send "oops #{type}#{id} #{e}"
         
         when 'F' is type
-          phab.fileInfo id, (body) ->
-            if body['error_info']?
-              msg.send "oops #{type}#{id} #{body['error_info']}"
+          phab.fileInfo(id)
+          .then (body) ->
+            size = humanFileSize(body['result']['byteSize'])
+            if url?
+              msg.send "#{type}#{id} - #{body['result']['name']} " +
+                       "(#{body['result']['mimeType']} #{size})"
             else
-              size = humanFileSize(body['result']['byteSize'])
-              if url?
-                msg.send "#{type}#{id} - #{body['result']['name']} " +
-                         "(#{body['result']['mimeType']} #{size})"
-              else
-                msg.send "#{body['result']['uri']} - #{body['result']['name']} "+
-                         "(#{body['result']['mimeType']} #{size})"
-        
+              msg.send "#{body['result']['uri']} - #{body['result']['name']} "+
+                       "(#{body['result']['mimeType']} #{size})"
+          .catch (e) ->
+            msg.send "oops #{type}#{id} #{e}"
+
         when 'P' is type
-          phab.pasteInfo id, (body) ->
+          phab.pasteInfo(id)
+          .then (body) ->
             if Object.keys(body['result']).length < 1
               msg.send "oops #{type}#{id} was not found."
             else
@@ -77,9 +78,12 @@ module.exports = (robot) ->
                 msg.send "#{type}#{id} - #{body['result'][key]['title']}#{lang}"
               else
                 msg.send "#{body['result'][key]['uri']} - #{body['result'][key]['title']}#{lang}"
-        
+          .catch (e) ->
+            msg.send "oops #{type}#{id} #{e}"
+
         when /^M|B|Q|L|V$/.test type
-          phab.genericInfo "#{type}#{id}", (body) ->
+          phab.genericInfo("#{type}#{id}")
+          .then (body) ->
             if Object.keys(body['result']).length < 1
               msg.send "oops #{type}#{id} was not found."
             else
@@ -89,14 +93,15 @@ module.exports = (robot) ->
                 status = " (#{v['status']})"
               if url?
                 msg.send "#{v['fullName']}#{status}"
-                return
               else
                 fullname = v['fullName'].replace("#{type}#{id}: ", '').replace("#{type}#{id} ", '')
                 msg.send "#{v['uri']} - #{fullname}#{status}"
-                return
+          .catch (e) ->
+            msg.send e
 
         when /^r[A-Z]+[a-f0-9]{10,}$/.test type
-          phab.genericInfo type, (body) ->
+          phab.genericInfo(type)
+          .then (body) ->
             if Object.keys(body['result']).length < 1
               msg.send "oops #{type} was not found."
             else
@@ -106,8 +111,8 @@ module.exports = (robot) ->
                 status = " (#{v['status']})"
               if url?
                 msg.send "#{v['fullName']}#{status}"
-                return
               else
                 fullname = v['fullName'].replace "#{type}: ", ''
                 msg.send "#{v['uri']} - #{fullname}#{status}"
-                return
+          .catch (e) ->
+            msg.send e

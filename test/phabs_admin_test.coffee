@@ -373,12 +373,12 @@ describe 'phabs_admin module', ->
     context 'when project has phid recorded, and aliases, and is called by an alias', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
-          'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
+          'bug report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
           'project with phid': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
-          bugs: 'Bug Report',
-          bug: 'Bug Report'
+          bugs: 'bug report',
+          bug: 'bug report'
         }
         do nock.disableNetConnect
 
@@ -390,7 +390,7 @@ describe 'phabs_admin module', ->
         hubot 'phad info bug'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql "'bug' is 'Bug Report' (aka bugs, bug), with no feed."
+            .to.eql "'bug' is 'bug report' (aka bugs, bug), with no feed."
 
   # ---------------------------------------------------------------------------------
   context 'user wants to create an alias for a project', ->
@@ -805,4 +805,4 @@ describe 'phabs_admin module', ->
           hubot 'phad alias project with phid as pwp', 'phuser_user'
           it 'warns the user that he has no permission to use that command', ->
             expect(hubotResponse())
-              .to.eql "@phuser_user You don't have permission to do that."
+              .to.eql "You don't have permission to do that."

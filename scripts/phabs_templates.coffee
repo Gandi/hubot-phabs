@@ -26,71 +26,77 @@ module.exports = (robot) ->
 
   #   hubot pht new <name> T123
   robot.respond (/pht new ([-_a-zA-Z0-9]+) T([0-9]+) *$/), (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phadmin', ->
-      name = msg.match[1]
-      taskid = msg.match[2]
-      phab.addTemplate name, taskid, (body) ->
-        if body.error_info?
-          msg.send body.error_info
-        else
-          msg.send "Ok. Template '#{name}' will use T#{taskid}."
+    name = msg.match[1]
+    taskid = msg.match[2]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
+      phab.addTemplate(name, taskid)
+    .then (body) ->
+      msg.send "Ok. Template '#{name}' will use T#{taskid}."
+    .catch (e) ->
+      msg.send e
     msg.finish()
     
 
   #   hubot pht show <name>
   robot.respond (/pht (?:show|info) ([-_a-zA-Z0-9]+) *$/), (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      name = msg.match[1]
-      phab.showTemplate name, (body) ->
-        if body.error_info?
-          msg.send body.error_info
-        else
-          msg.send "Template '#{name}' uses T#{body.task}."
+    name = msg.match[1]
+    phab.getPermission(msg.envelope.user, 'phuser')
+    .then ->
+      phab.showTemplate(name)
+    .then (body) ->
+      msg.send "Template '#{name}' uses T#{body.task}."
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot pht search <term>
   robot.respond (/pht (?:search|list) *([-_a-zA-Z0-9]+)? *$/), (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
-      term = msg.match[1]
-      phab.searchTemplate term, (body) ->
-        if body.error_info?
-          msg.send body.error_info
-        else
-          for found in body
-            msg.send "Template '#{found.name}' uses T#{found.task}."
+    term = msg.match[1]
+    phab.getPermission(msg.envelope.user, 'phuser')
+    .then ->
+      phab.searchTemplate(term)
+    .then (body) ->
+      for found in body
+        msg.send "Template '#{found.name}' uses T#{found.task}."
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot pht remove <name>
   robot.respond (/pht remove ([-_a-zA-Z0-9]+) *$/), (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phadmin', ->
-      name = msg.match[1]
-      phab.removeTemplate name, (body) ->
-        if body.error_info?
-          msg.send body.error_info
-        else
-          msg.send "Ok. Template '#{name}' was removed."
+    name = msg.match[1]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
+      phab.removeTemplate(name)
+    .then (body) ->
+      msg.send "Ok. Template '#{name}' was removed."
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot pht update <name> T321
   robot.respond (/pht update ([-_a-zA-Z0-9]+) T([0-9]+) *$/), (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phadmin', ->
-      name = msg.match[1]
-      taskid = msg.match[2]
-      phab.updateTemplate name, taskid, (body) ->
-        if body.error_info?
-          msg.send body.error_info
-        else
-          msg.send "Ok. Template '#{name}' will now use T#{taskid}."
+    name = msg.match[1]
+    taskid = msg.match[2]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
+      phab.updateTemplate(name, taskid)
+    .then (body) ->
+      msg.send "Ok. Template '#{name}' will now use T#{taskid}."
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot pht rename <name> <newname>
   robot.respond (/pht rename ([-_a-zA-Z0-9]+) ([-_a-zA-Z0-9]+) *$/), (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phadmin', ->
-      name = msg.match[1]
-      newname = msg.match[2]
-      phab.renameTemplate name, newname, (body) ->
-        if body.error_info?
-          msg.send body.error_info
-        else
-          msg.send "Ok. Template '#{name}' will now bew known as '#{newname}'."
+    name = msg.match[1]
+    newname = msg.match[2]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
+      phab.renameTemplate(name, newname)
+    .then (body) ->
+      msg.send "Ok. Template '#{name}' will now bew known as '#{newname}'."
+    .catch (e) ->
+      msg.send e
     msg.finish()

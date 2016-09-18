@@ -45,10 +45,10 @@ module.exports = (robot) ->
 
   robot.respond /ph phid (.+) *$/, (msg) ->
     phab.getProject(msg.match[1].toLowerCase())
-      .then (proj) ->
-        msg.send proj.data.phid
-      .catch (e) ->
-        msg.send e
+    .then (proj) ->
+      msg.send proj.data.phid
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab new <project>[:<template>] <name of the task>
@@ -63,53 +63,63 @@ module.exports = (robot) ->
       user: msg.envelope.user
     }
     phab.getPermission(msg.envelope.user, 'phuser')
-      .then ->
-        phab.createTask(data)
-      .then (res) ->
-        phab.recordId res.user, res.id
-        msg.send "Task T#{res.id} created = #{res.url}"
-      .catch (e) ->
-        msg.send e
+    .then ->
+      phab.createTask(data)
+    .then (res) ->
+      phab.recordId res.user, res.id
+      msg.send "Task T#{res.id} created = #{res.url}"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab paste <name of the paste> - creates a new paste
   robot.respond /ph(?:ab)? paste (.*)$/, (msg) ->
     title = msg.match[1]
     phab.getPermission(msg.envelope.user, 'phuser')
-      .then ->
-        phab.createPaste(msg.envelope.user, title)
-      .then (id) ->
-        url = process.env.PHABRICATOR_URL + "/paste/edit/#{id}"
-        msg.send "Paste P#{id} created = edit on #{url}"
-      .catch (e) ->
-        msg.send e
+    .then ->
+      phab.createPaste(msg.envelope.user, title)
+    .then (id) ->
+      url = process.env.PHABRICATOR_URL + "/paste/edit/#{id}"
+      msg.send "Paste P#{id} created = edit on #{url}"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab count <project> - counts how many tasks a project has
   robot.respond (/ph(?:ab)? count ([-_a-zA-Z0-9]+) *$/), (msg) ->
-    phab.withProject msg.match[1], (projectData) ->
-      if projectData.error_info?
-        msg.send projectData.error_info
+    project = msg.match[1]
+    name = null
+    phab.getProject(project)
+    .then (proj) ->
+      name = proj.data.name
+      phab.listTasks(proj.data.phid)
+    .then (body) ->
+      if Object.keys(body['result']).length is 0
+        msg.send "#{name} has no tasks."
       else
-        phab.listTasks projectData.data.phid, (body) ->
-          if Object.keys(body['result']).length is 0
-            msg.send "#{projectData.data.name} has no tasks."
-          else
-            msg.send "#{projectData.data.name} has #{Object.keys(body['result']).length} tasks."
+        msg.send "#{name} has #{Object.keys(body['result']).length} tasks."
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot bl <id> - blacklists <id> from auto-resopnses
   robot.respond /ph(?:ab)? bl ((?:T|F|P|M|B|Q|L|V)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
+    phab.getPermission(msg.envelope.user, 'phuser')
+    .then ->
       phab.blacklist msg.match[1]
       msg.send "Ok. #{msg.match[1]} won't react anymore to auto-detection."
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot bl <id> - blacklists <id> from auto-resopnses
   robot.respond /ph(?:ab)? unbl ((?:T|F|P|M|B|Q|L|V)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phuser', ->
+    phab.getPermission(msg.envelope.user, 'phuser')
+    .then ->
       phab.unblacklist msg.match[1]
       msg.send "Ok. #{msg.match[1]} now will react to auto-detection."
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab Txx - gives information about task Txxx
@@ -118,20 +128,20 @@ module.exports = (robot) ->
     id = null
     body = null
     phab.getId(msg.envelope.user, what)
-      .bind(id)
-      .bind(body)
-      .then (@id) ->
-        phab.getTask(@id)
-      .then (@body) ->
-        phab.getUserByPhid(@body.result.ownerPHID)
-      .then (owner) ->
-        status = @body.result.status
-        priority = @body.result.priority
-        title = @body.result.title
-        phab.recordId msg.envelope.user, @id
-        msg.send "T#{@id} - #{title} (#{status}, #{priority}, owner #{owner})"
-      .catch (e) ->
-        msg.send e
+    .bind(id)
+    .bind(body)
+    .then (@id) ->
+      phab.getTask(@id)
+    .then (@body) ->
+      phab.getUserByPhid(@body.result.ownerPHID)
+    .then (owner) ->
+      status = @body.result.status
+      priority = @body.result.priority
+      title = @body.result.title
+      phab.recordId msg.envelope.user, @id
+      msg.send "T#{@id} - #{title} (#{status}, #{priority}, owner #{owner})"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab Txx + <some comment> - add a comment to task Txx
@@ -140,14 +150,14 @@ module.exports = (robot) ->
     comment = msg.match[3]
     id = null
     phab.getPermission(msg.envelope.user, 'phuser')
-      .then ->
-        phab.getId(msg.envelope.user, what)
-      .then (id) ->
-        phab.addComment(msg.envelope.user, id, comment)
-      .then (id) ->
-        msg.send "Ok. Added comment \"#{comment}\" to T#{id}."
-      .catch (e) ->
-        msg.send e
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (id) ->
+      phab.addComment(msg.envelope.user, id, comment)
+    .then (id) ->
+      msg.send "Ok. Added comment \"#{comment}\" to T#{id}."
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab Txx in <project-tag> - add a tag to task Txx
@@ -155,15 +165,15 @@ module.exports = (robot) ->
     what = msg.match[1] or msg.match[2]
     alltags = msg.match[3]
     phab.getPermission(msg.envelope.user, 'phuser')
-      .then ->
-        phab.getId(msg.envelope.user, what)
-      .then (id) ->
-        phab.changeTags(msg.envelope.user, id, alltags)
-      .then (message) ->
-        for m in messages
-          msg.send m
-      .catch (e) ->
-        msg.send e
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (id) ->
+      phab.changeTags(msg.envelope.user, id, alltags)
+    .then (message) ->
+      for m in messages
+        msg.send m
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab Txx is <status> - modifies task Txxx status
@@ -175,14 +185,14 @@ module.exports = (robot) ->
     status = msg.match[3]
     comment = msg.match[4]
     phab.getPermission(msg.envelope.user, 'phuser')
-      .then ->
-        phab.getId(msg.envelope.user, what)
-      .then (id) ->
-        phab.updateStatus(msg.envelope.user, id, status, comment)
-      .then (id) ->
-        msg.send "Ok, T#{id} now has status #{phab.statuses[status]}."
-      .catch (e) ->
-        msg.send e
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (id) ->
+      phab.updateStatus(msg.envelope.user, id, status, comment)
+    .then (id) ->
+      msg.send "Ok, T#{id} now has status #{phab.statuses[status]}."
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab Txx is <priority> - modifies task Txxx priority
@@ -194,14 +204,14 @@ module.exports = (robot) ->
     priority = msg.match[3]
     comment = msg.match[4]
     phab.getPermission(msg.envelope.user, 'phuser')
-      .then ->
-        phab.getId(msg.envelope.user, what)
-      .then (id) ->
-        phab.updatePriority(msg.envelope.user, id, priority, comment)
-      .then (id) ->
-        msg.send "Ok, T#{id} now has priority #{priority}."
-      .catch (e) ->
-        msg.send e
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (id) ->
+      phab.updatePriority(msg.envelope.user, id, priority, comment)
+    .then (id) ->
+      msg.send "Ok, T#{id} now has priority #{priority}."
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
@@ -218,16 +228,16 @@ module.exports = (robot) ->
     assignee = { name: who }
     id = null
     phab.getPermission(msg.envelope.user, 'phuser')
-      .then ->
-        phab.getId(msg.envelope.user, what)
-      .then (id) ->
-        phab.getUser(msg.envelope.user, assignee)
-      .then (userPhid) ->
-        phab.assignTask(id, userPhid)
-      .then (id) ->
-        msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
-      .catch (e) ->
-        msg.send e
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (id) ->
+      phab.getUser(msg.envelope.user, assignee)
+    .then (userPhid) ->
+      phab.assignTask(id, userPhid)
+    .then (id) ->
+      msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab Txx next [<key>]- outputs the next checkbox in a given task
@@ -236,15 +246,15 @@ module.exports = (robot) ->
     key = msg.match[3]
     id = null
     phab.getPermission(msg.envelope.user, 'phuser')
-      .bind(id)
-      .then ->
-        phab.getId(msg.envelope.user, what)
-      .then (@id) ->
-        phab.nextCheckbox(msg.envelope.user, @id, key)
-      .then (line) ->
-        msg.send "Next on T#{@id} is: #{line}"
-      .catch (e) ->
-        msg.send e
+    .bind(id)
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (@id) ->
+      phab.nextCheckbox(msg.envelope.user, @id, key)
+    .then (line) ->
+      msg.send "Next on T#{@id} is: #{line}"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab Txx prev [<key>]- outputs the last checked checkbox in a given task
@@ -253,15 +263,15 @@ module.exports = (robot) ->
     key = msg.match[3]
     id = null
     phab.getPermission(msg.envelope.user, 'phuser')
-      .bind(id)
-      .then ->
-        phab.getId(msg.envelope.user, what)
-      .then (@id) ->
-        phab.prevCheckbox(msg.envelope.user, @id, key)
-      .then (line) ->
-        msg.send "Previous on T#{@id} is: #{line}"
-      .catch (e) ->
-        msg.send e
+    .bind(id)
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (@id) ->
+      phab.prevCheckbox(msg.envelope.user, @id, key)
+    .then (line) ->
+      msg.send "Previous on T#{@id} is: #{line}"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab Txx check [<key>] - update task Txx description by checking a box
@@ -272,17 +282,17 @@ module.exports = (robot) ->
     comment = msg.match[5]
     id = null
     phab.getPermission(msg.envelope.user, 'phuser')
-      .bind(id)
-      .then ->
-        phab.getId(msg.envelope.user, what)
-      .then (@id) ->
-        phab.checkCheckbox(msg.envelope.user, @id, key, withNext, comment)
-      .then (line) ->
-        msg.send "Checked on T#{@id}: #{line[0]}"
-        if line[1]?
-          msg.send "Next on T#{@id}: #{line[1]}"
-      .catch (e) ->
-        msg.send e
+    .bind(id)
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (@id) ->
+      phab.checkCheckbox(msg.envelope.user, @id, key, withNext, comment)
+    .then (line) ->
+      msg.send "Checked on T#{@id}: #{line[0]}"
+      if line[1]?
+        msg.send "Next on T#{@id}: #{line[1]}"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab Txx uncheck [<key>] - update task Txx description by unchecking a box
@@ -294,88 +304,94 @@ module.exports = (robot) ->
     comment = msg.match[5]
     id = null
     phab.getPermission(msg.envelope.user, 'phuser')
-      .bind(id)
-      .then ->
-        phab.getId(msg.envelope.user, what)
-      .then (@id) ->
-        phab.uncheckCheckbox(msg.envelope.user, @id, key, withNext, comment)
-      .then (line) ->
-        msg.send "Unchecked on T#{@id}: #{line[0]}"
-        if line[1]?
-          msg.send "Previous on T#{@id}: #{line[1]}"
-      .catch (e) ->
-        msg.send e
+    .bind(id)
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (@id) ->
+      phab.uncheckCheckbox(msg.envelope.user, @id, key, withNext, comment)
+    .then (line) ->
+      msg.send "Unchecked on T#{@id}: #{line[0]}"
+      if line[1]?
+        msg.send "Previous on T#{@id}: #{line[1]}"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab user <user> - checks if user is known or not
   robot.respond /ph(?:ab)? (?:user|who) ([^ ]*) *$/, (msg) ->
     assignee = { name: msg.match[1] }
     phab.getPermission(msg.envelope.user, 'phuser')
-      .then ->
-        phab.getUser(msg.envelope.user, assignee)
-      .then (userPhid) ->
-        msg.send "Hey I know #{assignee.name}, he's #{userPhid}"
-      .catch (e) ->
-        msg.send e
+    .then ->
+      phab.getUser(msg.envelope.user, assignee)
+    .then (userPhid) ->
+      msg.send "Hey I know #{assignee.name}, he's #{userPhid}"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab me as <email> - makes caller known with <email>
   robot.respond /ph(?:ab)? me as (.*@.*) *$/, (msg) ->
     email = msg.match[1]
     phab.getPermission(msg.envelope.user, 'phuser')
-      .then ->
-        msg.envelope.user.email_address = msg.match[1]
-        phab.getUser(msg.envelope.user, msg.envelope.user)
-      .then (userPhid) ->
-        msg.send "Now I know you, you are #{userPhid}"
-      .catch (e) ->
-        msg.send e
+    .then ->
+      msg.envelope.user.email_address = msg.match[1]
+      phab.getUser(msg.envelope.user, msg.envelope.user)
+    .then (userPhid) ->
+      msg.send "Now I know you, you are #{userPhid}"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab user <user> = <email> - associates user to email
   robot.respond /ph(?:ab)? user ([^ ]*) *?= *?([^ ]*@.*) *$/, (msg) ->
     assignee = { name: msg.match[1], email_address: msg.match[2] }
     phab.getPermission(msg.envelope.user, 'phuser')
-      .then ->
-        phab.getUser(msg.envelope.user, assignee)
-      .then (userPhid) ->
-        msg.send "Now I know #{assignee.name}, he's #{userPhid}"
-      .catch (e) ->
-        msg.send e
+    .then ->
+      phab.getUser(msg.envelope.user, assignee)
+    .then (userPhid) ->
+      msg.send "Now I know #{assignee.name}, he's #{userPhid}"
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab all <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)? all ([^ ]+) (.+)$/, (msg) ->
     project = msg.match[1].toLowerCase()
     terms = msg.match[2]
+    name = null
     phab.getProject(project)
-      .then (proj) ->
-        phab.searchAllTask proj.data.phid, terms, (payload) ->
-          if payload.result.data.length is 0
-            msg.send "There is no task matching '#{terms}' in project '#{proj.data.name}'."
-          else
-            for task in payload.result.data
-              msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
-            if payload.result.cursor.after?
-              msg.send '... and there is more.'
-      .catch (e) ->
-        msg.send e
+    .then (proj) ->
+      name = proj.data.name
+      phab.searchAllTask(proj.data.phid, terms)
+    .then (payload) ->
+      if payload.result.data.length is 0
+        msg.send "There is no task matching '#{terms}' in project '#{name}'."
+      else
+        for task in payload.result.data
+          msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
+        if payload.result.cursor.after?
+          msg.send '... and there is more.'
+    .catch (e) ->
+      msg.send e
     msg.finish()
 
   #   hubot phab <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)? ([^ ]+) (.+)$/, (msg) ->
     project = msg.match[1].toLowerCase()
     terms = msg.match[2]
+    name = null
     phab.getProject(project)
-      .then (proj) ->
-        phab.searchTask proj.data.phid, terms, (payload) ->
-          if payload.result.data.length is 0
-            msg.send "There is no task matching '#{terms}' in project '#{proj.data.name}'."
-          else
-            for task in payload.result.data
-              msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
-            if payload.result.cursor.after?
-              msg.send '... and there is more.'
-      .catch (e) ->
-        msg.send e
+    .then (proj) ->
+      name = proj.data.name
+      phab.searchTask(proj.data.phid, terms)
+    .then (payload) ->
+      if payload.result.data.length is 0
+        msg.send "There is no task matching '#{terms}' in project '#{name}'."
+      else
+        for task in payload.result.data
+          msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
+        if payload.result.cursor.after?
+          msg.send '... and there is more.'
+    .catch (e) ->
+      msg.send e
     msg.finish()

@@ -37,87 +37,96 @@ module.exports = (robot) ->
 
   #   hubot phad delete <project>
   robot.respond /phad del(?:ete)? (.+) *$/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phadmin', ->
-      project = msg.match[1].toLowerCase()
+    project = msg.match[1].toLowerCase()
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
       if data.projects[project]?
         delete data.projects[project]
         msg.send "#{project} erased from memory."
       else
         msg.send "#{project} not found in memory."
+    .catch (e) ->
+      msg.send e
 
   #   hubot phad info <project>
   robot.respond /phad (?:info|show) (.+) *$/, (msg) ->
     project = msg.match[1].toLowerCase()
-    phab.withProject project, (projectData) ->
-      if projectData.error_info?
-        msg.send projectData.error_info
+    phab.getProject(project)
+    .then (proj) ->
+      response = "'#{project}' is '#{proj.data.name}'"
+      if proj.aliases? and proj.aliases.length > 0
+        response += " (aka #{proj.aliases.join(', ')})"
       else
-        response = "'#{project}' is '#{projectData.data.name}'"
-        if projectData.aliases? and projectData.aliases.length > 0
-          response += " (aka #{projectData.aliases.join(', ')})"
-        else
-          response += ', with no alias'
-        if projectData.data.feeds? and projectData.data.feeds.length > 0
-          response += ", announced on #{projectData.data.feeds.join(', ')}"
-        else
-          response += ', with no feed.'
-        msg.send response
+        response += ', with no alias'
+      if proj.data.feeds? and proj.data.feeds.length > 0
+        response += ", announced on #{proj.data.feeds.join(', ')}"
+      else
+        response += ', with no feed.'
+      msg.send response
+    .catch (e) ->
+      msg.send e
 
   #   hubot phad alias <project> as <alias>
   robot.respond /phad alias (.+) as (.+)$/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phadmin', ->
-      project = msg.match[1].toLowerCase()
-      alias = msg.match[2]
-      phab.withProject project, (projectData) ->
-        if projectData.error_info?
-          msg.send projectData.error_info
-        else
-          if data.aliases[alias]?
-            msg.send "The alias '#{alias}' already exists for project '#{data.aliases[alias]}'."
-          else
-            data.aliases[alias] = projectData.data.name.toLowerCase()
-            msg.send "Ok, '#{projectData.data.name}' will be known as '#{alias}'."
+    project = msg.match[1].toLowerCase()
+    alias = msg.match[2]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
+      phab.getProject(project)
+    .then (proj) ->
+      if data.aliases[alias]?
+        msg.send "The alias '#{alias}' already exists for project '#{data.aliases[alias]}'."
+      else
+        data.aliases[alias] = proj.data.name.toLowerCase()
+        msg.send "Ok, '#{proj.data.name}' will be known as '#{alias}'."
+    .catch (e) ->
+      msg.send e
 
   #   hubot phad forget <alias>
   robot.respond /phad forget (.+)$/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phadmin', ->
-      alias = msg.match[1]
+    alias = msg.match[1]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
       if data.aliases[alias]
         delete data.aliases[alias]
         msg.send "Ok, the alias '#{alias}' is forgotten."
       else
         msg.send "Sorry, I don't know the alias '#{alias}'."
+    .catch (e) ->
+      msg.send e
 
   #   hubot phad feed <project> to <room>
   robot.respond /phad feeds? (.+) to (.+)$/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phadmin', ->
-      project = msg.match[1].toLowerCase()
-      room = msg.match[2]
+    project = msg.match[1].toLowerCase()
+    room = msg.match[2]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
       phab.getProject(project)
-        .then (proj) ->
-          proj.data.feeds ?= [ ]
-          if room in proj.data.feeds
-            msg.send "The feed from '#{proj.data.name}' to '#{room}' already exist."
-          else
-            data.projects[proj.data.name].feeds ?= [ ]
-            data.projects[proj.data.name].feeds.push room
-            msg.send "Ok, '#{proj.data.name}' is now feeding '#{room}'."
-        .catch (e) ->
-          msg.send e
+    .then (proj) ->
+      proj.data.feeds ?= [ ]
+      if room in proj.data.feeds
+        msg.send "The feed from '#{proj.data.name}' to '#{room}' already exist."
+      else
+        data.projects[proj.data.name].feeds ?= [ ]
+        data.projects[proj.data.name].feeds.push room
+        msg.send "Ok, '#{proj.data.name}' is now feeding '#{room}'."
+    .catch (e) ->
+      msg.send e
 
   #   hubot phad remove <project> from <room>
   robot.respond /phad remove (.+) from (.+)$/, (msg) ->
-    phab.withPermission msg, msg.envelope.user, 'phadmin', ->
-      project = msg.match[1].toLowerCase()
-      room = msg.match[2]
+    project = msg.match[1].toLowerCase()
+    room = msg.match[2]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
       phab.getProject(project)
-        .then (proj) ->
-          proj.data.feeds ?= [ ]
-          if room in proj.data.feeds
-            idx = data.projects[proj.data.name].feeds.indexOf room
-            data.projects[proj.data.name].feeds.splice(idx, 1)
-            msg.send "Ok, The feed from '#{proj.data.name}' to '#{room}' was removed."
-          else
-            msg.send "Sorry, '#{proj.data.name}' is not feeding '#{room}'."
-        .catch (e) ->
-          msg.send e
+    .then (proj) ->
+      proj.data.feeds ?= [ ]
+      if room in proj.data.feeds
+        idx = data.projects[proj.data.name].feeds.indexOf room
+        data.projects[proj.data.name].feeds.splice(idx, 1)
+        msg.send "Ok, The feed from '#{proj.data.name}' to '#{room}' was removed."
+      else
+        msg.send "Sorry, '#{proj.data.name}' is not feeding '#{room}'."
+    .catch (e) ->
+      msg.send e

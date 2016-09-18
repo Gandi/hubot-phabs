@@ -72,41 +72,6 @@ class Phabricator
       return false
     true
 
-  # --------------- OLD
-  phabGet: (query, endpoint, cb) =>
-    query['api.token'] = process.env.PHABRICATOR_API_KEY
-    # console.log query
-    body = querystring.stringify(query)
-    @robot.http(process.env.PHABRICATOR_URL)
-      .path("api/#{endpoint}")
-      .get(body) (err, res, payload) ->
-        json_body = null
-        if res?
-          switch res.statusCode
-            when 200
-              if res.headers['content-type'] is 'application/json'
-                json_body = JSON.parse(payload)
-              else
-                json_body = {
-                  result: { },
-                  error_code: 'ENOTJSON',
-                  error_info: 'api did not deliver json'
-                }
-            else
-              json_body = {
-                result: { },
-                error_code: res.statusCode,
-                error_info: "http error #{res.statusCode}"
-              }
-        else
-          json_body = {
-            result: { },
-            error_code: err.code,
-            error_info: err.message
-          }
-        cb json_body
-
-  # --------------- NEW
   request: (query, endpoint) =>
     return new Promise (res, err) =>
       query['api.token'] = process.env.PHABRICATOR_API_KEY
@@ -143,7 +108,6 @@ class Phabricator
       pos = @data.blacklist.indexOf id
       @data.blacklist.splice(pos, 1)
 
-  # --------------- NEW
   getBotPHID: =>
     return new Promise (res, err) =>
       if @data.bot_phid?
@@ -156,7 +120,6 @@ class Phabricator
           .catch (e) ->
             err e
 
-  # --------------- NEW
   getFeed: (payload) =>
     return new Promise (res, err) =>
       if /^PHID-TASK-/.test payload.storyData.objectPHID
@@ -183,49 +146,6 @@ class Phabricator
       else
         err 'no room to announce in'
 
-  # --------------- OLD
-  withProject: (project, cb) =>
-    project = project.toLowerCase()
-    if @data.projects[project]?
-      projectData = @data.projects[project]
-      projectData.name = project
-    else
-      for a, p of @data.aliases
-        if a is project and @data.projects[p]?
-          projectData = @data.projects[p]
-          projectData.name = p
-          break
-    aliases = []
-    if projectData?
-      for a, p of @data.aliases
-        if p is projectData.name
-          aliases.push a
-      if projectData.phid?
-        cb { aliases: aliases, data: projectData }
-      else
-        query = { 'names[0]': projectData.name }
-        @phabGet query, 'project.query', (json_body) ->
-          if Object.keys(json_body.result.data).length > 0
-            projectData.phid = Object.keys(json_body.result.data)[0]
-            cb { aliases: aliases, data: projectData }
-          else
-            cb { error_info: "Sorry, #{project} not found." }
-    else
-      data = @data
-      query = { 'names[0]': project }
-      @phabGet query, 'project.query', (json_body) ->
-        if json_body.result.data.length > 0 or Object.keys(json_body.result.data).length > 0
-          phid = Object.keys(json_body.result.data)[0]
-          data.projects[project] = { phid: phid }
-          projectData = {
-            name: json_body.result.data[phid].name
-          }
-          cb { aliases: aliases, data: projectData }
-        else
-          cb { error_info: "Sorry, #{project} not found." }
-
-
-  # --------------- NEW withProject
   getProject: (project) ->
     return new Promise (res, err) =>
       project = project.toLowerCase()
@@ -263,23 +183,21 @@ class Phabricator
           .catch (e) ->
             err e
 
-  # --------------- NEW from withProject
   requestProject: (project_name) ->
     return new Promise (res, err) =>
       query = { 'names[0]': project_name }
       @request(query, 'project.query')
-        .then (body) ->
-          data = body.result.data
-          if data.length > 0 or Object.keys(data).length > 0
-            phid = Object.keys(data)[0]
-            name = data[phid].name
-            res { name: name, phid: phid }
-          else
-            err "Sorry, #{project_name} not found."
-        .catch (e) ->
-          err e
+      .then (body) ->
+        data = body.result.data
+        if data.length > 0 or Object.keys(data).length > 0
+          phid = Object.keys(data)[0]
+          name = data[phid].name
+          res { name: name, phid: phid }
+        else
+          err "Sorry, #{project_name} not found."
+      .catch (e) ->
+        err e
 
-  # --------------- NEW
   getUser: (from, user) =>
     return new Promise (res, err) =>
       unless user.id?
@@ -304,13 +222,12 @@ class Phabricator
             user = @data.users[user.id]
             query = { 'emails[0]': email }
             @request(query, 'user.query')
-              .then (body) ->
-                if body.result['0']?
-                  user.phid = body['result']['0']['phid']
-                  res user.phid
-                else
-                  err "Sorry, I cannot find #{email} :("
-
+            .then (body) ->
+              if body.result['0']?
+                user.phid = body['result']['0']['phid']
+                res user.phid
+              else
+                err "Sorry, I cannot find #{email} :("
 
   _ask_for_email: (from, user) ->
     if from.name is user.name
@@ -333,7 +250,6 @@ class Phabricator
     @data.users[user.id].lastTask = moment().utc().format()
     @data.users[user.id].lastId = id
 
-  # --------------- NEW
   getId: (user, id = null) ->
     return new Promise (res, err) =>
       @data.users[user.id] ?= {
@@ -359,39 +275,21 @@ class Phabricator
         else
           err "Sorry, you don't have any task active right now."
 
-
-  # --------------- NEW
   getUserByPhid: (phid) ->
     return new Promise (res, err) =>
       if phid?
         query = { 'phids[0]': phid }
         @request(query, 'user.query')
-          .then (body) ->
-            if body['result']['0']?
-              res body['result']['0']['userName']
-            else
-              res 'unknown'
-          .catch (e) ->
-            err e
+        .then (body) ->
+          if body['result']['0']?
+            res body['result']['0']['userName']
+          else
+            res 'unknown'
+        .catch (e) ->
+          err e
       else
         res 'nobody'
 
-
-  # --------------- OLD
-  withPermission: (msg, user, group, cb) =>
-    if group is 'phuser' and process.env.PHABRICATOR_TRUSTED_USERS is 'y'
-      isAuthorized = true
-    else
-      isAuthorized = @robot.auth?.hasRole(user, [group, 'phadmin']) or
-                     @robot.auth?.isAdmin(user)
-    if @robot.auth? and not isAuthorized
-      msg.reply "You don't have permission to do that."
-      msg.finish()
-    else
-      cb()
-
-
-  # --------------- NEW
   getPermission: (user, group) =>
     return new Promise (res, err) =>
       if group is 'phuser' and process.env.PHABRICATOR_TRUSTED_USERS is 'y'
@@ -404,195 +302,165 @@ class Phabricator
       else
         res()
 
+  taskInfo: (id) ->
+    query = { 'task_id': id }
+    @request query, 'maniphest.info'
 
-  # --------------- NEW
-  taskInfo: (id, cb) ->
-    if @ready() is true
-      query = { 'task_id': id }
-      @phabGet query, 'maniphest.info', (json_body) ->
-        cb json_body
-
-  # --------------- NEW
   getTask: (id) ->
     query = { 'task_id': id }
     @request query, 'maniphest.info'
 
+  fileInfo: (id) ->
+    query = { 'id': id }
+    @request query, 'file.info'
 
-  fileInfo: (id, cb) ->
-    if @ready() is true
-      query = { 'id': id }
-      @phabGet query, 'file.info', (json_body) ->
-        cb json_body
+  pasteInfo: (id) ->
+    query = { 'ids[0]': id }
+    @request query, 'paste.query'
 
+  genericInfo: (name) ->
+    query = { 'names[]': name }
+    @request query, 'phid.lookup'
 
-  pasteInfo: (id, cb) ->
-    if @ready() is true
-      query = { 'ids[0]': id }
-      @phabGet query, 'paste.query', (json_body) ->
-        cb json_body
+  searchTask: (phid, terms) ->
+    query = {
+      'constraints[fulltext]': terms,
+      'constraints[statuses][0]': 'open',
+      'constraints[projects][0]': phid,
+      'order': 'newest',
+      'limit': '3'
+    }
+    @request query, 'maniphest.search'
 
+  searchAllTask: (phid, terms) ->
+    query = {
+      'constraints[fulltext]': terms,
+      'constraints[projects][0]': phid,
+      'order': 'newest',
+      'limit': '3'
+    }
+    @request query, 'maniphest.search'
 
-  genericInfo: (name, cb) ->
-    if @ready() is true
-      query = { 'names[]': name }
-      @phabGet query, 'phid.lookup', (json_body) ->
-        cb json_body
-
-
-  searchTask: (phid, terms, cb) ->
-    if @ready() is true
-      query = {
-        'constraints[fulltext]': terms,
-        'constraints[statuses][0]': 'open',
-        'constraints[projects][0]': phid,
-        'order': 'newest',
-        'limit': '3'
-      }
-      # console.log query
-      @phabGet query, 'maniphest.search', (json_body) ->
-        cb json_body
-
-
-  searchAllTask: (phid, terms, cb) ->
-    if @ready() is true
-      query = {
-        'constraints[fulltext]': terms,
-        'constraints[projects][0]': phid,
-        'order': 'newest',
-        'limit': '3'
-      }
-      # console.log query
-      @phabGet query, 'maniphest.search', (json_body) ->
-        cb json_body
-   
-
-  # --------------- NEW
   createTask: (params) ->
     params.adapter = @robot.adapterName or 'test'
     @getBotPHID()
-      .then (bot_phid) =>
-        params.bot_phid = bot_phid
-        if params.user?
-          if not params.user?.name?
-            params.user = { name: params.user }
-        else
-          params.user = { name: @robot.name, phid: params.bot_phid }
-        @getTemplate(params.template)
-      .then (descrption) =>
-        if description?
-          if params.description?
-            params.description += "\n\n#{description}"
-          else
-            params.description = description
-        @getProject(params.project)
-      .then (projectparams) =>
-        @getUser(params.user, params.user)
-      .then (userPHID) =>
-        query = {
-          'transactions[0][type]': 'title',
-          'transactions[0][value]': "#{params.title}",
-          'transactions[1][type]': 'comment',
-          'transactions[1][value]': "(created by #{params.user.name} on #{params.adapter})",
-          'transactions[2][type]': 'subscribers.add',
-          'transactions[2][value][0]': "#{params.userPhid}",
-          'transactions[3][type]': 'subscribers.remove',
-          'transactions[3][value][0]': "#{params.bot_phid}",
-          'transactions[4][type]': 'projects.add',
-          'transactions[4][value][]': "#{params.projectphid}"
-        }
-        next = 5
+    .then (bot_phid) =>
+      params.bot_phid = bot_phid
+      if params.user?
+        if not params.user?.name?
+          params.user = { name: params.user }
+      else
+        params.user = { name: @robot.name, phid: params.bot_phid }
+      @getTemplate(params.template)
+    .then (descrption) =>
+      if description?
         if params.description?
-          query["transactions[#{next}][type]"] = 'description'
-          query["transactions[#{next}][value]"] = "#{params.description}"
-          next += 1
-        if params.assign? and params.users?[params.assign]?.phid
-          owner = params.users[params.assign]?.phid
-          query["transactions[#{next}][type]"] = 'owner'
-          query["transactions[#{next}][value]"] = owner
-        @request(query, 'maniphest.edit')
-      .then (body) ->
-        id = body.result.object.id
-        url = process.env.PHABRICATOR_URL + "/T#{id}"
-        { id: id, url: url, user: params.user }
+          params.description += "\n\n#{description}"
+        else
+          params.description = description
+      @getProject(params.project)
+    .then (projectparams) =>
+      @getUser(params.user, params.user)
+    .then (userPHID) =>
+      query = {
+        'transactions[0][type]': 'title',
+        'transactions[0][value]': "#{params.title}",
+        'transactions[1][type]': 'comment',
+        'transactions[1][value]': "(created by #{params.user.name} on #{params.adapter})",
+        'transactions[2][type]': 'subscribers.add',
+        'transactions[2][value][0]': "#{params.userPhid}",
+        'transactions[3][type]': 'subscribers.remove',
+        'transactions[3][value][0]': "#{params.bot_phid}",
+        'transactions[4][type]': 'projects.add',
+        'transactions[4][value][]': "#{params.projectphid}"
+      }
+      next = 5
+      if params.description?
+        query["transactions[#{next}][type]"] = 'description'
+        query["transactions[#{next}][value]"] = "#{params.description}"
+        next += 1
+      if params.assign? and params.users?[params.assign]?.phid
+        owner = params.users[params.assign]?.phid
+        query["transactions[#{next}][type]"] = 'owner'
+        query["transactions[#{next}][value]"] = owner
+      @request(query, 'maniphest.edit')
+    .then (body) ->
+      id = body.result.object.id
+      url = process.env.PHABRICATOR_URL + "/T#{id}"
+      { id: id, url: url, user: params.user }
 
-  # --------------- NEW
   createPaste: (user, title) ->
     adapter = @robot.adapterName
     bot_phid = null
     @getBotPHID()
-      .bind(bot_phid)
-      .then (bot_phid) =>
-        @getUser(user, user)
-      .then (userPhid) =>
-        query = {
-          'transactions[0][type]': 'title',
-          'transactions[0][value]': "#{title}",
-          'transactions[1][type]': 'text',
-          'transactions[1][value]': "(created by #{user.name} on #{adapter})",
-          'transactions[2][type]': 'subscribers.add',
-          'transactions[2][value][0]': "#{userPhid}",
-          'transactions[3][type]': 'subscribers.remove',
-          'transactions[3][value][0]': "#{@bot_phid}"
-        }
-        @request(query, 'paste.edit')
-      .then (body) ->
-        body.result.object.id
+    .bind(bot_phid)
+    .then (bot_phid) =>
+      @getUser(user, user)
+    .then (userPhid) =>
+      query = {
+        'transactions[0][type]': 'title',
+        'transactions[0][value]': "#{title}",
+        'transactions[1][type]': 'text',
+        'transactions[1][value]': "(created by #{user.name} on #{adapter})",
+        'transactions[2][type]': 'subscribers.add',
+        'transactions[2][value][0]': "#{userPhid}",
+        'transactions[3][type]': 'subscribers.remove',
+        'transactions[3][value][0]': "#{@bot_phid}"
+      }
+      @request(query, 'paste.edit')
+    .then (body) ->
+      body.result.object.id
 
-  # --------------- NEW
   addComment: (user, id, comment) ->
     @getBotPHID()
-      .then (bot_phid) =>
-        query = {
-          'objectIdentifier': id,
-          'transactions[0][type]': 'comment',
-          'transactions[0][value]': "#{comment} (#{user.name})",
-          'transactions[1][type]': 'subscribers.remove',
-          'transactions[1][value][0]': "#{bot_phid}"
-        }
-        @request(query, 'maniphest.edit')
-      .then (body) ->
-        id
+    .then (bot_phid) =>
+      query = {
+        'objectIdentifier': id,
+        'transactions[0][type]': 'comment',
+        'transactions[0][value]': "#{comment} (#{user.name})",
+        'transactions[1][type]': 'subscribers.remove',
+        'transactions[1][value][0]': "#{bot_phid}"
+      }
+      @request(query, 'maniphest.edit')
+    .then (body) ->
+      id
 
-  # --------------- NEW
   changeTags: (user, id, alltags) ->
     bot_phid = null
     @getBotPHID()
-      .bind(bot_phid)
-      .then (bot_phid) =>
-        @getUser(user, user)
-      .then (userPhid) =>
-        query = { 'task_id': id }
-        @request(query, 'maniphest.info')
-      .then (body) =>
-        @makeTags(body.result.projectPHIDs, alltags)
-      .then (tags) =>
-        [ add, remove, messages ] = tags
-        query = {
-          'objectIdentifier': id,
-          'transactions[0][type]': 'subscribers.remove',
-          'transactions[0][value][0]': "#{@bot_phid}",
-          'transactions[1][type]': 'comment',
-          'transactions[1][value]': "tags changed by #{user.name}"
-        }
-        ind = 1
-        if add.length > 0
-          ind += 1
-          query["transactions[#{ind}][type]"] = 'projects.add'
-          query["transactions[#{ind}][value]"] = add.map (t) -> t.phid
-          messages.push "T#{id} added to #{add.map((t) -> t.tag).join(', ')}"
-        if remove.length > 0
-          ind += 1
-          query["transactions[#{ind}][type]"] = 'projects.remove'
-          query["transactions[#{ind}][value]"] = remove.map (t) -> t.phid
-          messages.push "T#{id} removed from #{add.map((t) -> t.tag).join(', ')}"
-        console.log query
-        console.log messages
-        if ind > 1
-          @request(query, 'maniphest.edit')
-            .then (body) ->
-              messages
+    .bind(bot_phid)
+    .then (bot_phid) =>
+      @getUser(user, user)
+    .then (userPhid) =>
+      query = { 'task_id': id }
+      @request(query, 'maniphest.info')
+    .then (body) =>
+      @makeTags(body.result.projectPHIDs, alltags)
+    .then (tags) =>
+      [ add, remove, messages ] = tags
+      query = {
+        'objectIdentifier': id,
+        'transactions[0][type]': 'subscribers.remove',
+        'transactions[0][value][0]': "#{@bot_phid}",
+        'transactions[1][type]': 'comment',
+        'transactions[1][value]': "tags changed by #{user.name}"
+      }
+      ind = 1
+      if add.length > 0
+        ind += 1
+        query["transactions[#{ind}][type]"] = 'projects.add'
+        query["transactions[#{ind}][value]"] = add.map (t) -> t.phid
+        messages.push "T#{id} added to #{add.map((t) -> t.tag).join(', ')}"
+      if remove.length > 0
+        ind += 1
+        query["transactions[#{ind}][type]"] = 'projects.remove'
+        query["transactions[#{ind}][value]"] = remove.map (t) -> t.phid
+        messages.push "T#{id} removed from #{add.map((t) -> t.tag).join(', ')}"
+      if ind > 1
+        @request(query, 'maniphest.edit')
+          .then (body) ->
+            messages
 
-  # --------------- NEW
   makeTags: (projs, alltags) ->
     ins = alltags.trim().split('not in ')
     tagin = ins.shift().split('in ').map (e) -> e.trim()
@@ -605,240 +473,224 @@ class Phabricator
     msg = [ ]
     add = Promise.map tagin, (tag) =>
       @getProject(tag)
-        .then (projectData) ->
-          phid = projectData.data.phid
-          if phid not in projs
-            { tag: tag, phid: phid }
-          else
-            msg.push "already in #{tag}"
+      .then (projectData) ->
+        phid = projectData.data.phid
+        if phid not in projs
+          { tag: tag, phid: phid }
+        else
+          msg.push "already in #{tag}"
     .filter (tag) ->
       tag?
     remove = Promise.map tagout, (tag) =>
       @getProject(tag)
-        .then (projectData) ->
-          phid = projectData.data.phid
-          if phid in projs
-            { tag: tag, phid: phid }
-          else
-            msg.push "not in #{tag}"
+      .then (projectData) ->
+        phid = projectData.data.phid
+        if phid in projs
+          { tag: tag, phid: phid }
+        else
+          msg.push "not in #{tag}"
     .filter (tag) ->
       tag?
     return Promise.all([add, remove, msg])
 
-  # --------------- NEW
   updateStatus: (user, id, status, comment) ->
     userPhid = null
     @getUser(user, user)
-      .then (userPhid) =>
-        @getBotPHID()
-      .then (bot_phid) =>
-        query = {
-          'objectIdentifier': id,
-          'transactions[0][type]': 'status',
-          'transactions[0][value]': @statuses[status],
-          'transactions[1][type]': 'subscribers.remove',
-          'transactions[1][value][0]': "#{bot_phid}",
-          'transactions[2][type]': 'owner',
-          'transactions[2][value]': userPhid,
-          'transactions[3][type]': 'comment'
-        }
-        if comment?
-          query['transactions[3][value]'] = "#{comment} (#{user.name})"
-        else
-          query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
-        @request(query, 'maniphest.edit')
-      .then (body) ->
-        id
+    .then (userPhid) =>
+      @getBotPHID()
+    .then (bot_phid) =>
+      query = {
+        'objectIdentifier': id,
+        'transactions[0][type]': 'status',
+        'transactions[0][value]': @statuses[status],
+        'transactions[1][type]': 'subscribers.remove',
+        'transactions[1][value][0]': "#{bot_phid}",
+        'transactions[2][type]': 'owner',
+        'transactions[2][value]': userPhid,
+        'transactions[3][type]': 'comment'
+      }
+      if comment?
+        query['transactions[3][value]'] = "#{comment} (#{user.name})"
+      else
+        query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
+      @request(query, 'maniphest.edit')
+    .then (body) ->
+      id
 
-
-  # --------------- NEW
   updatePriority: (user, id, priority, comment) ->
     userPhid = null
     @getUser(user, user)
-      .then (userPhid) =>
-        @getBotPHID()
-      .then (bot_phid) =>
-        query = {
-          'objectIdentifier': id,
-          'transactions[0][type]': 'priority',
-          'transactions[0][value]': @priorities[priority],
-          'transactions[1][type]': 'subscribers.remove',
-          'transactions[1][value][0]': "#{bot_phid}",
-          'transactions[2][type]': 'owner',
-          'transactions[2][value]': userPhid,
-          'transactions[3][type]': 'comment'
-        }
-        if comment?
-          query['transactions[3][value]'] = "#{comment} (#{user.name})"
-        else
-          query['transactions[3][value]'] = "priority set to #{priority} by #{user.name}"
-        @request(query, 'maniphest.edit')
-      .then (body) ->
-        id
+    .then (userPhid) =>
+      @getBotPHID()
+    .then (bot_phid) =>
+      query = {
+        'objectIdentifier': id,
+        'transactions[0][type]': 'priority',
+        'transactions[0][value]': @priorities[priority],
+        'transactions[1][type]': 'subscribers.remove',
+        'transactions[1][value][0]': "#{bot_phid}",
+        'transactions[2][type]': 'owner',
+        'transactions[2][value]': userPhid,
+        'transactions[3][type]': 'comment'
+      }
+      if comment?
+        query['transactions[3][value]'] = "#{comment} (#{user.name})"
+      else
+        query['transactions[3][value]'] = "priority set to #{priority} by #{user.name}"
+      @request(query, 'maniphest.edit')
+    .then (body) ->
+      id
 
-
-  # --------------- NEW
   assignTask: (id, userphid) ->
     @getBotPHID()
-      .then (bot_phid) =>
-        query = {
-          'objectIdentifier': "T#{id}",
-          'transactions[0][type]': 'owner',
-          'transactions[0][value]': "#{userphid}",
-          'transactions[1][type]': 'subscribers.remove',
-          'transactions[1][value][0]': "#{bot_phid}"
-        }
-        @request(query, 'maniphest.edit')
-      .then (body) ->
-        body.result.id
-
+    .then (bot_phid) =>
+      query = {
+        'objectIdentifier': "T#{id}",
+        'transactions[0][type]': 'owner',
+        'transactions[0][value]': "#{userphid}",
+        'transactions[1][type]': 'subscribers.remove',
+        'transactions[1][value][0]': "#{bot_phid}"
+      }
+      @request(query, 'maniphest.edit')
+    .then (body) ->
+      body.result.id
 
   listTasks: (projphid, cb) ->
-    if @ready() is true
-      query = {
-        'projectPHIDs[0]': "#{projphid}",
-        'status': 'status-open'
-      }
-      @phabGet query, 'maniphest.query', (json_body) ->
-        cb json_body
+    query = {
+      'projectPHIDs[0]': "#{projphid}",
+      'status': 'status-open'
+    }
+    @request query, 'maniphest.query'
 
-
-  # --------------- NEW
   nextCheckbox: (user, id, key) ->
     return new Promise (res, err) =>
       query = { task_id: id }
       @request(query, 'maniphest.info')
-        .then (body) =>
-          @recordId user, id
-          lines = body.result.description.split('\n')
-          reg = new RegExp("^\\[ \\] .*#{key or ''}", 'i')
-          found = null
-          for line in lines
-            if reg.test line
-              found = line
-              break
-          if found?
-            res found
+      .then (body) =>
+        @recordId user, id
+        lines = body.result.description.split('\n')
+        reg = new RegExp("^\\[ \\] .*#{key or ''}", 'i')
+        found = null
+        for line in lines
+          if reg.test line
+            found = line
+            break
+        if found?
+          res found
+        else
+          if key?
+            err "The task T#{id} has no unchecked checkbox matching #{key}."
           else
-            if key?
-              err "The task T#{id} has no unchecked checkbox matching #{key}."
-            else
-              err "The task T#{id} has no unchecked checkboxes."
-        .catch (e) ->
-          err e
+            err "The task T#{id} has no unchecked checkboxes."
+      .catch (e) ->
+        err e
 
-
-  # --------------- NEW
   prevCheckbox: (user, id, key) ->
     return new Promise (res, err) =>
       query = { task_id: id }
       @request(query, 'maniphest.info')
-        .then (body) =>
-          @recordId user, id
-          lines = body.result.description.split('\n').reverse()
-          reg = new RegExp("^\\[x\\] .*#{key or ''}", 'i')
-          found = null
-          for line in lines
-            if reg.test line
-              found = line
-              break
-          if found?
-            res found
+      .then (body) =>
+        @recordId user, id
+        lines = body.result.description.split('\n').reverse()
+        reg = new RegExp("^\\[x\\] .*#{key or ''}", 'i')
+        found = null
+        for line in lines
+          if reg.test line
+            found = line
+            break
+        if found?
+          res found
+        else
+          if key?
+            err "The task T#{id} has no checked checkbox matching #{key}."
           else
-            if key?
-              err "The task T#{id} has no checked checkbox matching #{key}."
-            else
-              err "The task T#{id} has no checked checkboxes."
-        .catch (e) ->
-          err e
+            err "The task T#{id} has no checked checkboxes."
+      .catch (e) ->
+        err e
 
-  # --------------- NEW
   updateTask: (id, description, comment) =>
     @getBotPHID()
-      .then (bot_phid) =>
-        editquery = {
-          'objectIdentifier': "T#{id}",
-          'transactions[0][type]': 'description'
-          'transactions[0][value]': "#{description}"
-          'transactions[1][type]': 'subscribers.remove',
-          'transactions[1][value][0]': "#{bot_phid}",
-          'transactions[2][type]': 'comment',
-          'transactions[2][value]': "#{comment}"
-        }
-        @request(editquery, 'maniphest.edit')
+    .then (bot_phid) =>
+      editquery = {
+        'objectIdentifier': "T#{id}",
+        'transactions[0][type]': 'description'
+        'transactions[0][value]': "#{description}"
+        'transactions[1][type]': 'subscribers.remove',
+        'transactions[1][value][0]': "#{bot_phid}",
+        'transactions[2][type]': 'comment',
+        'transactions[2][value]': "#{comment}"
+      }
+      @request(editquery, 'maniphest.edit')
 
-  # --------------- NEW
   checkCheckbox: (user, id, key, withNext, usercomment) ->
     return new Promise (res, err) =>
       query = { task_id: id }
       @request(query, 'maniphest.info')
-        .then (body) =>
-          @recordId user, id
-          lines = body.result.description.split('\n')
-          reg = new RegExp("^\\[ \\] .*#{key or ''}", 'i')
-          found = null
-          foundNext = null
-          updated = [ ]
-          extra = if key? then " matching #{key}" else ''
-          for line in lines
-            if not found? and reg.test line
-              line = line.replace('[ ] ', '[x] ')
-              found = line
-            else if withNext? and found? and not foundNext? and reg.test line
-              foundNext = line
-            updated.push line
-          if found?
-            comment = "#{user.name} checked:\n#{found}"
-            comment += "\n#{usercomment}" if usercomment?
-            description = updated.join('\n')
-            @updateTask(id, description, comment)
-              .then (body) ->
-                if withNext? and not foundNext?
-                  foundNext = "there is no more unchecked checkbox#{extra}."
-                res [ found, foundNext ]
-              .catch (e) ->
-                err e
-          else
-            err "The task T#{id} has no unchecked checkbox#{extra}."
-        .catch (e) ->
-          err e
+      .then (body) =>
+        @recordId user, id
+        lines = body.result.description.split('\n')
+        reg = new RegExp("^\\[ \\] .*#{key or ''}", 'i')
+        found = null
+        foundNext = null
+        updated = [ ]
+        extra = if key? then " matching #{key}" else ''
+        for line in lines
+          if not found? and reg.test line
+            line = line.replace('[ ] ', '[x] ')
+            found = line
+          else if withNext? and found? and not foundNext? and reg.test line
+            foundNext = line
+          updated.push line
+        if found?
+          comment = "#{user.name} checked:\n#{found}"
+          comment += "\n#{usercomment}" if usercomment?
+          description = updated.join('\n')
+          @updateTask(id, description, comment)
+          .then (body) ->
+            if withNext? and not foundNext?
+              foundNext = "there is no more unchecked checkbox#{extra}."
+            res [ found, foundNext ]
+          .catch (e) ->
+            err e
+        else
+          err "The task T#{id} has no unchecked checkbox#{extra}."
+      .catch (e) ->
+        err e
 
-
-  # --------------- NEW
   uncheckCheckbox: (user, id, key, withNext, usercomment) ->
     return new Promise (res, err) =>
       query = { task_id: id }
       @request(query, 'maniphest.info')
-        .then (body) =>
-          @recordId user, id
-          lines = body.result.description.split('\n').reverse()
-          reg = new RegExp("^\\[x\\] .*#{key or ''}", 'i')
-          found = null
-          foundNext = null
-          updated = [ ]
-          extra = if key? then " matching #{key}" else ''
-          for line in lines
-            if not found? and reg.test line
-              line = line.replace('[x] ', '[ ] ')
-              found = line
-            else if withNext? and found? and not foundNext? and reg.test line
-              foundNext = line
-            updated.push line
-          if found?
-            comment = "#{user.name} unchecked:\n#{found}"
-            comment += "\n#{usercomment}" if usercomment?
-            description = updated.reverse().join('\n')
-            @updateTask(id, description, comment)
-              .then (body) ->
-                if withNext? and not foundNext?
-                  foundNext = "there is no more checked checkbox#{extra}."
-                res [ found, foundNext ]
-              .catch (e) ->
-                err e
-          else
-            err "The task T#{id} has no checked checkbox#{extra}."
-        .catch (e) ->
-          err e
+      .then (body) =>
+        @recordId user, id
+        lines = body.result.description.split('\n').reverse()
+        reg = new RegExp("^\\[x\\] .*#{key or ''}", 'i')
+        found = null
+        foundNext = null
+        updated = [ ]
+        extra = if key? then " matching #{key}" else ''
+        for line in lines
+          if not found? and reg.test line
+            line = line.replace('[x] ', '[ ] ')
+            found = line
+          else if withNext? and found? and not foundNext? and reg.test line
+            foundNext = line
+          updated.push line
+        if found?
+          comment = "#{user.name} unchecked:\n#{found}"
+          comment += "\n#{usercomment}" if usercomment?
+          description = updated.reverse().join('\n')
+          @updateTask(id, description, comment)
+          .then (body) ->
+            if withNext? and not foundNext?
+              foundNext = "there is no more checked checkbox#{extra}."
+            res [ found, foundNext ]
+          .catch (e) ->
+            err e
+        else
+          err "The task T#{id} has no checked checkbox#{extra}."
+      .catch (e) ->
+        err e
 
 
   # templates ---------------------------------------------------
@@ -851,81 +703,81 @@ class Phabricator
             task_id: @data.templates[name].task
           }
           @request(query, 'maniphest.info')
-            .then (body) ->
-              res body.result.description
-            .catch (e) ->
-              err e
+          .then (body) ->
+            res body.result.description
+          .catch (e) ->
+            err e
         else
           err "There is no template named '#{name}'."
       else
         res null
 
-  addTemplate: (name, taskid, cb) ->
-    if @ready() is true
+  addTemplate: (name, taskid) ->
+    return new Promise (res, err) =>
       if @data.templates[name]?
-        cb { error_info: "Template '#{name}' already exists." }
+        err "Template '#{name}' already exists."
       else
         data = @data
-        @taskInfo taskid, (body) ->
-          if body.error_info?
-            cb body
-          else
-            data.templates[name] = { task: taskid }
-            cb { ok: 'Ok' }
+        @taskInfo(taskid)
+        .then (body) ->
+          data.templates[name] = { task: taskid }
+          res 'Ok'
+        .catch (e) ->
+          err e
 
-  showTemplate: (name, cb) ->
-    if @ready() is true
+  showTemplate: (name) ->
+    return new Promise (res, err) =>
       if @data.templates[name]?
-        cb @data.templates[name]
+        res @data.templates[name]
       else
-        cb { error_info: "Template '#{name}' was not found." }
+        err "Template '#{name}' was not found."
 
-  searchTemplate: (term, cb) ->
-    if @ready() is true
-      res = [ ]
+  searchTemplate: (term) ->
+    return new Promise (res, err) =>
+      back = [ ]
       for name, template of @data.templates
         if new RegExp(term).test name
-          res.push { name: name, task: template.task }
-      if res.length is 0
+          back.push { name: name, task: template.task }
+      if back.length is 0
         if term?
-          cb { error_info: "No template matches '#{term}'." }
+          err "No template matches '#{term}'."
         else
-          cb { error_info: 'There is no template defined.' }
+          err 'There is no template defined.'
       else
-        cb res
+        res back
         
-  removeTemplate: (name, cb) ->
-    if @ready() is true
+  removeTemplate: (name) ->
+    return new Promise (res, err) =>
       if @data.templates[name]?
         delete @data.templates[name]
-        cb { ok: 'Ok' }
+        res 'Ok'
       else
-        cb { error_info: "Template '#{name}' was not found." }
+        err "Template '#{name}' was not found."
 
-  updateTemplate: (name, taskid, cb) ->
-    if @ready() is true
+  updateTemplate: (name, taskid) ->
+    return new Promise (res, err) =>
       if @data.templates[name]?
         data = @data
-        @taskInfo taskid, (body) ->
-          if body.error_info?
-            cb body
-          else
-            data.templates[name] = { task: taskid }
-            cb { ok: 'Ok' }
+        @taskInfo(taskid)
+        .then (body) ->
+          data.templates[name] = { task: taskid }
+          res 'Ok'
+        .catch (e) ->
+          err e
       else
-        cb { error_info: "Template '#{name}' was not found." }
+        err "Template '#{name}' was not found."
 
-  renameTemplate: (name, newname, cb) ->
-    if @ready() is true
+  renameTemplate: (name, newname) ->
+    return new Promise (res, err) =>
       if @data.templates[name]?
         if @data.templates[newname]?
-          cb { error_info: "Template '#{newname}' already exists." }
+          err "Template '#{newname}' already exists."
         else
           @data.templates[newname] = { task: @data.templates[name].task }
           delete @data.templates[name]
-          cb { ok: 'Ok' }
+          res 'Ok'
       else
-        cb { error_info: "Template '#{name}' was not found." }
+        err "Template '#{name}' was not found."
 
 
 
