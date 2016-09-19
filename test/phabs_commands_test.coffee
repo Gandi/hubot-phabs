@@ -1134,6 +1134,83 @@ describe 'phabs_commands module', ->
           expect(hubotResponse(3)).to.eql 'T24 - some task (open, Low, owner user_with_phid)'
 
 
+    context 'phab new proj2 a task', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj2': {
+            name: 'proj2'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/project.query')
+          .query({
+            'names[0]': 'project1',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': {
+              "PHID-PROJ-xxx": {
+                "phid": "PHID-PROJ-xxx"
+              }
+            },
+            'slugMap': [ ],
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null
+            }
+          } })
+          .get('/api/user.query')
+          .reply(200, { result: [ { phid: 'PHID-USER-42', userName: 'user_with_phid' } ] })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 24 } } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'when project is unknown', ->
+        hubot 'phab new proj2 a task', 'user_with_phid'
+        it 'replies that project is unknown', ->
+          expect(hubotResponse()).to.eql 'Task T24 created = http://example.com/T24'
+          expect(room.robot.brain.data.phabricator.projects.proj2.phid)
+            .to.eql 'PHID-PROJ-xxx'
+
+    context 'phab new proj2 a task', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj2': {
+            name: 'proj2'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/project.query')
+          .query({
+            'names[0]': 'project1',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': [ ],
+            'slugMap': [ ],
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null
+            }
+          } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'when project is unknown', ->
+        hubot 'phab new proj2 a task', 'user_with_phid'
+        it 'replies that project is unknown', ->
+          expect(hubotResponse()).to.eql 'Sorry, proj2 not found.'
+
+
     context 'phab new proj3 a task', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
