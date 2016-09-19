@@ -2703,7 +2703,12 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
 
       context 'and user is not in phabs groups', ->
-        hubot 'phab T24 + some comment', 'user_with_phid'
+        hubot 'phab bl V2', 'user_with_phid'
+        it 'warns the user that he has no permission to use that command', ->
+          expect(hubotResponse()).to.eql 'You don\'t have permission to do that.'
+
+      context 'and user is not in phabs groups', ->
+        hubot 'phab unbl V2', 'user_with_phid'
         it 'warns the user that he has no permission to use that command', ->
           expect(hubotResponse()).to.eql 'You don\'t have permission to do that.'
 

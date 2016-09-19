@@ -43,13 +43,13 @@ module.exports = (robot) ->
     msg.send "hubot-phabs module is version #{pkg.version}"
     msg.finish()
 
-  robot.respond /ph phid (.+) *$/, (msg) ->
-    phab.getProject(msg.match[1].toLowerCase())
-    .then (proj) ->
-      msg.send proj.data.phid
-    .catch (e) ->
-      msg.send e
-    msg.finish()
+  # robot.respond /ph phid (.+) *$/, (msg) ->
+  #   phab.getProject(msg.match[1].toLowerCase())
+  #   .then (proj) ->
+  #     msg.send proj.data.phid
+  #   .catch (e) ->
+  #     msg.send e
+  #   msg.finish()
 
   #   hubot phab new <project>[:<template>] <name of the task>
   robot.respond (
