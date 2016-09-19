@@ -75,6 +75,32 @@ describe 'phabs_commands module with no bot_phid', ->
         it 'replies with the object id', ->
           expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
 
+    context 'a task without description, with an unknown bot', ->
+      beforeEach ->
+        delete process.env.PHABRICATOR_BOT_PHID
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.whoami')
+          .reply(200, { error_info: "Unknown user" })
+          .get('/api/user.query')
+          .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'phab new proj1 a task', 'user_with_phid'
+        it 'replies with the object id', ->
+          expect(hubotResponse()).to.eql 'Unknown user'
+
 # ---------------------------------------------------------------------------------
 describe 'phabs_commands module', ->
 
@@ -262,6 +288,34 @@ describe 'phabs_commands module', ->
         hubot 'phab T42'
         it 'gives information about the task Txxx', ->
           expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner nobody)'
+
+    context 'task id is provided, and owner is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .query({
+            'task_id': 42,
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            title: 'some task',
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-42'
+            } })
+          .get('/api/user.query')
+          .reply(200, { error_info: 'unknown user' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T42', ->
+        hubot 'phab T42'
+        it 'gives information about the task Txxx', ->
+          expect(hubotResponse()).to.eql 'unknown user'
+
 
     context 'task id is provided, and owner is set, but not in brain', ->
       beforeEach ->
@@ -1167,6 +1221,11 @@ describe 'phabs_commands module', ->
 
           context 'when user is known and his phid is in the brain', ->
             hubot 'phab new proj1:template1 a task', 'user_with_phid'
+            it 'replies with the object id', ->
+              expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
+
+          context 'when user is known and his phid is in the brain', ->
+            hubot 'phab new proj1:template1 a task = description', 'user_with_phid'
             it 'replies with the object id', ->
               expect(hubotResponse()).to.eql 'Task T42 created = http://example.com/T42'
 
@@ -2709,6 +2768,16 @@ describe 'phabs_commands module', ->
 
       context 'and user is not in phabs groups', ->
         hubot 'phab unbl V2', 'user_with_phid'
+        it 'warns the user that he has no permission to use that command', ->
+          expect(hubotResponse()).to.eql 'You don\'t have permission to do that.'
+
+      context 'and user is not in phabs groups', ->
+        hubot 'phab me as mo@example.com', 'user_with_phid'
+        it 'warns the user that he has no permission to use that command', ->
+          expect(hubotResponse()).to.eql 'You don\'t have permission to do that.'
+
+      context 'and user is not in phabs groups', ->
+        hubot 'phab user momo = mo@example.com', 'user_with_phid'
         it 'warns the user that he has no permission to use that command', ->
           expect(hubotResponse()).to.eql 'You don\'t have permission to do that.'
 

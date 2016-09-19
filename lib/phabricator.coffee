@@ -352,7 +352,7 @@ class Phabricator
       else
         params.user = { name: @robot.name, phid: params.bot_phid }
       @getTemplate(params.template)
-    .then (descrption) =>
+    .then (description) =>
       if description?
         if params.description?
           params.description += "\n\n#{description}"
@@ -379,8 +379,8 @@ class Phabricator
         query["transactions[#{next}][type]"] = 'description'
         query["transactions[#{next}][value]"] = "#{params.description}"
         next += 1
-      if params.assign? and params.users?[params.assign]?.phid
-        owner = params.users[params.assign]?.phid
+      if params.assign? and @data.users?[params.assign]?.phid
+        owner = @data.users[params.assign]?.phid
         query["transactions[#{next}][type]"] = 'owner'
         query["transactions[#{next}][value]"] = owner
       @request(query, 'maniphest.edit')
