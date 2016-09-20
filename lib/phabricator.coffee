@@ -455,7 +455,7 @@ class Phabricator
         ind += 1
         query["transactions[#{ind}][type]"] = 'projects.remove'
         query["transactions[#{ind}][value]"] = remove.map (t) -> t.phid
-        messages.push "T#{id} removed from #{add.map((t) -> t.tag).join(', ')}"
+        messages.push "T#{id} removed from #{remove.map((t) -> t.tag).join(', ')}"
       if ind > 1
         @request(query, 'maniphest.edit')
           .then (body) =>

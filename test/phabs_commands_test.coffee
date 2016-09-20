@@ -1677,6 +1677,60 @@ describe 'phabs_commands module', ->
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).to.eql 'T424242 added to proj1'
 
+    context 'when the task is known, and already tagged', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+              'projectPHIDs': [
+                'PHID-PROJ-qhmexneudkt62wc7o3z4'
+              ]
+            }
+          })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 not in proj1', ->
+        hubot 'phab T424242 not in proj1', 'user_with_phid'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).to.eql 'T424242 removed from proj1'
+
+    context 'when the task is known, and not yet tagged', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+              'projectPHIDs': [
+                'PHID-PROJ-xxx'
+              ]
+            }
+          })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 not in proj1', ->
+        hubot 'phab T424242 not in proj1', 'user_with_phid'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).to.eql 'not in proj1'
+
   # ---------------------------------------------------------------------------------
   context 'user changes status for a task', ->
     context 'when the task is unknown', ->
