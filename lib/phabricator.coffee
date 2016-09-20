@@ -438,7 +438,6 @@ class Phabricator
       @makeTags(body.result.projectPHIDs, alltags)
     .then (tags) =>
       [ add, remove, messages ] = tags
-      console.log tags
       query = {
         'objectIdentifier': id,
         'transactions[0][type]': 'subscribers.remove',
@@ -457,13 +456,12 @@ class Phabricator
         query["transactions[#{ind}][type]"] = 'projects.remove'
         query["transactions[#{ind}][value]"] = remove.map (t) -> t.phid
         messages.push "T#{id} removed from #{add.map((t) -> t.tag).join(', ')}"
-      console.log messages
       if ind > 1
         @request(query, 'maniphest.edit')
           .then (body) =>
             messages
       else
-        [ ]
+        [ "No action needed." ]
 
   makeTags: (projs, alltags) ->
     ins = alltags.trim().split('not in ')

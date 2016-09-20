@@ -1602,7 +1602,7 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
 
   # ---------------------------------------------------------------------------------
-  context.only 'user changes tags for a task', ->
+  context 'user changes tags for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
@@ -1623,7 +1623,7 @@ describe 'phabs_commands module', ->
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
 
-    context.only 'when the task is known, and already tagged', ->
+    context 'when the task is known, and already tagged', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj1': {
@@ -1648,9 +1648,9 @@ describe 'phabs_commands module', ->
       context 'phab T424242 in proj1', ->
         hubot 'phab T424242 in proj1', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
+          expect(hubotResponse()).to.eql 'No action needed.'
 
-    context 'when the task is known, and already tagged', ->
+    context 'when the task is known, and not yet tagged', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj1': {
@@ -1675,7 +1675,7 @@ describe 'phabs_commands module', ->
       context 'phab T424242 in proj1', ->
         hubot 'phab T424242 in proj1', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
+          expect(hubotResponse()).to.eql 'T424242 added to proj1'
 
   # ---------------------------------------------------------------------------------
   context 'user changes status for a task', ->

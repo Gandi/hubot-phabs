@@ -169,7 +169,7 @@ module.exports = (robot) ->
       phab.getId(msg.envelope.user, what)
     .then (id) ->
       phab.changeTags(msg.envelope.user, id, alltags)
-    .then (message) ->
+    .then (messages) ->
       for m in messages
         msg.send m
     .catch (e) ->
