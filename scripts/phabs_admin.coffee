@@ -42,6 +42,8 @@ module.exports = (robot) ->
     .then ->
       if data.projects[project]?
         delete data.projects[project]
+        for alias, proj of data.aliases
+          delete data.aliases[alias] if proj is project
         msg.send "#{project} erased from memory."
       else
         msg.send "#{project} not found in memory."

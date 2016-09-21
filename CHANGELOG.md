@@ -1,8 +1,12 @@
 Hubot-phabs Changelog
 ==========================
 
-### 1.6.1 - wip
+### 2.0.0- wip
+- remove all callbacks and replace them by promises
+  for a smoother addition of features later on
+- phad delete also deletes aliases now
 - fix case issue with project names occurring in some occasions
+- add a '.ph Txx in proj not in proj' to change tags on tasks
 
 ### 1.6.0 - 2016-09-08
 - remove all dependency on brain.users to
