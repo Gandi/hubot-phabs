@@ -1729,7 +1729,7 @@ describe 'phabs_commands module', ->
       context 'phab T424242 not in proj1', ->
         hubot 'phab T424242 not in proj1', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'not in proj1'
+          expect(hubotResponse()).to.eql 'No action needed.'
 
   # ---------------------------------------------------------------------------------
   context 'user changes status for a task', ->

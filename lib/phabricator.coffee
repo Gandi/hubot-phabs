@@ -427,10 +427,10 @@ class Phabricator
       id
 
   changeTags: (user, id, alltags) ->
-    bot_phid = null
     @getBotPHID()
-    .bind(bot_phid)
-    .then (bot_phid) =>
+    .bind({ botphid: null })
+    .then (botphid) =>
+      @botphid = botphid
       @getUser(user, user)
     .then (userPhid) =>
       query = { 'task_id': id }
@@ -442,7 +442,7 @@ class Phabricator
       query = {
         'objectIdentifier': id,
         'transactions[0][type]': 'subscribers.remove',
-        'transactions[0][value][0]': "#{@bot_phid}",
+        'transactions[0][value][0]': "#{@botphid}",
         'transactions[1][type]': 'comment',
         'transactions[1][value]': "tags changed by #{user.name}"
       }
@@ -450,12 +450,16 @@ class Phabricator
       if add.length > 0
         ind += 1
         query["transactions[#{ind}][type]"] = 'projects.add'
-        query["transactions[#{ind}][value]"] = add.map (t) -> t.phid
+        x = add.map (t) -> t.phid
+        for p in x 
+          query["transactions[#{ind}][value][]"] = p
         messages.push "T#{id} added to #{add.map((t) -> t.tag).join(', ')}"
       if remove.length > 0
         ind += 1
         query["transactions[#{ind}][type]"] = 'projects.remove'
-        query["transactions[#{ind}][value]"] = remove.map (t) -> t.phid
+        x = remove.map (t) -> t.phid
+        for p in x
+          query["transactions[#{ind}][value][]"] = p
         messages.push "T#{id} removed from #{remove.map((t) -> t.tag).join(', ')}"
       if ind > 1
         @request(query, 'maniphest.edit')
@@ -493,6 +497,7 @@ class Phabricator
           { tag: tag, phid: phid }
         else
           msg.push "not in #{tag}"
+          null
     .filter (tag) ->
       tag?
     return Promise.all([add, remove, msg])
