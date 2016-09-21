@@ -226,14 +226,15 @@ module.exports = (robot) ->
       who = msg.match[7]
       what = msg.match[5] or msg.match[6]
     assignee = { name: who }
-    id = null
     phab.getPermission(msg.envelope.user, 'phuser')
     .then ->
       phab.getId(msg.envelope.user, what)
+    .bind({ id: null })
     .then (id) ->
+      @id = id
       phab.getUser(msg.envelope.user, assignee)
     .then (userPhid) ->
-      phab.assignTask(id, userPhid)
+      phab.assignTask(@id, userPhid)
     .then (id) ->
       msg.send "Ok. T#{id} is now assigned to #{assignee.name}"
     .catch (e) ->

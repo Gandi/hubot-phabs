@@ -2119,7 +2119,7 @@ describe 'phabs_commands module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.edit')
-          .reply(200, { result: { id: 42 } })
+          .reply(200, { result: { object: { id: 42 } } })
 
       afterEach ->
         nock.cleanAll()

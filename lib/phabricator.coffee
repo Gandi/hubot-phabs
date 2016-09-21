@@ -562,7 +562,7 @@ class Phabricator
       }
       @request(query, 'maniphest.edit')
     .then (body) ->
-      body.result.id
+      body.result.object.id
 
   listTasks: (projphid, cb) ->
     query = {

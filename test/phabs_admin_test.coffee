@@ -102,7 +102,9 @@ describe 'phabs_admin module', ->
           'project2': { },
           'project3': { },
         }
-        room.robot.brain.data.phabricator.aliases =  { }
+        room.robot.brain.data.phabricator.aliases =  { 
+          'p1': 'project1'
+        }
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
@@ -114,6 +116,8 @@ describe 'phabs_admin module', ->
           expect(Object.keys(room.robot.brain.data.phabricator.projects).length)
             .to.eql 2
           expect(room.robot.brain.data.phabricator.projects['project1'])
+            .to.eql undefined
+          expect(room.robot.brain.data.phabricator.aliases['p1'])
             .to.eql undefined
       context 'phad del project1', ->
         hubot 'phad del project1'
