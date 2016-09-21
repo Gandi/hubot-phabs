@@ -360,6 +360,7 @@ class Phabricator
           params.description = description
       @getProject(params.project)
     .then (projectparams) =>
+      params.projectphid = projectparams.data.phid
       @getUser(params.user, params.user)
     .then (userPHID) =>
       query = {
@@ -368,7 +369,7 @@ class Phabricator
         'transactions[1][type]': 'comment',
         'transactions[1][value]': "(created by #{params.user.name} on #{params.adapter})",
         'transactions[2][type]': 'subscribers.add',
-        'transactions[2][value][0]': "#{params.userPhid}",
+        'transactions[2][value][0]': "#{userPHID}",
         'transactions[3][type]': 'subscribers.remove',
         'transactions[3][value][0]': "#{params.bot_phid}",
         'transactions[4][type]': 'projects.add',
