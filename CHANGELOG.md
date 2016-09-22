@@ -1,9 +1,11 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.0.0- wip
+### 2.0.0 - 2016-09-22
 - remove all callbacks and replace them by promises
   for a smoother addition of features later on
+  It's been tested not to break anything but that's a move big enough
+  to motivate a major version bumping
 - phad delete also deletes aliases now
 - fix case issue with project names occurring in some occasions
 - add a '.ph Txx in proj not in proj' to change tags on tasks
