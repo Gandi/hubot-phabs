@@ -564,7 +564,7 @@ class Phabricator
     .then (body) ->
       body.result.object.id
 
-  listTasks: (projphid, cb) ->
+  listTasks: (projphid) ->
     query = {
       'projectPHIDs[0]': "#{projphid}",
       'status': 'status-open'
