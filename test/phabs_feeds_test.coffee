@@ -298,7 +298,7 @@ describe 'phabs_feeds module', ->
   context 'test the http responses', ->
     beforeEach ->
       room.robot.logger = sinon.spy()
-      room.robot.logger.info = sinon.spy()
+      room.robot.logger.debug = sinon.spy()
 
     afterEach ->
       room.destroy()

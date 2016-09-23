@@ -32,10 +32,10 @@ module.exports = (robot) ->
       .then (announce) ->
         for room in announce.rooms
           robot.messageRoom room, announce.message
-        robot.logger.info "#{req.ip} - ok - #{res.statusCode}"
+        robot.logger.debug "#{req.ip} - ok - #{res.statusCode}"
       .catch (e) ->
-        robot.logger.info "#{req.ip} - no - #{res.statusCode} - #{e}"
+        robot.logger.debug "#{req.ip} - no - #{res.statusCode} - #{e}"
       res.status(200).end()
     else
-      robot.logger.info "#{req.ip} - no - #{res.statusCode} - no story"
+      robot.logger.debug "#{req.ip} - no - #{res.statusCode} - no story"
       res.status(422).end()
