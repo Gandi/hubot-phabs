@@ -80,7 +80,7 @@ module.exports = (robot) ->
       if data.aliases[alias]?
         msg.send "The alias '#{alias}' already exists for project '#{data.aliases[alias]}'."
       else
-        data.aliases[alias] = proj.data.name.toLowerCase()
+        data.aliases[alias] = proj.data.name
         msg.send "Ok, '#{proj.data.name}' will be known as '#{alias}'."
     .catch (e) ->
       msg.send e

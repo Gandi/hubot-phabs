@@ -46,7 +46,7 @@ module.exports = (robot) ->
     msg.finish()
 
   # robot.respond /ph phid (.+) *$/, (msg) ->
-  #   phab.getProject(msg.match[1].toLowerCase())
+  #   phab.getProject(msg.match[1])
   #   .then (proj) ->
   #     msg.send proj.data.phid
   #   .catch (e) ->
@@ -58,7 +58,7 @@ module.exports = (robot) ->
     /ph(?:ab)? new ([-_a-zA-Z0-9]+)(?::([-_a-zA-Z0-9]+))? ([^=]+)(?: = (.*))? *$/
   ), (msg) ->
     data = {
-      project: msg.match[1].toLowerCase()
+      project: msg.match[1]
       template: msg.match[2]
       title: msg.match[3]
       description: msg.match[4]
@@ -359,7 +359,7 @@ module.exports = (robot) ->
 
   #   hubot phab all <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)? all ([^ ]+) (.+)$/, (msg) ->
-    project = msg.match[1].toLowerCase()
+    project = msg.match[1]
     terms = msg.match[2]
     name = null
     phab.getProject(project)
@@ -380,7 +380,7 @@ module.exports = (robot) ->
 
   #   hubot phab <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)? ([^ ]+) (.+)$/, (msg) ->
-    project = msg.match[1].toLowerCase()
+    project = msg.match[1]
     terms = msg.match[2]
     name = null
     phab.getProject(project)
