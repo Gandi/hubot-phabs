@@ -193,6 +193,12 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         adds a comment to task Txxx (or the one in short memory).
         permission: phuser
 
+    .phab Txxx in tag1
+    .phab Txxx not in tag1
+    .phab Txxx in tag1 in tag2 not in tag3 in tag4
+        adds or remove tags from tasks. Tags are also known as projects
+        permission: phuser
+
     .phab Txxx is open
     .phab Txxx broken
     .phab low
