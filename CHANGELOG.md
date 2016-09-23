@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.0.1 - wip
+### 2.0.1 - 2016-09-23
 - change log level for feeds from info to debug
 
 ### 2.0.0 - 2016-09-22
