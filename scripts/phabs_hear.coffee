@@ -22,7 +22,9 @@ humanFileSize = (size) ->
   return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i]
 
 module.exports = (robot) ->
-  phab = new Phabricator robot, process.env
+
+  robot.phab ?= new Phabricator robot, process.env
+  phab = robot.phab
 
   #   anything Txxx - complements with the title of the cited object
   robot.hear new RegExp(

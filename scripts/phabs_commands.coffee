@@ -35,7 +35,9 @@ moment = require 'moment'
 path = require 'path'
 
 module.exports = (robot) ->
-  phab = new Phabricator robot, process.env
+  
+  robot.phab ?= new Phabricator robot, process.env
+  phab = robot.phab
 
   #   hubot phab version - give the version of hubot-phabs loaded
   robot.respond /ph(?:ab)? version *$/, (msg) ->

@@ -22,7 +22,8 @@ Phabricator = require '../lib/phabricator'
 
 module.exports = (robot) ->
 
-  phab = new Phabricator robot, process.env
+  robot.phab ?= new Phabricator robot, process.env
+  phab = robot.phab
 
   #   hubot pht new <name> T123
   robot.respond (/pht new ([-_a-zA-Z0-9]+) T([0-9]+) *$/), (msg) ->
