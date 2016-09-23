@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.0.3 - 2016-09-24
+- fix naming for project the lowercasing fucks things up (better)
+
 ### 2.0.2 - 2016-09-24
 - fix naming for project the lowercasing fucks things up
 

@@ -148,13 +148,12 @@ class Phabricator
 
   getProject: (project) ->
     return new Promise (res, err) =>
-      project = project.toLowerCase()
+      project = project
       if @data.projects[project]?
         projectData = @data.projects[project]
         projectData.name = project
       else
         for a, p of @data.aliases
-          p = p.toLowerCase()
           if a is project and @data.projects[p]?
             projectData = @data.projects[p]
             projectData.name = p
@@ -178,7 +177,7 @@ class Phabricator
         query = { 'names[0]': project }
         @requestProject(project)
           .then (projectinfo) ->
-            data.projects[projectinfo.name.toLowerCase()] = projectinfo
+            data.projects[projectinfo.name] = projectinfo
             res { aliases: aliases, data: projectinfo }
           .catch (e) ->
             err e
