@@ -223,7 +223,7 @@ describe 'phabs_admin module', ->
           hubot 'phad info Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'bug report' is 'Bug Report', with no alias, with no feed."
+              .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed."
           it 'should remember the phid from asking to phabricator', ->
             expect(room.robot.brain.data.phabricator.projects['bug report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
@@ -281,7 +281,7 @@ describe 'phabs_admin module', ->
           hubot 'phad show Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'bug report' is 'Bug Report', with no alias, with no feed."
+              .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed."
           it 'should remember the phid from asking to phabricator', ->
             expect(room.robot.brain.data.phabricator.projects['bug report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'

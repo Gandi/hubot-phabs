@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.0.2 - 2016-09-24
+- fix naming for project the lowercasing fucks things up
+
 ### 2.0.1 - 2016-09-23
 - change log level for feeds from info to debug
 

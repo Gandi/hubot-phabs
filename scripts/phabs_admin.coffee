@@ -38,7 +38,7 @@ module.exports = (robot) ->
 
   #   hubot phad delete <project>
   robot.respond /phad del(?:ete)? (.+) *$/, (msg) ->
-    project = msg.match[1].toLowerCase()
+    project = msg.match[1]
     phab.getPermission(msg.envelope.user, 'phadmin')
     .then ->
       if data.projects[project]?
@@ -53,7 +53,7 @@ module.exports = (robot) ->
 
   #   hubot phad info <project>
   robot.respond /phad (?:info|show) (.+) *$/, (msg) ->
-    project = msg.match[1].toLowerCase()
+    project = msg.match[1]
     phab.getProject(project)
     .then (proj) ->
       response = "'#{project}' is '#{proj.data.name}'"
@@ -71,7 +71,7 @@ module.exports = (robot) ->
 
   #   hubot phad alias <project> as <alias>
   robot.respond /phad alias (.+) as (.+)$/, (msg) ->
-    project = msg.match[1].toLowerCase()
+    project = msg.match[1]
     alias = msg.match[2]
     phab.getPermission(msg.envelope.user, 'phadmin')
     .then ->
@@ -100,7 +100,7 @@ module.exports = (robot) ->
 
   #   hubot phad feed <project> to <room>
   robot.respond /phad feeds? (.+) to (.+)$/, (msg) ->
-    project = msg.match[1].toLowerCase()
+    project = msg.match[1]
     room = msg.match[2]
     phab.getPermission(msg.envelope.user, 'phadmin')
     .then ->
@@ -118,7 +118,7 @@ module.exports = (robot) ->
 
   #   hubot phad remove <project> from <room>
   robot.respond /phad remove (.+) from (.+)$/, (msg) ->
-    project = msg.match[1].toLowerCase()
+    project = msg.match[1]
     room = msg.match[2]
     phab.getPermission(msg.envelope.user, 'phadmin')
     .then ->
