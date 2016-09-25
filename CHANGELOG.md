@@ -29,7 +29,7 @@ Hubot-phabs Changelog
 - change syntax for user commands to .phab user <name>
 - when user registers email with .phab me as <email> 
   it checks for phid immediately
-- check for premission before advising to use
+- check for permission before advising to use
   .phab user <name> = <email>
 
 ### 1.5.9 - 2016-09-01
@@ -59,7 +59,7 @@ Hubot-phabs Changelog
 - made term not needed to be the start of the line when searching for checkbox
 
 ### 1.5.1 - 2016-08-23
-- change .phad commands syntax to be more gramatically consistent
+- change .phad commands syntax to be more grammatically consistent
   ie. .phad verb object complement
 
 ### 1.5.0 - 2016-08-21
