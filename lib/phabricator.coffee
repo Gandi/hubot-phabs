@@ -701,30 +701,36 @@ class Phabricator
         err e
 
   getColumns: (proj) ->
+    phid = null
     @getProject(proj)
     .then (projectData) =>
+      @phid = projectData.data.phid
       query = {
         'projectPHIDs[0]': "#{projectData.data.phid}",
         'status': 'status-any',
         'order': 'order-modified'
       }
       @request query, 'maniphest.query'
+    .bind(phid)
     .then (body) =>
       query = { 'ids[]': [ ] }
       for k, i of body.result
         query['ids[]'].push i.id
-      console.log query
       @request(query, 'maniphest.gettasktransactions')
     .then (body) ->
+      console.log @phid
       columns = [ ]
       for id, o of body.result
         ts = o.filter (trans) -> 
-          trans.transactionType == 'core:columns'
-        boardIds = (t.newValue[0].boardPHID for t in ts)
+          trans.transactionType == 'core:columns' and
+          trans.newValue[0].boardPHID is @phid
+        boardIds = (t.newValue[0].columnPHID for t in ts)
         columns = columns.concat boardIds
       columns = columns.filter (value, index, self) ->
         self.indexOf(value) is index
       console.log columns
+      # column_names = Promise.map columns, (col) ->
+      #   query = { 'names': col }
 
   # templates ---------------------------------------------------
 
