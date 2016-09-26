@@ -133,3 +133,12 @@ module.exports = (robot) ->
         msg.send "Sorry, '#{proj.data.name}' is not feeding '#{room}'."
     .catch (e) ->
       msg.send e
+
+  #   hubot phad columns <project>
+  robot.respond /phad columns (.+)$/, (msg) ->
+    project = msg.match[1]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
+      phab.getColumns(project)
+    .then (data) ->
+      msg.send 'Ok.'

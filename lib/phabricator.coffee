@@ -700,6 +700,31 @@ class Phabricator
       .catch (e) ->
         err e
 
+  getColumns: (proj) ->
+    @getProject(proj)
+    .then (projectData) =>
+      query = {
+        'projectPHIDs[0]': "#{projectData.data.phid}",
+        'status': 'status-any',
+        'order': 'order-modified'
+      }
+      @request query, 'maniphest.query'
+    .then (body) =>
+      query = { 'ids[]': [ ] }
+      for k, i of body.result
+        query['ids[]'].push i.id
+      console.log query
+      @request(query, 'maniphest.gettasktransactions')
+    .then (body) ->
+      columns = [ ]
+      for id, o of body.result
+        ts = o.filter (trans) -> 
+          trans.transactionType == 'core:columns'
+        boardIds = (t.newValue[0].boardPHID for t in ts)
+        columns = columns.concat boardIds
+      columns = columns.filter (value, index, self) ->
+        self.indexOf(value) is index
+      console.log columns
 
   # templates ---------------------------------------------------
 
