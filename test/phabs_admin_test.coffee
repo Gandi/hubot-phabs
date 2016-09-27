@@ -193,25 +193,7 @@ describe 'phabs_admin module', ->
                   'id': '1402',
                   'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
                   'name': 'Bug Report',
-                  'profileImagePHID': 'PHID-FILE-2dsjotf2zgtbludzlk4s',
-                  'icon': 'bugs',
-                  'color': 'yellow',
-                  'members': [
-                    'PHID-USER-3yc34eijivr6rqs4vgiw',
-                    'PHID-USER-7k37pmi3jffv46mzs5te'
-                  ],
-                  'slugs': [
-                    'bug_report'
-                  ],
-                  'dateCreated': '1449275954',
-                  'dateModified': '1468138110'
                 }
-              },
-              'slugMap': [ ],
-              'cursor': {
-                'limit': 100,
-                'after': null,
-                'before': null
               }
             } })
             .get('/api/maniphest.query')
@@ -240,6 +222,126 @@ describe 'phabs_admin module', ->
             expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
 
+
+      context 'and is known to phabricator', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'project with phid': { phid: 'PHID-PROJ-1234567' },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'project with phid',
+            bug: 'project with phid'
+          }
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/project.query')
+            .query({
+              'names[0]': 'project1',
+              'api.token': 'xxx'
+            })
+            .reply(200, { result: {
+              'data': {
+                'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+                  'id': '1402',
+                  'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                  'name': 'Bug Report',
+                }
+              }
+            } })
+            .get('/api/maniphest.query')
+            .query({
+              'projectPHIDs[0]': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+              'status': 'status-any',
+              'order': 'order-modified'
+            })
+            .reply(200, { result: {
+              'PHID-TASK-llyghhtxzgc25wbsn7lk': {
+                'id': '12',
+                'phid': 'PHID-TASK-llyghhtxzgc25wbsn7lk'
+              },
+              'PHID-TASK-lnpaaqlyvkuar5yf7qk6': {
+                'id': '13',
+                'phid': 'PHID-TASK-lnpaaqlyvkuar5yf7qk6'
+              }
+            } })
+            .get('/api/maniphest.gettasktransactions')
+            .query({
+              'ids[]': [ 12, 13 ]
+            })
+            .reply(200, { result: {
+              '12': [
+                {
+                  'taskID': '12',
+                  'transactionType': 'status',
+                  'oldValue': 'open',
+                  'newValue': 'resolved'
+                },
+                {
+                  'taskID': '12',
+                  'transactionType': 'core:columns',
+                  'oldValue': null,
+                  'newValue': [
+                    {
+                      'boardPHID': 'PHID-TASK-llyghhtxzgc25wbsn7lk',
+                      'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlbmx'
+                    }
+                  ]
+                }
+              ],
+              '13': [
+                {
+                  'taskID': '13',
+                  'transactionType': 'status',
+                  'oldValue': 'open',
+                  'newValue': 'resolved'
+                },
+                {
+                  'taskID': '13',
+                  'transactionType': 'core:columns',
+                  'oldValue': null,
+                  'newValue': [
+                    {
+                      'boardPHID': 'PHID-TASK-llyghhtxzgc25wbsn7lk',
+                      'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlb00'
+                    }
+                  ]
+                }
+              ]
+            } })
+            .get('/api/phid.lookup')
+            .query({
+              'names[]': [
+                'PHID-PCOL-ikeu5quydkkw55cqlbmx',
+                'PHID-PCOL-ikeu5quydkkw55cqlb00'
+              ]
+            })
+            .reply(200, { result: {
+              'PHID-PCOL-ikeu5quydkkw55cqlbmx': {
+                'phid': 'PHID-PCOL-ikeu5quydkkw55cqlbmx',
+                'name': 'Back Log'
+              },
+              'PHID-PCOL-ikeu5quydkkw55cqlb00': {
+                'phid': 'PHID-PCOL-ikeu5quydkkw55cqlb00',
+                'name': 'Done'
+              }
+             } })
+
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'phad info Bug Report', ->
+          hubot 'phad info Bug Report'
+          it 'should reply with proper info', ->
+            expect(hubotResponse())
+              .to.eql "'Bug Report' is 'Bug Report', with no alias, " +
+                      'with no feed, columns back_log, done.'
+          it 'should remember the phid from asking to phabricator', ->
+            expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
+              .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            expect(room.robot.brain.data.phabricator.projects['Bug Report'].columns.done)
+              .to.eql 'PHID-PCOL-ikeu5quydkkw55cqlb00'
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     context 'when project has no phid recorded', ->
