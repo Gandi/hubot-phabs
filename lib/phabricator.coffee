@@ -146,7 +146,7 @@ class Phabricator
       else
         err 'no room to announce in'
 
-  getProject: (project) ->
+  getProject: (project, refresh = false) ->
     return new Promise (res, err) =>
       project = project
       if @data.projects[project]?
@@ -159,26 +159,38 @@ class Phabricator
             projectData.name = p
             break
       aliases = []
-      if projectData?
+      if projectData? and not refresh
         for a, p of @data.aliases
           if p is projectData.name
             aliases.push a
         if projectData.phid?
           res { aliases: aliases, data: projectData }
         else
+          data = @data
           @requestProject(projectData.name)
-            .then (projectinfo) ->
+            .then (projectinfo) =>
               projectData.phid = projectinfo.phid
+              if projectData.name.toLowerCase() isnt projectData.name
+                data.aliases[projectData.name.toLowerCase()] = projectData.name
+              @getColumns(projectinfo.phid)
+            .then (columns) ->
+              projectData.columns = columns
               res { aliases: aliases, data: projectData }
             .catch (e) ->
               err e
       else
         data = @data
-        query = { 'names[0]': project }
+        projectname = null
         @requestProject(project)
-          .then (projectinfo) ->
-            data.projects[projectinfo.name] = projectinfo
-            res { aliases: aliases, data: projectinfo }
+          .then (projectinfo) =>
+            projectname = projectinfo.name
+            data.projects[projectname] = projectinfo
+            if projectname.toLowerCase() isnt projectname
+              data.aliases[projectname.toLowerCase()] = projectname
+            @getColumns(projectinfo.phid)
+          .then (columns) ->
+            data.projects[projectname].columns = columns
+            res { aliases: aliases, data: data.projects[projectname] }
           .catch (e) ->
             err e
 
@@ -190,13 +202,44 @@ class Phabricator
         data = body.result.data
         if data.length > 0 or Object.keys(data).length > 0
           phid = Object.keys(data)[0]
-          name = data[phid].name
+          name = data[phid].name.trim()
           res { name: name, phid: phid }
         else
           err "Sorry, #{project_name} not found."
       .catch (e) ->
         err e
 
+  getColumns: (phid) ->
+    query = {
+      'projectPHIDs[0]': "#{phid}",
+      'status': 'status-any',
+      'order': 'order-modified'
+    }
+    @request(query, 'maniphest.query')
+    .then (body) =>
+      query = { 'ids[]': [ ] }
+      for k, i of body.result
+        query['ids[]'].push i.id
+      @request(query, 'maniphest.gettasktransactions')
+    .then (body) =>
+      columns = [ ]
+      for id, o of body.result
+        ts = o.filter (trans) ->
+          trans.transactionType == 'core:columns' and
+          trans.newValue[0].boardPHID is phid
+        boardIds = (t.newValue[0].columnPHID for t in ts)
+        columns = columns.concat boardIds
+      columns = columns.filter (value, index, self) ->
+        self.indexOf(value) is index
+      query = { 'names[]': columns }
+      @request(query, 'phid.lookup')
+    .then (body) ->
+      back = { }
+      for p, v of body.result
+        name = v.name.trim().toLowerCase().replace(/[^-_a-z0-9]/g,'_')
+        back[name] = p
+      back
+      
   getUser: (from, user) =>
     return new Promise (res, err) =>
       unless user.id?
@@ -699,38 +742,6 @@ class Phabricator
           err "The task T#{id} has no checked checkbox#{extra}."
       .catch (e) ->
         err e
-
-  getColumns: (proj) ->
-    phid = null
-    @getProject(proj)
-    .then (projectData) =>
-      @phid = projectData.data.phid
-      query = {
-        'projectPHIDs[0]': "#{projectData.data.phid}",
-        'status': 'status-any',
-        'order': 'order-modified'
-      }
-      @request query, 'maniphest.query'
-    .bind(phid)
-    .then (body) =>
-      query = { 'ids[]': [ ] }
-      for k, i of body.result
-        query['ids[]'].push i.id
-      @request(query, 'maniphest.gettasktransactions')
-    .then (body) ->
-      console.log @phid
-      columns = [ ]
-      for id, o of body.result
-        ts = o.filter (trans) -> 
-          trans.transactionType == 'core:columns' and
-          trans.newValue[0].boardPHID is @phid
-        boardIds = (t.newValue[0].columnPHID for t in ts)
-        columns = columns.concat boardIds
-      columns = columns.filter (value, index, self) ->
-        self.indexOf(value) is index
-      console.log columns
-      # column_names = Promise.map columns, (col) ->
-      #   query = { 'names': col }
 
   # templates ---------------------------------------------------
 

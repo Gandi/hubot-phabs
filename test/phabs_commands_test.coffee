@@ -1151,8 +1151,9 @@ describe 'phabs_commands module', ->
           .reply(200, { result: {
             'data': {
               "PHID-PROJ-xxx": {
-                "phid": "PHID-PROJ-xxx"
-              }
+                "phid": "PHID-PROJ-xxx",
+                'name': 'some proj'
+              },
             },
             'slugMap': [ ],
             'cursor': {
@@ -1161,6 +1162,17 @@ describe 'phabs_commands module', ->
               'before': null
             }
           } })
+          .get('/api/maniphest.query')
+          .query({
+            'projectPHIDs[0]': "PHID-PROJ-qhmexneudkt62wc7o3z4",
+            'status': 'status-any',
+            'order': 'order-modified'
+          })
+          .reply(200, { result: { } })
+          .get('/api/maniphest.gettasktransactions')
+          .reply(200, { result: { } })
+          .get('/api/phid.lookup')
+          .reply(200, { result: { } })
           .get('/api/user.query')
           .reply(200, { result: [ { phid: 'PHID-USER-42', userName: 'user_with_phid' } ] })
           .get('/api/maniphest.edit')

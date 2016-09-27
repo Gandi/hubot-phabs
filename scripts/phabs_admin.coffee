@@ -11,6 +11,7 @@
 #   hubot phad projects
 #   hubot phad delete <project>
 #   hubot phad info <project>
+#   hubot phad refresh <project>
 #   hubot phad alias <project> as <alias>
 #   hubot phad forget <alias>
 #   hubot phad feed <project> to <room>
@@ -51,10 +52,11 @@ module.exports = (robot) ->
     .catch (e) ->
       msg.send e
 
-  #   hubot phad info <project>
-  robot.respond /phad (?:info|show) (.+) *$/, (msg) ->
-    project = msg.match[1]
-    phab.getProject(project)
+  #   hubot phad info|refresh <project>
+  robot.respond /phad (info|show|refresh) (.+) *$/, (msg) ->
+    refresh = (msg.match[1] is 'refresh')
+    project = msg.match[2]
+    phab.getProject(project, refresh)
     .then (proj) ->
       response = "'#{project}' is '#{proj.data.name}'"
       if proj.aliases? and proj.aliases.length > 0
@@ -64,7 +66,11 @@ module.exports = (robot) ->
       if proj.data.feeds? and proj.data.feeds.length > 0
         response += ", announced on #{proj.data.feeds.join(', ')}"
       else
-        response += ', with no feed.'
+        response += ', with no feed'
+      if proj.data.columns? and Object.keys(proj.data.columns).length > 0
+        response += ", columns #{Object.keys(proj.data.columns).join(', ')}."
+      else
+        response += ', and no columns.'
       msg.send response
     .catch (e) ->
       msg.send e

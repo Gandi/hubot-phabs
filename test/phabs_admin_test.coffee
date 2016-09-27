@@ -214,6 +214,18 @@ describe 'phabs_admin module', ->
                 'before': null
               }
             } })
+            .get('/api/maniphest.query')
+            .query({
+              'projectPHIDs[0]': "PHID-PROJ-qhmexneudkt62wc7o3z4",
+              'status': 'status-any',
+              'order': 'order-modified'
+            })
+            .reply(200, { result: { } })
+            .get('/api/maniphest.gettasktransactions')
+            .reply(200, { result: { } })
+            .get('/api/phid.lookup')
+            .reply(200, { result: { } })
+
 
         afterEach ->
           room.robot.brain.data.phabricator = { }
@@ -223,7 +235,7 @@ describe 'phabs_admin module', ->
           hubot 'phad info Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed."
+              .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed, and no columns."
           it 'should remember the phid from asking to phabricator', ->
             expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
@@ -272,6 +284,17 @@ describe 'phabs_admin module', ->
                 'before': null
               }
             } })
+            .get('/api/maniphest.query')
+            .query({
+              'projectPHIDs[0]': "PHID-PROJ-qhmexneudkt62wc7o3z4",
+              'status': 'status-any',
+              'order': 'order-modified'
+            })
+            .reply(200, { result: { } })
+            .get('/api/maniphest.gettasktransactions')
+            .reply(200, { result: { } })
+            .get('/api/phid.lookup')
+            .reply(200, { result: { } })
 
         afterEach ->
           room.robot.brain.data.phabricator = { }
@@ -281,7 +304,7 @@ describe 'phabs_admin module', ->
           hubot 'phad show Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed."
+              .to.eql "'Bug Report' is 'Bug Report', with no alias, with no feed, and no columns."
           it 'should remember the phid from asking to phabricator', ->
             expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
@@ -345,7 +368,7 @@ describe 'phabs_admin module', ->
         hubot 'phad info project with phid'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql "'project with phid' is 'project with phid' (aka bugs, bug), with no feed."
+            .to.eql "'project with phid' is 'project with phid' (aka bugs, bug), with no feed, and no columns."
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     context 'when project has phid recorded, and feeds', ->
@@ -371,7 +394,7 @@ describe 'phabs_admin module', ->
         hubot 'phad info project with phid'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql "'project with phid' is 'project with phid', with no alias, announced on #dev"
+            .to.eql "'project with phid' is 'project with phid', with no alias, announced on #dev, and no columns."
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     context 'when project has phid recorded, and aliases, and is called by an alias', ->
@@ -394,7 +417,7 @@ describe 'phabs_admin module', ->
         hubot 'phad info bug'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql "'bug' is 'bug report' (aka bugs, bug), with no feed."
+            .to.eql "'bug' is 'bug report' (aka bugs, bug), with no feed, and no columns."
 
   # ---------------------------------------------------------------------------------
   context 'user wants to create an alias for a project', ->
