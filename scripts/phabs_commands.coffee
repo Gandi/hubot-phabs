@@ -190,8 +190,7 @@ module.exports = (robot) ->
     .then (id) ->
       phab.changeColumns(msg.envelope.user, id, column)
     .then (data) ->
-      console.log data
-      msg.send "Ok, T#{data.id} moved to #{data.columnname}."
+      msg.send "Ok, T#{data.id} moved to #{data.columns}."
     .catch (e) ->
       msg.send e
     msg.finish()

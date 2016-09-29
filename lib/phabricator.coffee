@@ -478,22 +478,48 @@ class Phabricator
     .then (body) ->
       id
 
-  changeColumns: (user, id, columns) ->
-    @getBotPHID()
-    .bind({ botphid: null })
-    .then (botphid) =>
-      @botphid = botphid
-      query = { 'task_id': id }
-      @request(query, 'maniphest.info')
-    .then (body) =>
-      cols = Promise.map body.result.projectPHIDs, (phid) =>
-        query = { 'names[]': phid }
-        @request(query, 'phid.lookup')
-        .then (body) =>
-          @getProject(body.result[phid].name)
-        .then (projectData) ->
-          console.log projectData
-      Promise.all cols
+  changeColumns: (user, id, column) ->
+    return new Promise (res, err) =>
+      @getBotPHID()
+      .bind({ botphid: null })
+      .bind({ columns: { } })
+      .then (botphid) =>
+        @botphid = botphid
+        query = { 'task_id': id }
+        @request(query, 'maniphest.info')
+      .then (body) =>
+        cols = Promise.map body.result.projectPHIDs, (phid) =>
+          @getProject(phid)
+          .then (projectData) ->
+            for i in Object.keys(projectData.data.columns)
+              if (new RegExp(column)).test i
+                return { colname: i, colphid: projectData.data.columns[i] }
+        Promise.all cols
+      .then (cols) =>
+        cols = cols.filter (c) ->
+          c?
+        if cols.length > 0
+          query = {
+            'objectIdentifier': id,
+            'transactions[0][type]': 'subscribers.remove',
+            'transactions[0][value][0]': "#{@botphid}"
+            'transactions[1][type]': 'comment',
+            'transactions[1][value]': "(moved to by #{user.name})",
+          }
+          query['transactions[2][type]'] = 'column'
+          for c in cols
+            query['transactions[2][value][]'] = c.colphid
+          @request(query, 'maniphest.edit')
+          .then (body) ->
+            colnames = cols.map (c) ->
+              c.colname
+            res { id: id, columns: colnames.join(', ') }
+          .catch (e) ->
+            err e
+        else
+          err "#{column} unknown."
+      .catch (e) ->
+        err e
 
 
   changeTags: (user, id, alltags) ->
