@@ -147,56 +147,66 @@ class Phabricator
         err 'no room to announce in'
 
   getProject: (project, refresh = false) ->
-    return new Promise (res, err) =>
-      project = project
-      if @data.projects[project]?
-        projectData = @data.projects[project]
-        projectData.name = project
-      else
-        for a, p of @data.aliases
-          if a is project and @data.projects[p]?
-            projectData = @data.projects[p]
-            projectData.name = p
-            break
-      aliases = []
-      if projectData? and not refresh
-        for a, p of @data.aliases
-          if p is projectData.name
-            aliases.push a
-        if projectData.phid?
-          res { aliases: aliases, data: projectData }
-        else
-          data = @data
-          @requestProject(projectData.name)
-            .then (projectinfo) =>
-              projectData.phid = projectinfo.phid
-              if projectData.name.toLowerCase() isnt projectData.name
-                data.aliases[projectData.name.toLowerCase()] = projectData.name
-              @getColumns(projectinfo.phid)
-            .then (columns) ->
-              projectData.columns = columns
-              res { aliases: aliases, data: projectData }
-            .catch (e) ->
-              err e
-      else
-        data = @data
-        projectname = null
-        @requestProject(project)
-          .then (projectinfo) =>
-            projectname = projectinfo.name
-            data.projects[projectname] = projectinfo
-            if projectname.toLowerCase() isnt projectname
-              data.aliases[projectname.toLowerCase()] = projectname
-            @getColumns(projectinfo.phid)
-          .then (columns) ->
-            data.projects[projectname].columns = columns
-            res { aliases: aliases, data: data.projects[projectname] }
-          .catch (e) ->
-            err e
+    if /^PHID-PROJ-/.test project
+      @getProjectByPhid project, refresh
+    else
+      @getProjectByName project, refresh
+ 
+  getProjectByPhid: (project, refresh) ->
+    for name, data of @data.projects
+      if data.phid is project
+        projectData = data
+        break
+    if projectData? and not refresh
+      return new Promise (res, err) =>
+        res { aliases: @projectAliases(projectData.name), data: projectData }
+    else
+      @getProjectData project
+ 
+  getProjectByName: (project, refresh) ->
+    if @data.projects[project]?
+      projectData = @data.projects[project]
+    else
+      for a, p of @data.aliases
+        if a is project and @data.projects[p]?
+          projectData = @data.projects[p]
+          break
+    if projectData? and not refresh
+      return new Promise (res, err) =>
+        res { aliases: @projectAliases(projectData.name), data: projectData }
+    else
+      @getProjectData project
 
-  requestProject: (project_name) ->
+  getProjectData: (project) ->
+    data = @data
+    projectname = null
+    @requestProject(project)
+    .then (projectinfo) =>
+      projectname = projectinfo.name
+      data.projects[projectname] = projectinfo
+      if @aliasize(projectname) isnt projectname
+        data.aliases[@aliasize(projectname)] = projectname
+      @getColumns(projectinfo.phid)
+    .then (columns) =>
+      data.projects[projectname].columns = columns
+      { aliases: @projectAliases(projectname), data: data.projects[projectname] }
+
+  projectAliases: (project) ->
+    aliases = []
+    for a, p of @data.aliases
+      if p is project
+        aliases.push a
+    aliases
+
+  aliasize: (str) ->
+    str.trim().toLowerCase().replace(/[^-_a-z0-9]/g,'_')
+
+  requestProject: (project) ->
     return new Promise (res, err) =>
-      query = { 'names[0]': project_name }
+      if /^PHID-PROJ-/.test project
+        query = { 'phids[0]': project }
+      else
+        query = { 'names[0]': project }
       @request(query, 'project.query')
       .then (body) ->
         data = body.result.data
@@ -205,7 +215,7 @@ class Phabricator
           name = data[phid].name.trim()
           res { name: name, phid: phid }
         else
-          err "Sorry, #{project_name} not found."
+          err "Sorry, #{project} not found."
       .catch (e) ->
         err e
 
@@ -233,10 +243,10 @@ class Phabricator
         self.indexOf(value) is index
       query = { 'names[]': columns }
       @request(query, 'phid.lookup')
-    .then (body) ->
+    .then (body) =>
       back = { }
       for p, v of body.result
-        name = v.name.trim().toLowerCase().replace(/[^-_a-z0-9]/g,'_')
+        name = @aliasize(v.name)
         back[name] = p
       back
       
@@ -467,6 +477,24 @@ class Phabricator
       @request(query, 'maniphest.edit')
     .then (body) ->
       id
+
+  changeColumns: (user, id, columns) ->
+    @getBotPHID()
+    .bind({ botphid: null })
+    .then (botphid) =>
+      @botphid = botphid
+      query = { 'task_id': id }
+      @request(query, 'maniphest.info')
+    .then (body) =>
+      cols = Promise.map body.result.projectPHIDs, (phid) =>
+        query = { 'names[]': phid }
+        @request(query, 'phid.lookup')
+        .then (body) =>
+          @getProject(body.result[phid].name)
+        .then (projectData) ->
+          console.log projectData
+      Promise.all cols
+
 
   changeTags: (user, id, alltags) ->
     @getBotPHID()

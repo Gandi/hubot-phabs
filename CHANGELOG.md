@@ -1,6 +1,16 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.1.0 - wip
+- add a '.phad refresh <project>'
+- now .phad info gathers also the columns for a project
+  which can delay the operation quite a lot on the first call
+  subsequent calls will hit the cache, and '.phad refresh'
+  can be used to update that cache
+- change '.ph assign x to user' to only accept 'on' or 'for'
+  instead of 'to' because the 'to' will be used to move tasks
+  across columns
+
 ### 2.0.4 - 2016-09-24
 - fix naming for project the lowercasing fucks things up (more better)
 

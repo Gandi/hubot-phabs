@@ -1136,11 +1136,7 @@ describe 'phabs_commands module', ->
 
     context 'phab new proj2 a task', ->
       beforeEach ->
-        room.robot.brain.data.phabricator.projects = {
-          'proj2': {
-            name: 'proj2'
-          }
-        }
+        room.robot.brain.data.phabricator.projects = { }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/project.query')
@@ -1186,21 +1182,17 @@ describe 'phabs_commands module', ->
         hubot 'phab new proj2 a task', 'user_with_phid'
         it 'replies that project is unknown', ->
           expect(hubotResponse()).to.eql 'Task T24 created = http://example.com/T24'
-          expect(room.robot.brain.data.phabricator.projects.proj2.phid)
+          expect(room.robot.brain.data.phabricator.projects['some proj'].phid)
             .to.eql 'PHID-PROJ-xxx'
 
     context 'phab new proj2 a task', ->
       beforeEach ->
-        room.robot.brain.data.phabricator.projects = {
-          'proj2': {
-            name: 'proj2'
-          }
-        }
+        room.robot.brain.data.phabricator.projects = { }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/project.query')
           .query({
-            'names[0]': 'project1',
+            'names[0]': 'proj2',
             'api.token': 'xxx'
           })
           .reply(200, { result: {
@@ -1537,7 +1529,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj1': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj1'
           }
         }
         do nock.disableNetConnect
@@ -1563,7 +1556,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj1': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj1'
           }
         }
         do nock.disableNetConnect
@@ -1584,7 +1578,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj2': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj2'
           }
         }
         do nock.disableNetConnect
@@ -2100,13 +2095,13 @@ describe 'phabs_commands module', ->
   # ---------------------------------------------------------------------------------
   context 'user assigns someone to a task', ->
     context 'when the user is unknown', ->
-      context 'phab assign T424242 to xxx', ->
-        hubot 'phab assign T424242 to xxx'
+      context 'phab assign T424242 on xxx', ->
+        hubot 'phab assign T424242 on xxx'
         it 'warns the user that xx is unknown', ->
           expect(hubotResponse()).to.eql "Sorry, I can't figure xxx email address." +
                                          ' Can you ask them to `.phab me as <email>`?'
-      context 'phab assign T424242 to momo', ->
-        hubot 'phab assign T424242 to momo'
+      context 'phab assign T424242 on momo', ->
+        hubot 'phab assign T424242 on momo'
         it 'warns the user that his email is not known', ->
           expect(hubotResponse()).to.eql "Sorry, I can't figure out your email address :( " +
                                          'Can you tell me with `.phab me as <email>`?'
@@ -2121,8 +2116,8 @@ describe 'phabs_commands module', ->
       afterEach ->
         nock.cleanAll()
 
-      context 'phab assign T424242 to user_with_phid', ->
-        hubot 'phab assign T424242 to user_with_phid', 'user_with_phid'
+      context 'phab assign T424242 on user_with_phid', ->
+        hubot 'phab assign T424242 on user_with_phid', 'user_with_phid'
         it 'warns the user that the task does not exist', ->
           expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
 
@@ -2141,8 +2136,8 @@ describe 'phabs_commands module', ->
         it 'warns the user that there is no active task in memory', ->
           expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
-      context 'phab assign T42 to user_with_phid', ->
-        hubot 'phab assign T42 to user_with_phid', 'user_with_phid'
+      context 'phab assign T42 on user_with_phid', ->
+        hubot 'phab assign T42 on user_with_phid', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok. T42 is now assigned to user_with_phid'
 
@@ -2200,77 +2195,14 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
 
   # ---------------------------------------------------------------------------------
-  # context 'user adds a tag/project on a task', ->
-
-  #   context 'task is unknown', ->
-  #     beforeEach ->
-  #       do nock.disableNetConnect
-  #       nock(process.env.PHABRICATOR_URL)
-  #         .get('/api/maniphest.edit')
-  #         .reply(200, { error_info: 'No such Maniphest task exists.' })
-
-  #     afterEach ->
-  #       nock.cleanAll()
-
-  #     context 'and user wants to tag it', ->
-  #       hubot 'phab T424242 in tag', 'user_with_phid'
-  #       it 'warns the user that the task does not exist', ->
-  #         expect(hubotResponse()).to.eql 'oops T424242 No such Maniphest task exists.'
-
-  #   context 'task is known', ->
-  #     beforeEach ->
-  #       room.robot.brain.data.phabricator.projects = {
-  #         'tag': { phid: 'PHID-PROJ-1234567' },
-  #       }
-  #       do nock.disableNetConnect
-  #       nock(process.env.PHABRICATOR_URL)
-  #         .get('/api/maniphest.info')
-  #         .reply(200, {
-  #           result: {
-  #             status: 'open',
-  #             priority: 'Low',
-  #             name: 'Test task',
-  #             projectPHIDs: [
-  #               "PHID-PROJ-1234567"
-  #             ],
-  #             ownerPHID: 'PHID-USER-42'
-  #             }
-  #           }
-  #         )
-  #         .get('/api/maniphest.edit')
-  #         .reply(200, { result: { id: 24 } })
-
-  #     afterEach ->
-  #       nock.cleanAll()
-
-  #     context 'and user tags it', ->
-  #       context 'and the tag was not already there', ->
-  #         hubot 'phab T24 in tagnot', 'user_with_phid'
-  #         it 'gives a feedback that the tag was added', ->
-  #           expect(hubotResponse()).to.eql 'Ok. Added the tag \'tagnot\' to T24.'
-  #       context 'but the tag is already there', ->
-  #         hubot 'phab T24 in tag', 'user_with_phid'
-  #         it 'gives a feedback that the tag was added', ->
-  #           expect(hubotResponse()).to.eql 'T24 already has the tag \'tag\'.'
-
-  #     context 'and user untags it', ->
-  #       context 'and the tag was not already there', ->
-  #         hubot 'phab T24 not in tagnot', 'user_with_phid'
-  #         it 'gives a feedback that the tag was removed', ->
-  #           expect(hubotResponse()).to.eql 'T24 is not having the tag \'tagnot\'.'
-  #       context 'but the tag is already there', ->
-  #         hubot 'phab T24 not in tag', 'user_with_phid'
-  #         it 'gives a feedback that the tag was added', ->
-  #           expect(hubotResponse()).to.eql 'Ok. Removed the tag "tag" from T24.'
-
-  # ---------------------------------------------------------------------------------
   context 'user searches through all tasks', ->
 
     context 'there is 2 results', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj3': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj3'
           }
         }
         do nock.disableNetConnect
@@ -2368,7 +2300,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj3': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj3'
           }
         }
         do nock.disableNetConnect
@@ -2501,7 +2434,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj3': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj3'
           }
         }
         do nock.disableNetConnect
@@ -2535,7 +2469,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj2': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj2'
           }
         }
         do nock.disableNetConnect
@@ -2571,7 +2506,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj3': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj3'
           }
         }
         do nock.disableNetConnect
@@ -2669,7 +2605,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj3': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj3'
           }
         }
         do nock.disableNetConnect
@@ -2802,7 +2739,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj3': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj3'
           }
         }
         do nock.disableNetConnect
@@ -2836,7 +2774,8 @@ describe 'phabs_commands module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'proj2': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj2'
           }
         }
         do nock.disableNetConnect

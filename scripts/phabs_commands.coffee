@@ -16,6 +16,8 @@
 #   hubot phab unbl <id> - removes an id from blacklist
 #   hubot phab Txx - gives information about task Txx
 #   hubot phab Txx + <some comment> - add a comment to task Txx
+#   hubot phab Txx in <project-tag> - add a tag to task Txx
+#   hubot phab Txx to [project:]<columns> - move task Txx to columns
 #   hubot phab Txx is <status> - modifies task Txx status
 #   hubot phab Txx is <priority> - modifies task Txx priority
 #   hubot phab assign Txx to <user> - assigns task Txx to comeone
@@ -178,6 +180,22 @@ module.exports = (robot) ->
       msg.send e
     msg.finish()
 
+  #   hubot phab Txx to [project:]<columns> - move task Txx to columns
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? to ([^ ]+) *$/, (msg) ->
+    what = msg.match[1] or msg.match[2]
+    column = msg.match[3]
+    phab.getPermission(msg.envelope.user, 'phuser')
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (id) ->
+      phab.changeColumns(msg.envelope.user, id, column)
+    .then (data) ->
+      console.log data
+      msg.send "Ok, T#{data.id} moved to #{data.columnname}."
+    .catch (e) ->
+      msg.send e
+    msg.finish()
+
   #   hubot phab Txx is <status> - modifies task Txxx status
   robot.respond new RegExp(
     "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.statuses).join('|')})" +
@@ -216,10 +234,10 @@ module.exports = (robot) ->
       msg.send e
     msg.finish()
 
-  #   hubot phab assign Txx to <user> - assigns task Txxx to comeone
+  #   hubot phab assign Txx on <user> - assigns task Txxx on comeone
   robot.respond new RegExp(
-    'ph(?:ab)?(?: assign)? (?:([^ ]+) (?:to|on) (?:(T)([0-9]+)|(last))|' +
-    '(?:T([0-9]+) |(last) )?(?:to|on) ([^ ]+)) *$'
+    'ph(?:ab)?(?: assign)? (?:([^ ]+) (?:for|on) (?:(T)([0-9]+)|(last))|' +
+    '(?:T([0-9]+) |(last) )?(?:for|on) ([^ ]+)) *$'
   ), (msg) ->
     if msg.match[2] is 'T'
       who = msg.match[1]
