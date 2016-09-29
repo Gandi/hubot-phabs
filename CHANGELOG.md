@@ -1,7 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.1.0 - wip
+### 2.1.0 - 2016-09-29
+- add a '.ph Txxx to <column>' to move tasks on the board
+  the column name can be a partial name
 - add a '.phad refresh <project>'
 - now .phad info gathers also the columns for a project
   which can delay the operation quite a lot on the first call

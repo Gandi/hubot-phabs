@@ -222,17 +222,22 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         NOTE: this call will record this Task id associated to you for 5 minutes
         permission: phuser
 
-    .phab assign T123 to <someone>
-    .phab assign <someone> to T123
+    .phab assign T123 on <someone>
+    .phab assign <someone> on T123
     .phab assign T123 on <simone>
     .phab T123 on <someone>
     .phab <someone> on T123
-    .phab on <someone>
+    .phab for <someone>
         assigns the given task to a user (or the given user to the task, 
         which is exactly the same). 
-        The 'to' and 'on' conjunctions are inter-changeable.
+        The 'for' and 'on' conjunctions are inter-changeable.
         NOTE: this call will record this Task id associated to you for 5 minutes
         permission: phuser
+
+    .phab T123 to <column>
+    .phad to <column>
+        moves the task on the board to the column matching the <column>
+        the matching will take the first match.
 
     .phab T123 next <term>
     .phab T123 next
@@ -359,6 +364,11 @@ Some configuration variables are stored the brain. They are managed by the phabs
     .phad info <project>
     .phad show <project>
         gives info about <project>
+        permission: all
+
+    .phad refresh <project>
+        refresh info for <project> form phabricator
+        typically useful when there are new columns in a workboard
         permission: all
 
     .phad alias <project> as <alias>
