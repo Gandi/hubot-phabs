@@ -238,6 +238,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phad to <column>
         moves the task on the board to the column matching the <column>
         the matching will take the first match.
+        permission: phuser
 
     .phab T123 next <term>
     .phab T123 next
