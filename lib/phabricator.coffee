@@ -199,7 +199,7 @@ class Phabricator
     aliases
 
   aliasize: (str) ->
-    str.trim().toLowerCase().replace(/[^-_a-z0-9]/g,'_')
+    str.trim().toLowerCase().replace(/[^-_a-z0-9]/g, '_')
 
   requestProject: (project) ->
     return new Promise (res, err) =>
@@ -235,7 +235,7 @@ class Phabricator
       columns = [ ]
       for id, o of body.result
         ts = o.filter (trans) ->
-          trans.transactionType == 'core:columns' and
+          trans.transactionType is 'core:columns' and
           trans.newValue[0].boardPHID is phid
         boardIds = (t.newValue[0].columnPHID for t in ts)
         columns = columns.concat boardIds
@@ -547,7 +547,7 @@ class Phabricator
         ind += 1
         query["transactions[#{ind}][type]"] = 'projects.add'
         x = add.map (t) -> t.phid
-        for p in x 
+        for p in x
           query["transactions[#{ind}][value][]"] = p
         messages.push "T#{id} added to #{add.map((t) -> t.tag).join(', ')}"
       if remove.length > 0
@@ -559,10 +559,10 @@ class Phabricator
         messages.push "T#{id} removed from #{remove.map((t) -> t.tag).join(', ')}"
       if ind > 1
         @request(query, 'maniphest.edit')
-          .then (body) =>
+          .then (body) ->
             messages
       else
-        [ "No action needed." ]
+        [ 'No action needed.' ]
 
   makeTags: (projs, alltags) ->
     ins = alltags.trim().split('not in ')

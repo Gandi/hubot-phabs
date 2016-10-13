@@ -750,4 +750,5 @@ describe 'phabs_hear module', ->
       context 'whatever about http://example.com/rTULIP156f7196453c or something', ->
         hubot 'whatever about http://example.com/rTULIP156f7196453c or something'
         it 'gives information about the Paste, without uri', ->
-          expect(hubotResponse()).to.eql 'rTULIP156f7196453c: (stable) Promote 2016 Week 28 (closed)'
+          expect(hubotResponse())
+            .to.eql 'rTULIP156f7196453c: (stable) Promote 2016 Week 28 (closed)'

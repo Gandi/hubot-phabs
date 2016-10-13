@@ -86,7 +86,7 @@ describe 'phabs_commands module with no bot_phid', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/user.whoami')
-          .reply(200, { error_info: "Unknown user" })
+          .reply(200, { error_info: 'Unknown user' })
           .get('/api/user.query')
           .reply(200, { result: [ { phid: 'PHID-USER-42' } ] })
           .get('/api/maniphest.edit')
@@ -1146,8 +1146,8 @@ describe 'phabs_commands module', ->
           })
           .reply(200, { result: {
             'data': {
-              "PHID-PROJ-xxx": {
-                "phid": "PHID-PROJ-xxx",
+              'PHID-PROJ-xxx': {
+                'phid': 'PHID-PROJ-xxx',
                 'name': 'some proj'
               },
             },
@@ -1160,7 +1160,7 @@ describe 'phabs_commands module', ->
           } })
           .get('/api/maniphest.query')
           .query({
-            'projectPHIDs[0]': "PHID-PROJ-qhmexneudkt62wc7o3z4",
+            'projectPHIDs[0]': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
             'status': 'status-any',
             'order': 'order-modified'
           })
@@ -1641,11 +1641,10 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
           .reply(200, { result: {
-              'projectPHIDs': [
-                'PHID-PROJ-qhmexneudkt62wc7o3z4'
-              ]
-            }
-          })
+            'projectPHIDs': [
+              'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            ]
+          } })
           .get('/api/maniphest.edit')
           .reply(200, { error_info: 'No object exists with ID "424242".' })
 
@@ -1668,11 +1667,10 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
           .reply(200, { result: {
-              'projectPHIDs': [
-                'PHID-PROJ-xxx'
-              ]
-            }
-          })
+            'projectPHIDs': [
+              'PHID-PROJ-xxx'
+            ]
+          } })
           .get('/api/maniphest.edit')
           .reply(200, { result: { object: { id: 42 } } })
 
@@ -1695,11 +1693,10 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
           .reply(200, { result: {
-              'projectPHIDs': [
-                'PHID-PROJ-qhmexneudkt62wc7o3z4'
-              ]
-            }
-          })
+            'projectPHIDs': [
+              'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            ]
+          } })
           .get('/api/maniphest.edit')
           .reply(200, { result: { object: { id: 42 } } })
 
@@ -1722,11 +1719,10 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
           .reply(200, { result: {
-              'projectPHIDs': [
-                'PHID-PROJ-xxx'
-              ]
-            }
-          })
+            'projectPHIDs': [
+              'PHID-PROJ-xxx'
+            ]
+          } })
           .get('/api/maniphest.edit')
           .reply(200, { result: { object: { id: 42 } } })
 

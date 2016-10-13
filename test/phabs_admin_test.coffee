@@ -102,7 +102,7 @@ describe 'phabs_admin module', ->
           'project2': { },
           'project3': { },
         }
-        room.robot.brain.data.phabricator.aliases =  { 
+        room.robot.brain.data.phabricator.aliases = {
           'p1': 'project1'
         }
 
@@ -198,7 +198,7 @@ describe 'phabs_admin module', ->
             } })
             .get('/api/maniphest.query')
             .query({
-              'projectPHIDs[0]': "PHID-PROJ-qhmexneudkt62wc7o3z4",
+              'projectPHIDs[0]': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
               'status': 'status-any',
               'order': 'order-modified'
             })
@@ -470,7 +470,7 @@ describe 'phabs_admin module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': { },
-          'project with phid': { 
+          'project with phid': {
             phid: 'PHID-PROJ-1234567',
             name: 'project with phid'
           },
@@ -524,7 +524,7 @@ describe 'phabs_admin module', ->
     context 'when project has phid recorded, and aliases, and is called by an alias', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
-          'bug report': { 
+          'bug report': {
             phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
             name: 'bug report'
           },
