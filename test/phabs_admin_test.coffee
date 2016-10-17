@@ -208,7 +208,15 @@ describe 'phabs_admin module', ->
               '3' : { id: '3' }
             } })
             .get('/api/maniphest.gettasktransactions')
-            .reply(200, { result: { } })
+            .reply(200, { result: {
+              trans1: [{
+                transactionType: 'core:columns',
+                newValue: [
+                  boardPHID: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                  columnPHID: 'PHID-PCOL-ikeu5quydkkw55cqlbmx'
+                ]
+              }]
+            } })
             .get('/api/phid.lookup')
             .reply(200, { result: { } })
 
@@ -287,7 +295,7 @@ describe 'phabs_admin module', ->
                   'oldValue': null,
                   'newValue': [
                     {
-                      'boardPHID': 'PHID-TASK-llyghhtxzgc25wbsn7lk',
+                      'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
                       'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlbmx'
                     }
                   ]
@@ -306,7 +314,7 @@ describe 'phabs_admin module', ->
                   'oldValue': null,
                   'newValue': [
                     {
-                      'boardPHID': 'PHID-TASK-llyghhtxzgc25wbsn7lk',
+                      'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
                       'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlb00'
                     }
                   ]
@@ -408,7 +416,7 @@ describe 'phabs_admin module', ->
                 'oldValue': null,
                 'newValue': [
                   {
-                    'boardPHID': 'PHID-TASK-llyghhtxzgc25wbsn7lk',
+                    'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
                     'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlbmx'
                   }
                 ]
@@ -427,7 +435,7 @@ describe 'phabs_admin module', ->
                 'oldValue': null,
                 'newValue': [
                   {
-                    'boardPHID': 'PHID-TASK-llyghhtxzgc25wbsn7lk',
+                    'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
                     'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlb00'
                   }
                 ]
@@ -915,12 +923,34 @@ describe 'phabs_admin module', ->
 
   # ---------------------------------------------------------------------------------
   context 'user wants to know the columns for a project', ->
+
     context 'but project never had any task', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.query')
           .reply(200, { result: { }})
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad columns project1', ->
+        hubot 'phad columns project1'
+        it 'should say there is no task', ->
+          expect(hubotResponse())
+            .to.eql "Sorry, we can't find columns until there are tasks created."
+
+    context 'but the tasks in that project never moved around', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.query')
+          .reply(200, { result: {
+            '1' : { id: '1' },
+            '2' : { id: '2' },
+            '3' : { id: '3' }
+          }})
           .get('/api/maniphest.gettasktransactions')
           .reply(200, { result: { }})
 
@@ -930,10 +960,10 @@ describe 'phabs_admin module', ->
 
       context 'phad columns project1', ->
         hubot 'phad columns project1'
-        it 'should say that the feed could not be removed', ->
+        it 'should say that tasks did not move', ->
           expect(hubotResponse())
-            .to.eql "Sorry, we can't find columns until there are tasks created and moved around."
-
+            .to.eql 'Sorry, the tasks in that project have to be moved around ' +
+                    'before we can get the columns.'
 
   # ---------------------------------------------------------------------------------
   context 'permissions system', ->

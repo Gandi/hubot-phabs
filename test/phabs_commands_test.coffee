@@ -1141,21 +1141,16 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/project.query')
           .query({
-            'names[0]': 'project1',
+            'names[0]': 'proj2',
             'api.token': 'xxx'
           })
           .reply(200, { result: {
             'data': {
-              'PHID-PROJ-xxx': {
-                'phid': 'PHID-PROJ-xxx',
-                'name': 'some proj'
-              },
-            },
-            'slugMap': [ ],
-            'cursor': {
-              'limit': 100,
-              'after': null,
-              'before': null
+              'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+                'id': '1402',
+                'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                'name': 'proj2',
+              }
             }
           } })
           .get('/api/maniphest.query')
@@ -1165,15 +1160,75 @@ describe 'phabs_commands module', ->
             'order': 'order-modified'
           })
           .reply(200, { result: {
-            '1' : { id: '1' },
-            '2' : { id: '2' },
-            '3' : { id: '3' }
+            'PHID-TASK-llyghhtxzgc25wbsn7lk': {
+              'id': '12',
+              'phid': 'PHID-TASK-llyghhtxzgc25wbsn7lk'
+            },
+            'PHID-TASK-lnpaaqlyvkuar5yf7qk6': {
+              'id': '13',
+              'phid': 'PHID-TASK-lnpaaqlyvkuar5yf7qk6'
+            }
           } })
           .get('/api/maniphest.gettasktransactions')
-          .reply(200, { result: { } })
-          .get('/api/phid.lookup')
+          .query({
+            'ids[]': [ 12, 13 ]
+          })
           .reply(200, { result: {
-
+            '12': [
+              {
+                'taskID': '12',
+                'transactionType': 'status',
+                'oldValue': 'open',
+                'newValue': 'resolved'
+              },
+              {
+                'taskID': '12',
+                'transactionType': 'core:columns',
+                'oldValue': null,
+                'newValue': [
+                  {
+                    'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                    'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlbmx'
+                  }
+                ]
+              }
+            ],
+            '13': [
+              {
+                'taskID': '13',
+                'transactionType': 'status',
+                'oldValue': 'open',
+                'newValue': 'resolved'
+              },
+              {
+                'taskID': '13',
+                'transactionType': 'core:columns',
+                'oldValue': null,
+                'newValue': [
+                  {
+                    'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                    'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlb00'
+                  }
+                ]
+              }
+            ]
+          } })
+          .get('/api/phid.lookup')
+          .query({
+            'names[]': [
+              'PHID-PCOL-ikeu5quydkkw55cqlbmx',
+              'PHID-PCOL-ikeu5quydkkw55cqlb00'
+            ]
+          })
+          .reply(200, { result: {
+            'PHID-PCOL-ikeu5quydkkw55cqlbmx': {
+              'phid': 'PHID-PCOL-ikeu5quydkkw55cqlbmx',
+              'name': 'Back Log'
+            },
+            'PHID-PCOL-ikeu5quydkkw55cqlb00': {
+              'phid': 'PHID-PCOL-ikeu5quydkkw55cqlb00',
+              'name': 'Done'
+            }
           } })
           .get('/api/user.query')
           .reply(200, { result: [ { phid: 'PHID-USER-42', userName: 'user_with_phid' } ] })
@@ -1188,8 +1243,8 @@ describe 'phabs_commands module', ->
         hubot 'phab new proj2 a task', 'user_with_phid'
         it 'replies that project is unknown', ->
           expect(hubotResponse()).to.eql 'Task T24 created = http://example.com/T24'
-          expect(room.robot.brain.data.phabricator.projects['some proj'].phid)
-            .to.eql 'PHID-PROJ-xxx'
+          expect(room.robot.brain.data.phabricator.projects['proj2'].phid)
+            .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
 
     context 'phab new proj2 a task', ->
       beforeEach ->

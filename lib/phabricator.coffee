@@ -232,7 +232,7 @@ class Phabricator
       for k, i of body.result
         query['ids[]'].push i.id
       if query['ids[]'].length is 0
-        throw "Sorry, we can't find columns until there are tasks created and moved around."
+        throw "Sorry, we can't find columns until there are tasks created."
       else
         @request(query, 'maniphest.gettasktransactions')
     .then (body) =>
@@ -245,8 +245,12 @@ class Phabricator
         columns = columns.concat boardIds
       columns = columns.filter (value, index, self) ->
         self.indexOf(value) is index
-      query = { 'names[]': columns }
-      @request(query, 'phid.lookup')
+      if columns.length is 0
+        throw 'Sorry, the tasks in that project have to be moved around ' +
+              'before we can get the columns.'
+      else
+        query = { 'names[]': columns }
+        @request(query, 'phid.lookup')
     .then (body) =>
       back = { }
       for p, v of body.result
