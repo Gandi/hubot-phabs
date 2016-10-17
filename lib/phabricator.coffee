@@ -479,7 +479,7 @@ class Phabricator
     .then (body) ->
       id
 
-  changeColumns: (user, id, column) ->
+  changeColumns: (user, id, column, comment) ->
     return new Promise (res, err) =>
       @getBotPHID()
       .bind({ botphid: null })
@@ -504,9 +504,12 @@ class Phabricator
             'objectIdentifier': id,
             'transactions[0][type]': 'subscribers.remove',
             'transactions[0][value][0]': "#{@botphid}"
-            'transactions[1][type]': 'comment',
-            'transactions[1][value]': "(moved to by #{user.name})",
+            'transactions[1][type]': 'comment'
           }
+          if comment?
+            query['transactions[1][value]'] = "#{comment} (#{user.name})"
+          else
+            query['transactions[1][value]'] = "moved by #{user.name}"
           query['transactions[2][type]'] = 'column'
           for c in cols
             query['transactions[2][value][]'] = c.colphid

@@ -181,14 +181,15 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab Txx to [project:]<columns> - move task Txx to columns
-  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? to ([^ ]+) *$/, (msg) ->
+  robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? to ([^ ]+)(?: (?:=|\+) (.+))? *$/, (msg) ->
     what = msg.match[1] or msg.match[2]
     column = msg.match[3]
+    comment = msg.match[4]
     phab.getPermission(msg.envelope.user, 'phuser')
     .then ->
       phab.getId(msg.envelope.user, what)
     .then (id) ->
-      phab.changeColumns(msg.envelope.user, id, column)
+      phab.changeColumns(msg.envelope.user, id, column, comment)
     .then (data) ->
       msg.send "Ok, T#{data.id} moved to #{data.columns}."
     .catch (e) ->
