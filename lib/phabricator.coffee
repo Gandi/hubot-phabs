@@ -231,7 +231,10 @@ class Phabricator
       query = { 'ids[]': [ ] }
       for k, i of body.result
         query['ids[]'].push i.id
-      @request(query, 'maniphest.gettasktransactions')
+      if query['ids[]'].length is 0
+        throw "Sorry, we can't find columns until there are tasks created and moved around."
+      else
+        @request(query, 'maniphest.gettasktransactions')
     .then (body) =>
       columns = [ ]
       for id, o of body.result

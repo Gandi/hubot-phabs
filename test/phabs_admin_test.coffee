@@ -202,7 +202,11 @@ describe 'phabs_admin module', ->
               'status': 'status-any',
               'order': 'order-modified'
             })
-            .reply(200, { result: { } })
+            .reply(200, { result: {
+              '1' : { id: '1' },
+              '2' : { id: '2' },
+              '3' : { id: '3' }
+            } })
             .get('/api/maniphest.gettasktransactions')
             .reply(200, { result: { } })
             .get('/api/phid.lookup')
@@ -908,6 +912,28 @@ describe 'phabs_admin module', ->
         it 'should say that the feed could not be removed', ->
           expect(hubotResponse())
             .to.eql "Sorry, 'bug report' is not feeding '#dev'."
+
+  # ---------------------------------------------------------------------------------
+  context 'user wants to know the columns for a project', ->
+    context 'but project never had any task', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.query')
+          .reply(200, { result: { }})
+          .get('/api/maniphest.gettasktransactions')
+          .reply(200, { result: { }})
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad columns project1', ->
+        hubot 'phad columns project1'
+        it 'should say that the feed could not be removed', ->
+          expect(hubotResponse())
+            .to.eql "Sorry, we can't find columns until there are tasks created and moved around."
+
 
   # ---------------------------------------------------------------------------------
   context 'permissions system', ->

@@ -148,3 +148,5 @@ module.exports = (robot) ->
       phab.getColumns(project)
     .then (data) ->
       msg.send 'Ok.'
+    .catch (e) ->
+      msg.send e

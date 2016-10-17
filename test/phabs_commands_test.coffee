@@ -1164,11 +1164,17 @@ describe 'phabs_commands module', ->
             'status': 'status-any',
             'order': 'order-modified'
           })
-          .reply(200, { result: { } })
+          .reply(200, { result: {
+            '1' : { id: '1' },
+            '2' : { id: '2' },
+            '3' : { id: '3' }
+          } })
           .get('/api/maniphest.gettasktransactions')
           .reply(200, { result: { } })
           .get('/api/phid.lookup')
-          .reply(200, { result: { } })
+          .reply(200, { result: {
+
+          } })
           .get('/api/user.query')
           .reply(200, { result: [ { phid: 'PHID-USER-42', userName: 'user_with_phid' } ] })
           .get('/api/maniphest.edit')
@@ -1733,6 +1739,42 @@ describe 'phabs_commands module', ->
         hubot 'phab T424242 not in proj1', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).to.eql 'No action needed.'
+
+  # ---------------------------------------------------------------------------------
+  # context 'user changes column for a task', ->
+  #   context 'when columns are not yet known', ->
+  #     beforeEach ->
+  #       do nock.disableNetConnect
+  #       nock(process.env.PHABRICATOR_URL)
+  #         .get('/api/maniphest.info')
+  #         .get('/api/project.query')
+  #         .reply(200, { result: { 
+  #           '1' : { id: '1' },
+  #           '2' : { id: '2' },
+  #           '3' : { id: '3' }
+  #         }})
+  #         .get('/api/maniphest.query')
+  #         .reply(200, { result: { 
+  #           '1' : { id: '1' },
+  #           '2' : { id: '2' },
+  #           '3' : { id: '3' }
+  #         }})
+  #         .get('/api/maniphest.gettasktransactions')
+  #         .reply(200, { result: {
+  #           'trans1' : {
+  #             transactionType: 'something'
+  #           },
+  #           'trans1' : {
+  #             transactionType: 'core:columns'
+  #             newValue: [
+  #               boardPHID: 
+  #             ]
+  #           },
+
+  #         }})
+  #         .get('/api/maniphest.edit')
+  #         .reply(200, { result: { object: { id: 42 } } })
+
 
   # ---------------------------------------------------------------------------------
   context 'user changes status for a task', ->
