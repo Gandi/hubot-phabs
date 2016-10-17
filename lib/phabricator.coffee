@@ -76,6 +76,7 @@ class Phabricator
     return new Promise (res, err) =>
       query['api.token'] = process.env.PHABRICATOR_API_KEY
       body = querystring.stringify(query)
+      # console.log body
       @robot.http(process.env.PHABRICATOR_URL)
         .path("api/#{endpoint}")
         .get(body) (error, result, payload) ->
@@ -374,22 +375,22 @@ class Phabricator
     query = { 'names[]': name }
     @request query, 'phid.lookup'
 
-  searchTask: (phid, terms) ->
+  searchTask: (phid, terms, limit = 3) ->
     query = {
       'constraints[fulltext]': terms,
       'constraints[statuses][0]': 'open',
       'constraints[projects][0]': phid,
       'order': 'newest',
-      'limit': '3'
+      'limit': limit
     }
     @request query, 'maniphest.search'
 
-  searchAllTask: (phid, terms) ->
+  searchAllTask: (phid, terms, limit = 3) ->
     query = {
       'constraints[fulltext]': terms,
       'constraints[projects][0]': phid,
       'order': 'newest',
-      'limit': '3'
+      'limit': limit
     }
     @request query, 'maniphest.search'
 
