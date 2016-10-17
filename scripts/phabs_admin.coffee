@@ -145,7 +145,7 @@ module.exports = (robot) ->
     project = msg.match[1]
     phab.getPermission(msg.envelope.user, 'phadmin')
     .then ->
-      phab.getProjectByName(project)
+      phab.getProject(project)
     .then (data) ->
       msg.send 'Ok.'
     .catch (e) ->

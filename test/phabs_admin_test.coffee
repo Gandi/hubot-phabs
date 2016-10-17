@@ -993,111 +993,218 @@ describe 'phabs_admin module', ->
             .to.eql 'Sorry, the tasks in that project have to be moved around ' +
                     'before we can get the columns.'
 
-    context 'and there is a way to get columns fronm existing tasks', ->
-      beforeEach ->
-        do nock.disableNetConnect
-        nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
-          .query({
-            'names[0]': 'project1',
-            'api.token': 'xxx'
-          })
-          .reply(200, { result: {
-            'data': {
-              'PHID-PROJ-qhmexneudkt62wc7o3z4': {
-                'id': '1402',
-                'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                'name': 'Bug Report',
+    context 'and there is a way to get columns from existing tasks', ->
+      context 'with a project name', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/project.query')
+            .query({
+              'names[0]': 'project1',
+              'api.token': 'xxx'
+            })
+            .reply(200, { result: {
+              'data': {
+                'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+                  'id': '1402',
+                  'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                  'name': 'Bug Report',
+                }
               }
-            }
-          } })
-          .get('/api/maniphest.query')
-          .query({
-            'projectPHIDs[0]': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-            'status': 'status-any',
-            'order': 'order-modified'
-          })
-          .reply(200, { result: {
-            'PHID-TASK-llyghhtxzgc25wbsn7lk': {
-              'id': '12',
-              'phid': 'PHID-TASK-llyghhtxzgc25wbsn7lk'
-            },
-            'PHID-TASK-lnpaaqlyvkuar5yf7qk6': {
-              'id': '13',
-              'phid': 'PHID-TASK-lnpaaqlyvkuar5yf7qk6'
-            }
-          } })
-          .get('/api/maniphest.gettasktransactions')
-          .query({
-            'ids[]': [ 12, 13 ]
-          })
-          .reply(200, { result: {
-            '12': [
-              {
-                'taskID': '12',
-                'transactionType': 'status',
-                'oldValue': 'open',
-                'newValue': 'resolved'
+            } })
+            .get('/api/maniphest.query')
+            .query({
+              'projectPHIDs[0]': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+              'status': 'status-any',
+              'order': 'order-modified'
+            })
+            .reply(200, { result: {
+              'PHID-TASK-llyghhtxzgc25wbsn7lk': {
+                'id': '12',
+                'phid': 'PHID-TASK-llyghhtxzgc25wbsn7lk'
               },
-              {
-                'taskID': '12',
-                'transactionType': 'core:columns',
-                'oldValue': null,
-                'newValue': [
-                  {
-                    'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                    'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlbmx'
-                  }
-                ]
+              'PHID-TASK-lnpaaqlyvkuar5yf7qk6': {
+                'id': '13',
+                'phid': 'PHID-TASK-lnpaaqlyvkuar5yf7qk6'
               }
-            ],
-            '13': [
-              {
-                'taskID': '13',
-                'transactionType': 'status',
-                'oldValue': 'open',
-                'newValue': 'resolved'
+            } })
+            .get('/api/maniphest.gettasktransactions')
+            .query({
+              'ids[]': [ 12, 13 ]
+            })
+            .reply(200, { result: {
+              '12': [
+                {
+                  'taskID': '12',
+                  'transactionType': 'status',
+                  'oldValue': 'open',
+                  'newValue': 'resolved'
+                },
+                {
+                  'taskID': '12',
+                  'transactionType': 'core:columns',
+                  'oldValue': null,
+                  'newValue': [
+                    {
+                      'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                      'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlbmx'
+                    }
+                  ]
+                }
+              ],
+              '13': [
+                {
+                  'taskID': '13',
+                  'transactionType': 'status',
+                  'oldValue': 'open',
+                  'newValue': 'resolved'
+                },
+                {
+                  'taskID': '13',
+                  'transactionType': 'core:columns',
+                  'oldValue': null,
+                  'newValue': [
+                    {
+                      'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                      'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlb00'
+                    }
+                  ]
+                }
+              ]
+            } })
+            .get('/api/phid.lookup')
+            .query({
+              'names[]': [
+                'PHID-PCOL-ikeu5quydkkw55cqlbmx',
+                'PHID-PCOL-ikeu5quydkkw55cqlb00'
+              ]
+            })
+            .reply(200, { result: {
+              'PHID-PCOL-ikeu5quydkkw55cqlbmx': {
+                'phid': 'PHID-PCOL-ikeu5quydkkw55cqlbmx',
+                'name': 'Back Log'
               },
-              {
-                'taskID': '13',
-                'transactionType': 'core:columns',
-                'oldValue': null,
-                'newValue': [
-                  {
-                    'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                    'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlb00'
-                  }
-                ]
+              'PHID-PCOL-ikeu5quydkkw55cqlb00': {
+                'phid': 'PHID-PCOL-ikeu5quydkkw55cqlb00',
+                'name': 'Done'
               }
-            ]
-          } })
-          .get('/api/phid.lookup')
-          .query({
-            'names[]': [
-              'PHID-PCOL-ikeu5quydkkw55cqlbmx',
-              'PHID-PCOL-ikeu5quydkkw55cqlb00'
-            ]
-          })
-          .reply(200, { result: {
-            'PHID-PCOL-ikeu5quydkkw55cqlbmx': {
-              'phid': 'PHID-PCOL-ikeu5quydkkw55cqlbmx',
-              'name': 'Back Log'
-            },
-            'PHID-PCOL-ikeu5quydkkw55cqlb00': {
-              'phid': 'PHID-PCOL-ikeu5quydkkw55cqlb00',
-              'name': 'Done'
-            }
-           } })
+             } })
 
-      afterEach ->
-        room.robot.brain.data.phabricator = { }
-        nock.cleanAll()
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
 
-      context 'phad columns project1', ->
-        hubot 'phad columns project1'
-        it 'should say ok', ->
-          expect(hubotResponse())
-            .to.eql 'Ok.'
+        context 'phad columns project1', ->
+          hubot 'phad columns project1'
+          it 'should say ok', ->
+            expect(hubotResponse())
+              .to.eql 'Ok.'
+
+      context 'with a project PHID', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/project.query')
+            .query({
+              'names[0]': 'project1',
+              'api.token': 'xxx'
+            })
+            .reply(200, { result: {
+              'data': {
+                'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+                  'id': '1402',
+                  'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                  'name': 'Bug Report',
+                }
+              }
+            } })
+            .get('/api/maniphest.query')
+            .query({
+              'projectPHIDs[0]': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+              'status': 'status-any',
+              'order': 'order-modified'
+            })
+            .reply(200, { result: {
+              'PHID-TASK-llyghhtxzgc25wbsn7lk': {
+                'id': '12',
+                'phid': 'PHID-TASK-llyghhtxzgc25wbsn7lk'
+              },
+              'PHID-TASK-lnpaaqlyvkuar5yf7qk6': {
+                'id': '13',
+                'phid': 'PHID-TASK-lnpaaqlyvkuar5yf7qk6'
+              }
+            } })
+            .get('/api/maniphest.gettasktransactions')
+            .query({
+              'ids[]': [ 12, 13 ]
+            })
+            .reply(200, { result: {
+              '12': [
+                {
+                  'taskID': '12',
+                  'transactionType': 'status',
+                  'oldValue': 'open',
+                  'newValue': 'resolved'
+                },
+                {
+                  'taskID': '12',
+                  'transactionType': 'core:columns',
+                  'oldValue': null,
+                  'newValue': [
+                    {
+                      'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                      'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlbmx'
+                    }
+                  ]
+                }
+              ],
+              '13': [
+                {
+                  'taskID': '13',
+                  'transactionType': 'status',
+                  'oldValue': 'open',
+                  'newValue': 'resolved'
+                },
+                {
+                  'taskID': '13',
+                  'transactionType': 'core:columns',
+                  'oldValue': null,
+                  'newValue': [
+                    {
+                      'boardPHID': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                      'columnPHID': 'PHID-PCOL-ikeu5quydkkw55cqlb00'
+                    }
+                  ]
+                }
+              ]
+            } })
+            .get('/api/phid.lookup')
+            .query({
+              'names[]': [
+                'PHID-PCOL-ikeu5quydkkw55cqlbmx',
+                'PHID-PCOL-ikeu5quydkkw55cqlb00'
+              ]
+            })
+            .reply(200, { result: {
+              'PHID-PCOL-ikeu5quydkkw55cqlbmx': {
+                'phid': 'PHID-PCOL-ikeu5quydkkw55cqlbmx',
+                'name': 'Back Log'
+              },
+              'PHID-PCOL-ikeu5quydkkw55cqlb00': {
+                'phid': 'PHID-PCOL-ikeu5quydkkw55cqlb00',
+                'name': 'Done'
+              }
+             } })
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'phad columns PHID-PROJ-qhmexneudkt62wc7o3z4', ->
+          hubot 'phad columns PHID-PROJ-qhmexneudkt62wc7o3z4'
+          it 'should say ok', ->
+            expect(hubotResponse())
+              .to.eql 'Ok.'
 
   # ---------------------------------------------------------------------------------
   context 'permissions system', ->
