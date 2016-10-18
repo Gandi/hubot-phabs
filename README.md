@@ -236,8 +236,11 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
 
     .phab T123 to <column>
     .phad to <column>
+    .phad T123 to <column> + some comment
+    .phad T123 to <column> = some comment
         moves the task on the board to the column matching the <column>
         the matching will take the first match.
+        A comment can optionaly be added
         permission: phuser
 
     .phab T123 next <term>
@@ -364,7 +367,7 @@ Some configuration variables are stored the brain. They are managed by the phabs
 
     .phad info <project>
     .phad show <project>
-        gives info about <project>
+        gives info about <project>, including aliases, feeds and columns
         permission: all
 
     .phad refresh <project>

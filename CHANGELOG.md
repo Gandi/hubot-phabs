@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.1.2 - wip
+- add a way to specify a comment when moving task to another column
+
 ### 2.1.1 - 2016-10-13
 - fix pattern matching for diffusion objects
 
