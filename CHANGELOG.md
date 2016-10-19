@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.1.2 - wip
+### 2.1.2 - 2016-10-19
 - add a way to specify a comment when moving task to another column
 
 ### 2.1.1 - 2016-10-13
