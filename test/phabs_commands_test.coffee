@@ -1796,39 +1796,65 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'No action needed.'
 
   # ---------------------------------------------------------------------------------
-  # context 'user changes column for a task', ->
-  #   context 'when columns are not yet known', ->
-  #     beforeEach ->
-  #       do nock.disableNetConnect
-  #       nock(process.env.PHABRICATOR_URL)
-  #         .get('/api/maniphest.info')
-  #         .get('/api/project.query')
-  #         .reply(200, { result: { 
-  #           '1' : { id: '1' },
-  #           '2' : { id: '2' },
-  #           '3' : { id: '3' }
-  #         }})
-  #         .get('/api/maniphest.query')
-  #         .reply(200, { result: { 
-  #           '1' : { id: '1' },
-  #           '2' : { id: '2' },
-  #           '3' : { id: '3' }
-  #         }})
-  #         .get('/api/maniphest.gettasktransactions')
-  #         .reply(200, { result: {
-  #           'trans1' : {
-  #             transactionType: 'something'
-  #           },
-  #           'trans1' : {
-  #             transactionType: 'core:columns'
-  #             newValue: [
-  #               boardPHID: 
-  #             ]
-  #           },
+  context 'user changes column for a task', ->
+    beforeEach ->
+      room.robot.brain.data.phabricator.projects = {
+        'proj1': {
+          name: 'proj1',
+          phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+          columns: {
+            in_progress: 'PHID-PCOL-123',
+            backlog: 'PHID-PCOL-000'
+          }
+        }
+      }
 
-  #         }})
-  #         .get('/api/maniphest.edit')
-  #         .reply(200, { result: { object: { id: 42 } } })
+    context 'when task is not in any project yet', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            projectPHIDs: [ ]
+          } })
+
+      context 'phab T424242 to pouet', ->
+        hubot 'phab T424242 to pouet'
+        it "warns the user that this task has no tag", ->
+          expect(hubotResponse()).to.eql 'This item has no tag/project yet.'
+
+    context 'when task is some project', ->
+      context 'with an unknown columns', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.info')
+            .reply(200, { result: {
+              projectPHIDs: [
+                'PHID-PROJ-qhmexneudkt62wc7o3z4'
+              ]
+            } })
+
+        context 'phab T424242 to pouet', ->
+          hubot 'phab T424242 to pouet'
+          it "warns the user that this column was not found", ->
+            expect(hubotResponse()).to.eql "The column 'pouet' does not exist."
+
+      context 'with a column that is known', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.info')
+            .reply(200, { result: {
+              projectPHIDs: [
+                'PHID-PROJ-qhmexneudkt62wc7o3z4'
+              ]
+            } })
+
+        context 'phab T424242 to pouet', ->
+          hubot 'phab T424242 to pouet'
+          it "warns the user that this column was not found", ->
+            expect(hubotResponse()).to.eql "The column 'pouet' does not exist."
 
 
   # ---------------------------------------------------------------------------------

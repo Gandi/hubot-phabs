@@ -496,13 +496,16 @@ class Phabricator
         query = { 'task_id': id }
         @request(query, 'maniphest.info')
       .then (body) =>
-        cols = Promise.map body.result.projectPHIDs, (phid) =>
-          @getProject(phid)
-          .then (projectData) ->
-            for i in Object.keys(projectData.data.columns)
-              if (new RegExp(column)).test i
-                return { colname: i, colphid: projectData.data.columns[i] }
-        Promise.all cols
+        if not body.result.projectPHIDs? or body.result.projectPHIDs.length is 0
+          throw 'This item has no tag/project yet.'
+        else
+          cols = Promise.map body.result.projectPHIDs, (phid) =>
+            @getProject(phid)
+            .then (projectData) ->
+              for i in Object.keys(projectData.data.columns)
+                if (new RegExp(column)).test i
+                  return { colname: i, colphid: projectData.data.columns[i] }
+          Promise.all cols
       .then (cols) =>
         cols = cols.filter (c) ->
           c?
@@ -528,7 +531,7 @@ class Phabricator
           .catch (e) ->
             err e
         else
-          err "#{column} unknown."
+          err "The column '#{column}' does not exist."
       .catch (e) ->
         err e
 
