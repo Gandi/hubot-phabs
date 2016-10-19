@@ -1841,20 +1841,63 @@ describe 'phabs_commands module', ->
             expect(hubotResponse()).to.eql "The column 'pouet' does not exist."
 
       context 'with a column that is known', ->
-        beforeEach ->
-          do nock.disableNetConnect
-          nock(process.env.PHABRICATOR_URL)
-            .get('/api/maniphest.info')
-            .reply(200, { result: {
-              projectPHIDs: [
-                'PHID-PROJ-qhmexneudkt62wc7o3z4'
-              ]
-            } })
+        context 'but an error occured', ->
+          beforeEach ->
+            do nock.disableNetConnect
+            nock(process.env.PHABRICATOR_URL)
+              .get('/api/maniphest.info')
+              .reply(200, { result: {
+                projectPHIDs: [
+                  'PHID-PROJ-qhmexneudkt62wc7o3z4'
+                ]
+              } })
+              .get('/api/maniphest.edit')
+              .reply(200, { error_info: 'No object exists with ID "424242".' })
 
-        context 'phab T424242 to pouet', ->
-          hubot 'phab T424242 to pouet'
-          it "warns the user that this column was not found", ->
-            expect(hubotResponse()).to.eql "The column 'pouet' does not exist."
+          context 'phab T424242 to backlog', ->
+            hubot 'phab T424242 to backlog'
+            it "tells the user what the error was", ->
+              expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
+
+        context 'and everything went fine', ->
+          beforeEach ->
+            do nock.disableNetConnect
+            nock(process.env.PHABRICATOR_URL)
+              .get('/api/maniphest.info')
+              .reply(200, { result: {
+                projectPHIDs: [
+                  'PHID-PROJ-qhmexneudkt62wc7o3z4'
+                ]
+              } })
+              .get('/api/maniphest.edit')
+              .reply(200, {
+                id: 42
+              })
+
+          context 'phab T424242 to backlog', ->
+            hubot 'phab T424242 to backlog'
+            it "tells the user that everything went fine", ->
+              expect(hubotResponse()).to.eql "Ok, T424242 moved to backlog."
+
+        context 'and we specify a comment', ->
+          beforeEach ->
+            do nock.disableNetConnect
+            nock(process.env.PHABRICATOR_URL)
+              .get('/api/maniphest.info')
+              .reply(200, { result: {
+                projectPHIDs: [
+                  'PHID-PROJ-qhmexneudkt62wc7o3z4'
+                ]
+              } })
+              .get('/api/maniphest.edit')
+              .reply(200, {
+                id: 42
+              })
+
+          context 'phab T424242 to backlog + some comment', ->
+            hubot 'phab T424242 to backlog + some comment'
+            it "tells the user that everything went fine", ->
+              expect(hubotResponse()).to.eql "Ok, T424242 moved to backlog."
 
 
   # ---------------------------------------------------------------------------------
