@@ -56,7 +56,7 @@ class Phabricator
         users: { },
         bot_phid: env.PHABRICATOR_BOT_PHID
       }
-      @robot.logger.debug 'Phabricator Data Loaded: ' + JSON.stringify(@data, null, 2)
+      @robot.logger.debug '---- Phabricator Data Loaded.'
     @robot.brain.on 'loaded', storageLoaded
     storageLoaded() # just in case storage was loaded before we got here
     @data.templates ?= { }
