@@ -203,17 +203,19 @@ describe 'phabs_admin module', ->
               'order': 'order-modified'
             })
             .reply(200, { result: {
-              '1' : { id: '1' },
-              '2' : { id: '2' },
-              '3' : { id: '3' }
+              '1': { id: '1' },
+              '2': { id: '2' },
+              '3': { id: '3' }
             } })
             .get('/api/maniphest.gettasktransactions')
             .reply(200, { result: {
               trans1: [{
                 transactionType: 'core:columns',
                 newValue: [
-                  boardPHID: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                  columnPHID: 'PHID-PCOL-ikeu5quydkkw55cqlbmx'
+                  {
+                    boardPHID: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                    columnPHID: 'PHID-PCOL-ikeu5quydkkw55cqlbmx'
+                  }
                 ]
               }]
             } })
@@ -943,7 +945,7 @@ describe 'phabs_admin module', ->
             }
           } })
           .get('/api/maniphest.query')
-          .reply(200, { result: { }})
+          .reply(200, { result: { } })
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
@@ -975,12 +977,12 @@ describe 'phabs_admin module', ->
           } })
           .get('/api/maniphest.query')
           .reply(200, { result: {
-            '1' : { id: '1' },
-            '2' : { id: '2' },
-            '3' : { id: '3' }
-          }})
+            '1': { id: '1' },
+            '2': { id: '2' },
+            '3': { id: '3' }
+          } })
           .get('/api/maniphest.gettasktransactions')
-          .reply(200, { result: { }})
+          .reply(200, { result: { } })
 
       afterEach ->
         room.robot.brain.data.phabricator = { }

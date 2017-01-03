@@ -232,7 +232,7 @@ class Phabricator
       for k, i of body.result
         query['ids[]'].push i.id
       if query['ids[]'].length is 0
-        throw "Sorry, we can't find columns until there are tasks created."
+        throw new Error("Sorry, we can't find columns until there are tasks created.")
       else
         @request(query, 'maniphest.gettasktransactions')
     .then (body) =>
@@ -246,8 +246,8 @@ class Phabricator
       columns = columns.filter (value, index, self) ->
         self.indexOf(value) is index
       if columns.length is 0
-        throw 'Sorry, the tasks in that project have to be moved around ' +
-              'before we can get the columns.'
+        throw new Error('Sorry, the tasks in that project have to be moved around ' +
+              'before we can get the columns.')
       else
         query = { 'names[]': columns }
         @request(query, 'phid.lookup')
@@ -497,7 +497,7 @@ class Phabricator
         @request(query, 'maniphest.info')
       .then (body) =>
         if not body.result.projectPHIDs? or body.result.projectPHIDs.length is 0
-          throw 'This item has no tag/project yet.'
+          err 'This item has no tag/project yet.'
         else
           cols = Promise.map body.result.projectPHIDs, (phid) =>
             @getProject(phid)
@@ -613,10 +613,7 @@ class Phabricator
     return Promise.all([add, remove, msg])
 
   updateStatus: (user, id, status, comment) ->
-    userPhid = null
-    @getUser(user, user)
-    .then (userPhid) =>
-      @getBotPHID()
+    @getBotPHID()
     .then (bot_phid) =>
       query = {
         'objectIdentifier': id,
@@ -624,23 +621,18 @@ class Phabricator
         'transactions[0][value]': @statuses[status],
         'transactions[1][type]': 'subscribers.remove',
         'transactions[1][value][0]': "#{bot_phid}",
-        'transactions[2][type]': 'owner',
-        'transactions[2][value]': userPhid,
-        'transactions[3][type]': 'comment'
+        'transactions[2][type]': 'comment'
       }
       if comment?
-        query['transactions[3][value]'] = "#{comment} (#{user.name})"
+        query['transactions[2][value]'] = "#{comment} (#{user.name})"
       else
-        query['transactions[3][value]'] = "status set to #{status} by #{user.name}"
+        query['transactions[2][value]'] = "status set to #{status} by #{user.name}"
       @request(query, 'maniphest.edit')
     .then (body) ->
       id
 
   updatePriority: (user, id, priority, comment) ->
-    userPhid = null
-    @getUser(user, user)
-    .then (userPhid) =>
-      @getBotPHID()
+    @getBotPHID()
     .then (bot_phid) =>
       query = {
         'objectIdentifier': id,
@@ -648,14 +640,12 @@ class Phabricator
         'transactions[0][value]': @priorities[priority],
         'transactions[1][type]': 'subscribers.remove',
         'transactions[1][value][0]': "#{bot_phid}",
-        'transactions[2][type]': 'owner',
-        'transactions[2][value]': userPhid,
-        'transactions[3][type]': 'comment'
+        'transactions[2][type]': 'comment'
       }
       if comment?
-        query['transactions[3][value]'] = "#{comment} (#{user.name})"
+        query['transactions[2][value]'] = "#{comment} (#{user.name})"
       else
-        query['transactions[3][value]'] = "priority set to #{priority} by #{user.name}"
+        query['transactions[2][value]'] = "priority set to #{priority} by #{user.name}"
       @request(query, 'maniphest.edit')
     .then (body) ->
       id

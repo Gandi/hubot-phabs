@@ -1820,7 +1820,7 @@ describe 'phabs_commands module', ->
 
       context 'phab T424242 to pouet', ->
         hubot 'phab T424242 to pouet'
-        it "warns the user that this task has no tag", ->
+        it 'warns the user that this task has no tag', ->
           expect(hubotResponse()).to.eql 'This item has no tag/project yet.'
 
     context 'when task is some project', ->
@@ -1837,7 +1837,7 @@ describe 'phabs_commands module', ->
 
         context 'phab T424242 to pouet', ->
           hubot 'phab T424242 to pouet'
-          it "warns the user that this column was not found", ->
+          it 'warns the user that this column was not found', ->
             expect(hubotResponse()).to.eql "The column 'pouet' does not exist."
 
       context 'with a column that is known', ->
@@ -1856,7 +1856,7 @@ describe 'phabs_commands module', ->
 
           context 'phab T424242 to backlog', ->
             hubot 'phab T424242 to backlog'
-            it "tells the user what the error was", ->
+            it 'tells the user what the error was', ->
               expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
 
         context 'and everything went fine', ->
@@ -1876,8 +1876,8 @@ describe 'phabs_commands module', ->
 
           context 'phab T424242 to backlog', ->
             hubot 'phab T424242 to backlog'
-            it "tells the user that everything went fine", ->
-              expect(hubotResponse()).to.eql "Ok, T424242 moved to backlog."
+            it 'tells the user that everything went fine', ->
+              expect(hubotResponse()).to.eql 'Ok, T424242 moved to backlog.'
 
         context 'and we specify a comment', ->
           beforeEach ->
@@ -1896,8 +1896,8 @@ describe 'phabs_commands module', ->
 
           context 'phab T424242 to backlog + some comment', ->
             hubot 'phab T424242 to backlog + some comment'
-            it "tells the user that everything went fine", ->
-              expect(hubotResponse()).to.eql "Ok, T424242 moved to backlog."
+            it 'tells the user that everything went fine', ->
+              expect(hubotResponse()).to.eql 'Ok, T424242 moved to backlog.'
 
 
   # ---------------------------------------------------------------------------------
@@ -1916,23 +1916,6 @@ describe 'phabs_commands module', ->
         hubot 'phab T424242 is open', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
-
-    context 'when the user is unknown', ->
-      beforeEach ->
-        do nock.disableNetConnect
-        nock(process.env.PHABRICATOR_URL)
-          .get('/api/maniphest.edit')
-          .reply(200, { error_info: 'No object exists with ID "424242".' })
-
-      afterEach ->
-        nock.cleanAll()
-
-      context 'phab T424242 is open', ->
-        hubot 'phab T424242 is open', 'user'
-        it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).
-            to.eql 'Sorry, I can\'t figure out your email address :( ' +
-            'Can you tell me with `.phab me as <email>`?'
 
     context 'when the task is present', ->
 
@@ -2106,23 +2089,6 @@ describe 'phabs_commands module', ->
         hubot 'phab T424242 is low', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
-
-    context 'when the user is unknown', ->
-      beforeEach ->
-        do nock.disableNetConnect
-        nock(process.env.PHABRICATOR_URL)
-          .get('/api/maniphest.edit')
-          .reply(200, { error_info: 'No such Maniphest task exists.' })
-
-      afterEach ->
-        nock.cleanAll()
-
-      context 'phab T424242 is low', ->
-        hubot 'phab T424242 is low', 'user'
-        it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).
-            to.eql 'Sorry, I can\'t figure out your email address :( ' +
-            'Can you tell me with `.phab me as <email>`?'
 
 
     context 'when the task is present', ->

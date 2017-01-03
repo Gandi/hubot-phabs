@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.1.3 - 2017-01-03
+- remove the modification of assignment when changing status or priority
+
 ### 2.1.2 - 2016-10-19
 - add a way to specify a comment when moving task to another column
 
