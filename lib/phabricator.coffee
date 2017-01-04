@@ -664,6 +664,13 @@ class Phabricator
     .then (body) ->
       body.result.object.id
 
+  doActions: (user, id, commands, comment) ->
+    @getBotPHID()
+    .then (bot_phid) =>
+      console.log commands
+      bot_phid
+
+
   listTasks: (projphid) ->
     query = {
       'projectPHIDs[0]': "#{projphid}",
