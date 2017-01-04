@@ -261,6 +261,30 @@ module.exports = (robot) ->
       msg.send e
     msg.finish()
 
+  robot.respond new RegExp(
+    'xph(?:ab)?(?: T([0-9]+)| (last))?((?:' +
+    " is (?:#{Object.keys(phab.priorities).join('|')})|" +
+    " is (?:#{Object.keys(phab.statuses).join('|')})|" +
+    ' on [^ ]+|' +
+    ' to [^ ]+|' +
+    ' in [^ ]+|' +
+    ' not in [^ ]+)*)' +
+    '(?: (?:=|\\+) (.+))? *$'
+  ), (msg) ->
+    what = msg.match[1] or msg.match[2]
+    commands = msg.match[3]
+    comment = msg.match[4]
+    phab.getPermission(msg.envelope.user, 'phuser')
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (id) ->
+      phab.doActions(msg.envelope.user, id, commands, comment)
+    .then (id, messages) ->
+      msg.send "Ok, T#{id} is now #{messages.join(', ')}."
+    .catch (e) ->
+      msg.send e
+    msg.finish()
+
   #   hubot phab Txx next [<key>]- outputs the next checkbox in a given task
   robot.respond /ph(?:ab)?(?: T([0-9]+)| (last))? next(?: (.+))? *$/, (msg) ->
     what = msg.match[1] or msg.match[2]
