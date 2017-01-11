@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.1.4 - 2017-01-11
+- fix typo in index.coffee (aboron)
+
 ### 2.1.3 - 2017-01-03
 - remove the modification of assignment when changing status or priority
 
