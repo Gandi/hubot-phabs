@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.1.5 - wip
+- made possible to restrict what items trigger the passive listening
+
 ### 2.1.4 - 2017-01-11
 - fix typo in index.coffee (aboron)
 

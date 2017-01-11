@@ -409,6 +409,8 @@ The feed has an optional way to limit the IP of the sender, by setting the HUBOT
 
 There is a `.hear` feature that also will give information about items that are cited on channel. It tries to do precise pattern matching but sometimes there are some unfortunate coincidences. For example, we work with level3 and talk about it under L3 often. Or one of our project involves a V5. It's kind of annoying to have the bot react on those specific case, so it' possible to blacklist them.
 
+There is possibility to only react to certain item type too, by setting the `PHABRICATOR_ENABLED_ITEMS` environment variable. For example `PHABRICATOR_ENABLED_ITEMS="T,P,r"` will restrict reactions to only Tasks, Pastes and Commits items. If that env var is not declared, it will react to all known types.
+
     something about https://phabricator.example.com/T2#17207
     just talking about T123. did you see that one?
         the plugin will watch if it sees 
