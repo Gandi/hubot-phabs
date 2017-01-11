@@ -16,6 +16,8 @@ It also makes available some commands to interact directly with Phabricator item
 
 This plugin is used in production internally at [Gandi](https://gandi.net) since 2016-07-13.
 
+Check the [Changelog](CHANGELOG.md) for a precise history of the versions.
+
 > TOC
 > --------------
 >
@@ -86,7 +88,7 @@ You also should use `hubot-restrict-ip` to limit the access to the web endpoints
 Features
 ----------------
 
-The `hubot-phabs` plugin has a lot of features, and some of them could be useless, or dangerous if activated under an un-protected environment. There are 2 environment variables that can be used to limit what features are loaded and active:
+The `hubot-phabs` plugin has a lot of features, and some of them could be useless, or dangerous if activated under an unprotected environment. There are 2 environment variables that can be used to limit what features are loaded and active:
 
 - `PHABS_ENABLED_FEATURES` can be a comma-separated list of the only plugins enabled. 
 - `PHABS_DISABLED_FEATURES` is also a comma-separated list of features, to only restrict a few ones. It won't be any use if the `PHABS_ENABLED_FEATURES` is declared, as it would take priority.
@@ -97,7 +99,7 @@ Typical examples of usage are:
 - `PHABS_DISABLED_FEATURES="feeds,api"` if you don't want to expose http endpoints
 - `PHABS_DISABLED_FEATURES="admin,feeds"` if you don't use `hubot-auth`. Note that you can do the setup with the admin feature at first,m and then just disable it (and relaunch the bot in between).
 
-Available fetaures are loaded in that order:
+Available features are loaded in that order:
 
 - `events`
 - `api`
