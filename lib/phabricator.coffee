@@ -46,6 +46,17 @@ class Phabricator
     'wish': 0
   }
 
+  itemTypes: [
+    'T', # tasks
+    'F', # files
+    'P', # paste
+    'M', # pholio
+    'B', # builds
+    'Q', # ponder
+    'L', # legalpad
+    'V'  # polls
+  ]
+
   constructor: (@robot, env) ->
     storageLoaded = =>
       @data = @robot.brain.data.phabricator ||= {
@@ -71,6 +82,22 @@ class Phabricator
     unless (process.env.PHABRICATOR_URL? and process.env.PHABRICATOR_API_KEY?)
       return false
     true
+
+  enabledItemsRegex: ->
+    if process.env.PHABRICATOR_ENABLED_ITEMS
+      r = ''
+      i = []
+      for item in process.env.PHABRICATOR_ENABLED_ITEMS.split(',')
+        if item is 'r'
+          r = '|(r[A-Z]+[a-f0-9]{10,})'
+        else if item in itemTypes
+          i.push item
+      if i.length > 0
+        '(?:(' + i.join('|') + ')([0-9]+)' + r + ')'
+      else
+        false
+    else
+      '(?:' + itemTypes.join('|') + '([0-9]+)|(r[A-Z]+[a-f0-9]{10,}))'
 
   request: (query, endpoint) =>
     return new Promise (res, err) =>
@@ -666,7 +693,7 @@ class Phabricator
 
   doActions: (user, id, commands, comment) ->
     @getBotPHID()
-    .then (bot_phid) =>
+    .then (bot_phid) ->
       console.log commands
       bot_phid
 
