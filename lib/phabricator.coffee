@@ -692,12 +692,30 @@ class Phabricator
     .then (body) ->
       body.result.object.id
 
-  doActions: (user, id, commands, comment) ->
+  doActions: (user, id, commandString, comment) ->
     @getBotPHID()
-    .then (bot_phid) ->
-      console.log commands
-      bot_phid
+    .then (bot_phid) =>
+      commands = @parseAction commandString
+      [ bot_phid, [] ]
 
+  parseAction: (str, res = []) ->
+    p = new RegExp("^(in|not in|on|is|to) ([^ ]*)")
+    r = str.trim().match p
+    switch r[1]
+      when 'in'
+        res.push({ type: 'projects.add', value: r[2] })
+      when 'not in'
+        res.push({ type: 'projects.remove', value: r[2] })
+      when 'on'
+        res.push({ type: 'owner', value: r[2] })
+      when 'to'
+        res.push({ type: 'column', value: r[2] })
+      when 'is'
+        res.push({ type: 'status', value: r[2] })
+    next = str.trim().replace(p, '')
+    if next.trim() isnt ''
+      res = @parseAction(next, res)
+    res
 
   listTasks: (projphid) ->
     query = {
