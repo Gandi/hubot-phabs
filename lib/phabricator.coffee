@@ -694,12 +694,19 @@ class Phabricator
 
   doActions: (user, id, commandString, comment) ->
     @getBotPHID()
+    .bind({ botphid: null })
     .then (bot_phid) =>
-      commands = @parseAction commandString
+      @botphid = botphid
+      @getUser(user, user)
+    .then (userPhid) =>
+      query = { 'task_id': id }
+      @request(query, 'maniphest.info')
+    .then (body) =>
+      commands = @parseAction body.result, commandString
       console.log commands
       { id: id, messages: [ 'ok' ] }
 
-  parseAction: (str, res = []) ->
+  parseAction: (item, str, res = []) ->
     p = new RegExp("^(in|not in|on|is|to) ([^ ]*)")
     r = str.trim().match p
     switch r[1]
@@ -718,7 +725,7 @@ class Phabricator
           res.push({ type: 'priority', value: r[2] })
     next = str.trim().replace(p, '')
     if next.trim() isnt ''
-      res = @parseAction(next, res)
+      res = @parseAction(item, next, res)
     res
 
   listTasks: (projphid) ->
