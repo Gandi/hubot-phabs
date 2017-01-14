@@ -696,6 +696,7 @@ class Phabricator
     @getBotPHID()
     .then (bot_phid) =>
       commands = @parseAction commandString
+      console.log commands
       [ bot_phid, [] ]
 
   parseAction: (str, res = []) ->
