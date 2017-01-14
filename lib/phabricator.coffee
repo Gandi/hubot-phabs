@@ -697,7 +697,7 @@ class Phabricator
     .then (bot_phid) =>
       commands = @parseAction commandString
       console.log commands
-      [ bot_phid, [] ]
+      { id: id, messages: [ 'ok' ] }
 
   parseAction: (str, res = []) ->
     p = new RegExp("^(in|not in|on|is|to) ([^ ]*)")

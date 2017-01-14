@@ -279,8 +279,8 @@ module.exports = (robot) ->
       phab.getId(msg.envelope.user, what)
     .then (id) ->
       phab.doActions(msg.envelope.user, id, commands, comment)
-    .then (id, messages) ->
-      msg.send "Ok, T#{id} is now #{messages.join(', ')}."
+    .then (back) ->
+      msg.send "Ok, T#{back.id} is now #{back.messages.join(', ')}."
     .catch (e) ->
       msg.send e
     msg.finish()
