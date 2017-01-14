@@ -712,7 +712,10 @@ class Phabricator
       when 'to'
         res.push({ type: 'column', value: r[2] })
       when 'is'
-        res.push({ type: 'status', value: r[2] })
+        if @statuses[r[2]]?
+          res.push({ type: 'status', value: r[2] })
+        else if @priorities[r[2]]
+          res.push({ type: 'priority', value: r[2] })
     next = str.trim().replace(p, '')
     if next.trim() isnt ''
       res = @parseAction(next, res)
