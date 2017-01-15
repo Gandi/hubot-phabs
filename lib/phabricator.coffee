@@ -726,8 +726,25 @@ class Phabricator
     r = str.trim().match p
     switch r[1]
       when 'in'
-        res.data.push({ type: 'projects.add', value: r[2] })
-        res.messages.push("added to #{r[2]}")
+        msg = [ ]
+        add = Promise.map r[2], (tag) =>
+          @getProject(tag)
+          .then (projectData) ->
+            phid = projectData.data.phid
+            if phid not in item.projectPHIDs
+              { tag: tag, phid: phid }
+            else
+              msg.push tag
+              null
+        .filter (tag) ->
+          tag?
+        Promise.all(add)
+        .then (add) ->
+          if add.length > 0
+            res.data.push({ type: 'projects.add', value: add.map((t) -> t.phid) })
+            res.messages.push("added to #{add.map((t) -> t.tag).join(', ')}")
+          if msg.length > 0
+            res.messages.push("already in #{msg.join(', ')}")
       when 'not in'
         res.data.push({ type: 'projects.remove', value: r[2] })
         res.messages.push("removed from #{r[2]}")
@@ -739,10 +756,10 @@ class Phabricator
         res.messages.push("column changed to #{r[2]}")
       when 'is'
         if @statuses[r[2]]?
-          res.data.push({ type: 'status', value: r[2] })
+          res.data.push({ type: 'status', value: @statuses[r[2]] })
           res.messages.push("status set to #{r[2]}")
         else if @priorities[r[2]]
-          res.data.push({ type: 'priority', value: r[2] })
+          res.data.push({ type: 'priority', value: @priorities[r[2]] })
           res.messages.push("priority set to #{r[2]}")
     next = str.trim().replace(p, '')
     if next.trim() isnt ''
