@@ -701,33 +701,41 @@ class Phabricator
     .then (userPhid) =>
       @taskInfo id
     .then (body) =>
-      commands = @parseAction body.result, commandString
-      if commands.data.length() > 0
+      results = @parseAction body.result, commandString
+      console.log results
+      if results.data.length > 0
+        query = {
+          'objectIdentifier': "T#{id}",
+          'transactions[0][type]': 'subscribers.remove',
+          'transactions[0][value][0]': "#{@bot_phid}"
+        }
+        for action, i in results.data
+          query['transactions['+(i+1)+'][type]'] = action.type
+          query['transactions['+(i+1)+'][value]'] = action.value
+        console.log query
+      { id: id, messages: results.messages, data: [ 'open' ] }
 
-      console.log commands
-      { id: id, messages: [ 'ok' ], data: [ 'open' ] }
-
-  parseAction: (item, str, res = [], msg = []) ->
+  parseAction: (item, str, res = { data: [], messages: [] }) ->
     p = new RegExp("^(in|not in|on|is|to) ([^ ]*)")
     r = str.trim().match p
     switch r[1]
       when 'in'
-        res.push({ type: 'projects.add', value: r[2] })
+        res.data.push({ type: 'projects.add', value: r[2] })
       when 'not in'
-        res.push({ type: 'projects.remove', value: r[2] })
+        res.data.push({ type: 'projects.remove', value: r[2] })
       when 'on'
-        res.push({ type: 'owner', value: r[2] })
+        res.data.push({ type: 'owner', value: r[2] })
       when 'to'
-        res.push({ type: 'column', value: r[2] })
+        res.data.push({ type: 'column', value: r[2] })
       when 'is'
         if @statuses[r[2]]?
-          res.push({ type: 'status', value: r[2] })
+          res.data.push({ type: 'status', value: r[2] })
         else if @priorities[r[2]]
-          res.push({ type: 'priority', value: r[2] })
+          res.data.push({ type: 'priority', value: r[2] })
     next = str.trim().replace(p, '')
     if next.trim() isnt ''
-      res = @parseAction(item, next, res, msg)
-    { data: res, messages: msg }
+      res = @parseAction(item, next, res)
+    res
 
   listTasks: (projphid) ->
     query = {
