@@ -712,26 +712,38 @@ class Phabricator
         for action, i in results.data
           query['transactions['+(i+1)+'][type]'] = action.type
           query['transactions['+(i+1)+'][value]'] = action.value
+        query['transactions['+(i+1)+'][type]'] = 'comment'
+        if comment? 
+          query['transactions['+(i+1)+'][value]'] = "#{comment} (#{user.name})"
+        else
+          query['transactions['+(i+1)+'][value]'] = "#{results.messages.join(', ')} (by #{user.name})"
         console.log query
-      { id: id, messages: results.messages, data: [ 'open' ] }
+        console.log i
+      { id: id, message: results.messages.join(', '), notices: results.notices }
 
-  parseAction: (item, str, res = { data: [], messages: [] }) ->
+  parseAction: (item, str, res = { data: [], messages: [], notices: [] }) ->
     p = new RegExp("^(in|not in|on|is|to) ([^ ]*)")
     r = str.trim().match p
     switch r[1]
       when 'in'
         res.data.push({ type: 'projects.add', value: r[2] })
+        res.messages.push("added to #{r[2]}")
       when 'not in'
         res.data.push({ type: 'projects.remove', value: r[2] })
+        res.messages.push("removed from #{r[2]}")
       when 'on'
         res.data.push({ type: 'owner', value: r[2] })
+        res.messages.push("owner set to #{r[2]}")
       when 'to'
         res.data.push({ type: 'column', value: r[2] })
+        res.messages.push("column changed to #{r[2]}")
       when 'is'
         if @statuses[r[2]]?
           res.data.push({ type: 'status', value: r[2] })
+          res.messages.push("status set to #{r[2]}")
         else if @priorities[r[2]]
           res.data.push({ type: 'priority', value: r[2] })
+          res.messages.push("priority set to #{r[2]}")
     next = str.trim().replace(p, '')
     if next.trim() isnt ''
       res = @parseAction(item, next, res)
