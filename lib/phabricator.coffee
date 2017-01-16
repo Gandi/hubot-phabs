@@ -701,8 +701,8 @@ class Phabricator
     .then (userPhid) =>
       @taskInfo id
     .then (body) =>
-      results = @parseAction body.result, commandString
-      console.log results
+      @parseAction user, body.result, commandString
+    .then (results) =>
       if results.data.length > 0
         query = {
           'objectIdentifier': "T#{id}",
@@ -717,54 +717,82 @@ class Phabricator
           query['transactions['+(i+1)+'][value]'] = "#{comment} (#{user.name})"
         else
           query['transactions['+(i+1)+'][value]'] = "#{results.messages.join(', ')} (by #{user.name})"
-        console.log query
-        console.log i
       { id: id, message: results.messages.join(', '), notices: results.notices }
+    .catch (e) ->
+      { id: id, notices: [ e ] }
 
-  parseAction: (item, str, res = { data: [], messages: [], notices: [] }) ->
-    p = new RegExp("^(in|not in|on|is|to) ([^ ]*)")
-    r = str.trim().match p
-    switch r[1]
-      when 'in'
-        msg = [ ]
-        add = Promise.map r[2], (tag) =>
-          @getProject(tag)
-          .then (projectData) ->
+  parseAction: (user, item, str, payload = { data: [], messages: [], notices: [] }) ->
+    return new Promise (res, err) =>
+      p = new RegExp('^(in|not in|on|is|to) ([^ ]*)')
+      r = str.trim().match p
+      switch r[1]
+        when 'in'
+          @getProject(r[2])
+          .then (projectData) =>
             phid = projectData.data.phid
             if phid not in item.projectPHIDs
-              { tag: tag, phid: phid }
+              payload.data.push({ type: 'projects.add', value: phid })
+              payload.messages.push("added to #{r[2]}")
             else
-              msg.push tag
-              null
-        .filter (tag) ->
-          tag?
-        Promise.all(add)
-        .then (add) ->
-          if add.length > 0
-            res.data.push({ type: 'projects.add', value: add.map((t) -> t.phid) })
-            res.messages.push("added to #{add.map((t) -> t.tag).join(', ')}")
-          if msg.length > 0
-            res.messages.push("already in #{msg.join(', ')}")
-      when 'not in'
-        res.data.push({ type: 'projects.remove', value: r[2] })
-        res.messages.push("removed from #{r[2]}")
-      when 'on'
-        res.data.push({ type: 'owner', value: r[2] })
-        res.messages.push("owner set to #{r[2]}")
-      when 'to'
-        res.data.push({ type: 'column', value: r[2] })
-        res.messages.push("column changed to #{r[2]}")
-      when 'is'
-        if @statuses[r[2]]?
-          res.data.push({ type: 'status', value: @statuses[r[2]] })
-          res.messages.push("status set to #{r[2]}")
-        else if @priorities[r[2]]
-          res.data.push({ type: 'priority', value: @priorities[r[2]] })
-          res.messages.push("priority set to #{r[2]}")
-    next = str.trim().replace(p, '')
-    if next.trim() isnt ''
-      res = @parseAction(item, next, res)
-    res
+              payload.notices.push("T#{item.id} is already in #{r[2]}")
+            next = str.trim().replace(p, '')
+            if next.trim() isnt ''
+              res @parseAction(user, item, next, payload)
+            else
+              res payload
+          .catch (e) =>
+            payload.notices.push(e)
+            res payload
+        when 'not in'
+          @getProject(r[2])
+          .then (projectData) =>
+            phid = projectData.data.phid
+            if phid in item.projectPHIDs
+              payload.data.push({ type: 'projects.remove', value: phid })
+              payload.messages.push("removed from #{r[2]}")
+            else
+              payload.notices.push("T#{item.id} is already not in #{r[2]}")
+            next = str.trim().replace(p, '')
+            if next.trim() isnt ''
+              res @parseAction(user, item, next, payload)
+            else
+              res payload
+          .catch (e) =>
+            payload.notices.push(e)
+            res payload
+        when 'on'
+          @getUser(user, { name: r[2] })
+          .then (userphid) =>
+            payload.data.push({ type: 'owner', value: userphid })
+            payload.messages.push("owner set to #{r[2]}")
+            next = str.trim().replace(p, '')
+            if next.trim() isnt ''
+              res @parseAction(user, item, next, payload)
+            else
+              res payload
+          .catch (e) =>
+            payload.notices.push(e)
+            res payload
+        when 'to'
+          payload.data.push({ type: 'column', value: r[2] })
+          payload.messages.push("column changed to #{r[2]}")
+          next = str.trim().replace(p, '')
+          if next.trim() isnt ''
+            res @parseAction(user, item, next, payload)
+          else
+            res payload
+        when 'is'
+          if @statuses[r[2]]?
+            payload.data.push({ type: 'status', value: @statuses[r[2]] })
+            payload.messages.push("status set to #{r[2]}")
+          else if @priorities[r[2]]?
+            payload.data.push({ type: 'priority', value: @priorities[r[2]] })
+            payload.messages.push("priority set to #{r[2]}")
+          next = str.trim().replace(p, '')
+          if next.trim() isnt ''
+            res @parseAction(user, item, next, payload)
+          else
+            res payload
 
   listTasks: (projphid) ->
     query = {
