@@ -717,6 +717,7 @@ class Phabricator
           query['transactions['+(i+1)+'][value]'] = "#{comment} (#{user.name})"
         else
           query['transactions['+(i+1)+'][value]'] = "#{results.messages.join(', ')} (by #{user.name})"
+        console.log query
       { id: id, message: results.messages.join(', '), notices: results.notices }
     .catch (e) ->
       { id: id, notices: [ e ] }
@@ -774,13 +775,32 @@ class Phabricator
             payload.notices.push(e)
             res payload
         when 'to'
-          payload.data.push({ type: 'column', value: r[2] })
-          payload.messages.push("column changed to #{r[2]}")
-          next = str.trim().replace(p, '')
-          if next.trim() isnt ''
-            res @parseAction(user, item, next, payload)
+          if not item.projectPHIDs? or item.projectPHIDs.length is 0
+            err 'This item has no tag/project yet.'
           else
-            res payload
+            cols = Promise.map item.projectPHIDs, (phid) =>
+              @getProject(phid)
+              .then (projectData) =>
+                for i in Object.keys(projectData.data.columns)
+                  if (new RegExp(r[2])).test i
+                    return { colname: i, colphid: projectData.data.columns[i] }
+            Promise.all(cols)
+            .then (cols) ->
+              cols = cols.filter (c) ->
+                c?
+              if cols.length > 0
+                payload.data.push({ type: 'column', value: cols[0].colphid })
+                payload.messages.push("column changed to #{cols[0].colname}")
+              else
+                payload.notices.push("T#{item.id} cannot be moved to #{r[2]}")
+              next = str.trim().replace(p, '')
+              if next.trim() isnt ''
+                res @parseAction(user, item, next, payload)
+              else
+                res payload
+            .catch (e) ->
+              payload.notices.push(e)
+              res payload
         when 'is'
           if @statuses[r[2]]?
             payload.data.push({ type: 'status', value: @statuses[r[2]] })
