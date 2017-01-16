@@ -717,7 +717,7 @@ class Phabricator
           query['transactions['+(i+1)+'][value]'] = "#{comment} (#{user.name})"
         else
           query['transactions['+(i+1)+'][value]'] = "#{results.messages.join(', ')} (by #{user.name})"
-        console.log query
+        # console.log query
       { id: id, message: results.messages.join(', '), notices: results.notices }
     .catch (e) ->
       { id: id, notices: [ e ] }
