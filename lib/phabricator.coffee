@@ -718,7 +718,9 @@ class Phabricator
         else
           query['transactions['+(i+1)+'][value]'] = "#{results.messages.join(', ')} (by #{user.name})"
         # console.log query
-      { id: id, message: results.messages.join(', '), notices: results.notices }
+        @request(query, 'maniphest.edit')
+        .then (body) ->
+          { id: id, message: results.messages.join(', '), notices: results.notices }
     .catch (e) ->
       { id: id, notices: [ e ] }
 
