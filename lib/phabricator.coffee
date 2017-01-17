@@ -718,12 +718,13 @@ class Phabricator
         else
           query['transactions[' + (i + 1) + '][value]'] =
             "#{results.messages.join(', ')} (by #{user.name})"
-        # console.log query
         @request(query, 'maniphest.edit')
         .then (body) ->
           { id: id, message: results.messages.join(', '), notices: results.notices }
+      else
+        { id: id, message: results.messages.join(', '), notices: results.notices }
     .catch (e) ->
-      { id: id, notices: [ e ] }
+      { id: id, message: null, notices: [ e ] }
 
   parseAction: (user, item, str, payload = { data: [], messages: [], notices: [] }) ->
     return new Promise (res, err) =>

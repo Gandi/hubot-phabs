@@ -1670,7 +1670,7 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
 
   # ---------------------------------------------------------------------------------
-  context 'user changes tags for a task', ->
+  context.only 'user changes tags for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
@@ -1687,7 +1687,7 @@ describe 'phabs_commands module', ->
         nock.cleanAll()
 
       context 'phab T424242 in proj1', ->
-        hubot 'phab T424242 in proj1', 'user_with_phid'
+        hubot 'xph T424242 in proj1', 'user_with_phid'
         it "warns the user that this Task doesn't exist", ->
           expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
 
@@ -1702,20 +1702,19 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
           .reply(200, { result: {
+            'id': '424242',
             'projectPHIDs': [
               'PHID-PROJ-qhmexneudkt62wc7o3z4'
             ]
           } })
-          .get('/api/maniphest.edit')
-          .reply(200, { error_info: 'No object exists with ID "424242".' })
 
       afterEach ->
         nock.cleanAll()
 
       context 'phab T424242 in proj1', ->
-        hubot 'phab T424242 in proj1', 'user_with_phid'
-        it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'No action needed.'
+        hubot 'xph T424242 in proj1', 'user_with_phid'
+        it 'tells the user that this task is already in this tag', ->
+          expect(hubotResponse()).to.eql 'T424242 is already in proj1'
 
     context 'when the task is known, and not yet tagged', ->
       beforeEach ->
@@ -1728,20 +1727,21 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
           .reply(200, { result: {
+            'id': '424242',
             'projectPHIDs': [
               'PHID-PROJ-xxx'
             ]
           } })
           .get('/api/maniphest.edit')
-          .reply(200, { result: { object: { id: 42 } } })
+          .reply(200, { result: { object: { id: 424242 } } })
 
       afterEach ->
         nock.cleanAll()
 
       context 'phab T424242 in proj1', ->
-        hubot 'phab T424242 in proj1', 'user_with_phid'
-        it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'T424242 added to proj1'
+        hubot 'xph T424242 in proj1', 'user_with_phid'
+        it 'tells the user that the task is now in the proper tag', ->
+          expect(hubotResponse()).to.eql 'Ok, T424242 is now added to proj1.'
 
     context 'when the task is known, and already tagged', ->
       beforeEach ->
@@ -1754,6 +1754,7 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
           .reply(200, { result: {
+            'id': '424242',
             'projectPHIDs': [
               'PHID-PROJ-qhmexneudkt62wc7o3z4'
             ]
@@ -1765,9 +1766,9 @@ describe 'phabs_commands module', ->
         nock.cleanAll()
 
       context 'phab T424242 not in proj1', ->
-        hubot 'phab T424242 not in proj1', 'user_with_phid'
-        it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'T424242 removed from proj1'
+        hubot 'xph T424242 not in proj1', 'user_with_phid'
+        it 'tells user that task has been removed from tag', ->
+          expect(hubotResponse()).to.eql 'Ok, T424242 is now removed from proj1.'
 
     context 'when the task is known, and not yet tagged', ->
       beforeEach ->
@@ -1780,6 +1781,7 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
           .reply(200, { result: {
+            'id': '424242',
             'projectPHIDs': [
               'PHID-PROJ-xxx'
             ]
@@ -1791,9 +1793,9 @@ describe 'phabs_commands module', ->
         nock.cleanAll()
 
       context 'phab T424242 not in proj1', ->
-        hubot 'phab T424242 not in proj1', 'user_with_phid'
-        it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'No action needed.'
+        hubot 'xph T424242 not in proj1', 'user_with_phid'
+        it 'tells user that that task is actually not in this tag so, whatever', ->
+          expect(hubotResponse()).to.eql 'T424242 is already not in proj1'
 
   # ---------------------------------------------------------------------------------
   context 'user changes column for a task', ->
