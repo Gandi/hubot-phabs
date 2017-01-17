@@ -1670,7 +1670,7 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
 
   # ---------------------------------------------------------------------------------
-  context.only 'user changes tags for a task', ->
+  context 'user changes tags for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
