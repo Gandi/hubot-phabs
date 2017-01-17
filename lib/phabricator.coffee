@@ -710,13 +710,14 @@ class Phabricator
           'transactions[0][value][0]': "#{@bot_phid}"
         }
         for action, i in results.data
-          query['transactions['+(i+1)+'][type]'] = action.type
-          query['transactions['+(i+1)+'][value]'] = action.value
-        query['transactions['+(i+1)+'][type]'] = 'comment'
-        if comment? 
-          query['transactions['+(i+1)+'][value]'] = "#{comment} (#{user.name})"
+          query['transactions[' + (i + 1) + '][type]'] = action.type
+          query['transactions[' + (i + 1) + '][value]'] = action.value
+        query['transactions[' + (i + 1) + '][type]'] = 'comment'
+        if comment?
+          query['transactions[' + (i + 1) + '][value]'] = "#{comment} (#{user.name})"
         else
-          query['transactions['+(i+1)+'][value]'] = "#{results.messages.join(', ')} (by #{user.name})"
+          query['transactions[' + (i + 1) + '][value]'] =
+            "#{results.messages.join(', ')} (by #{user.name})"
         # console.log query
         @request(query, 'maniphest.edit')
         .then (body) ->
@@ -743,7 +744,7 @@ class Phabricator
               res @parseAction(user, item, next, payload)
             else
               res payload
-          .catch (e) =>
+          .catch (e) ->
             payload.notices.push(e)
             res payload
         when 'not in'
@@ -760,7 +761,7 @@ class Phabricator
               res @parseAction(user, item, next, payload)
             else
               res payload
-          .catch (e) =>
+          .catch (e) ->
             payload.notices.push(e)
             res payload
         when 'on'
@@ -773,7 +774,7 @@ class Phabricator
               res @parseAction(user, item, next, payload)
             else
               res payload
-          .catch (e) =>
+          .catch (e) ->
             payload.notices.push(e)
             res payload
         when 'to'
@@ -782,7 +783,7 @@ class Phabricator
           else
             cols = Promise.map item.projectPHIDs, (phid) =>
               @getProject(phid)
-              .then (projectData) =>
+              .then (projectData) ->
                 for i in Object.keys(projectData.data.columns)
                   if (new RegExp(r[2])).test i
                     return { colname: i, colphid: projectData.data.columns[i] }
