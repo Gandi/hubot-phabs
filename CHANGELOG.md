@@ -3,6 +3,12 @@ Hubot-phabs Changelog
 
 ### 2.1.5 - wip
 - made possible to restrict what items trigger the passive listening
+- major change in tasks manipulation commands:
+  - `.ph assign T123 on <user>` is not usable anymore,
+    replaced by `.ph T123 on <user>`
+  - `.ph is open` the `is` is now mandatory
+  - commands can now be chained in one go, ie.
+    `.ph T123 is open is normal on <user> in <tag> not in <other-tag>`
 
 ### 2.1.4 - 2017-01-11
 - fix typo in index.coffee (aboron)
