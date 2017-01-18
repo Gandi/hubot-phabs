@@ -1859,7 +1859,7 @@ describe 'phabs_commands module', ->
               .reply(200, { error_info: 'No object exists with ID "424242".' })
 
           context 'phab T424242 to backlog', ->
-            hubot 'phab T424242 to backlog', 'user_with_phid'
+            hubot 'xph T424242 to backlog', 'user_with_phid'
             it 'tells the user what the error was', ->
               expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
 
@@ -1880,9 +1880,9 @@ describe 'phabs_commands module', ->
               })
 
           context 'phab T424242 to backlog', ->
-            hubot 'phab T424242 to backlog', 'user_with_phid'
+            hubot 'xph T424242 to backlog', 'user_with_phid'
             it 'tells the user that everything went fine', ->
-              expect(hubotResponse()).to.eql 'Ok, T424242 moved to backlog.'
+              expect(hubotResponse()).to.eql 'Ok, T424242 now has column changed to backlog.'
 
         context 'and we specify a comment', ->
           beforeEach ->
@@ -1901,9 +1901,9 @@ describe 'phabs_commands module', ->
               })
 
           context 'phab T424242 to backlog + some comment', ->
-            hubot 'phab T424242 to backlog + some comment', 'user_with_phid'
+            hubot 'xph T424242 to backlog + some comment', 'user_with_phid'
             it 'tells the user that everything went fine', ->
-              expect(hubotResponse()).to.eql 'Ok, T424242 moved to backlog.'
+              expect(hubotResponse()).to.eql 'Ok, T424242 now has column changed to backlog.'
 
   # ---------------------------------------------------------------------------------
   context 'user changes status for a task', ->
@@ -1956,13 +1956,7 @@ describe 'phabs_commands module', ->
           it 'reports the status as open', ->
             expect(hubotResponse(3)).to.eql 'Ok, T42 now has status set to open.'
 
-        context 'phab open', ->
-          hubot 'phab T42', 'user_with_phid'
-          hubot 'xph is open', 'user_with_phid'
-          it 'reports the status as open', ->
-            expect(hubotResponse(3)).to.eql 'Ok, T42 now has status set to open.'
-
-        context 'phab open', ->
+        context 'phab last is open', ->
           hubot 'phab T42', 'user_with_phid'
           hubot 'xph last is open', 'user_with_phid'
           it 'reports the status as open', ->
@@ -1986,13 +1980,13 @@ describe 'phabs_commands module', ->
         afterEach ->
           nock.cleanAll()
 
-        context 'phab open', ->
-          hubot 'phab open', 'user_with_phid'
+        context 'phab is open', ->
+          hubot 'xph is open', 'user_with_phid'
           it 'warns the user that there is no active task in memory', ->
             expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
-        context 'phab last open', ->
-          hubot 'phab last open', 'user_with_phid'
+        context 'phab last is open', ->
+          hubot 'xph last is open', 'user_with_phid'
           it 'warns the user that there is no active task in memory', ->
             expect(hubotResponse()).to.eql "Sorry, you don't have any task active."
 
@@ -3043,14 +3037,21 @@ describe 'phabs_commands module', ->
     beforeEach ->
       do nock.disableNetConnect
       nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.info')
+        .reply(200, { result: {
+          status: 'open',
+          priority: 'Low',
+          name: 'Test task',
+          ownerPHID: 'PHID-USER-42'
+          } })
         .get('/api/maniphest.edit')
         .reply(200, '<body></body>', { 'Content-type': 'text/html' })
 
     afterEach ->
       nock.cleanAll()
 
-    context 'phab T42 spite', ->
-      hubot 'phab T42 spite', 'user_with_phid'
+    context 'phab T42 is spite', ->
+      hubot 'xph T42 is spite', 'user_with_phid'
       it 'reports an api error', ->
         expect(hubotResponse()).to.eql 'api did not deliver json'
 
@@ -3058,14 +3059,21 @@ describe 'phabs_commands module', ->
     beforeEach ->
       do nock.disableNetConnect
       nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.info')
+        .reply(200, { result: {
+          status: 'open',
+          priority: 'Low',
+          name: 'Test task',
+          ownerPHID: 'PHID-USER-42'
+          } })
         .get('/api/maniphest.edit')
         .replyWithError({ 'message': 'something awful happened', 'code': 'AWFUL_ERROR' })
 
     afterEach ->
       nock.cleanAll()
 
-    context 'phab T42 spite', ->
-      hubot 'phab T42 spite', 'user_with_phid'
+    context 'phab T42 is spite', ->
+      hubot 'xph T42 is spite', 'user_with_phid'
       it 'reports a lib error', ->
         expect(hubotResponse()).to.eql 'AWFUL_ERROR something awful happened'
 
@@ -3073,14 +3081,21 @@ describe 'phabs_commands module', ->
     beforeEach ->
       do nock.disableNetConnect
       nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.info')
+        .reply(200, { result: {
+          status: 'open',
+          priority: 'Low',
+          name: 'Test task',
+          ownerPHID: 'PHID-USER-42'
+          } })
         .get('/api/maniphest.edit')
         .reply(400)
 
     afterEach ->
       nock.cleanAll()
 
-    context 'phab T42 spite', ->
-      hubot 'phab T42 spite', 'user_with_phid'
+    context 'phab T42 is spite', ->
+      hubot 'xph T42 is spite', 'user_with_phid'
       it 'reports a http error', ->
         expect(hubotResponse()).to.eql 'http error 400'
 
