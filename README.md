@@ -184,28 +184,28 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         creates a new paste and provide the link to edit it
         permission: phuser
 
-    .phab Txxx
+    .phab T123
     .phab
         gives the status, priority and owner of the task xxx
         NOTE: this call will record this Task id associated to you for 5 minutes
         permission: all
 
-    .phab Txxx + <some comment>
+    .phab T123 + <some comment>
     .phab + <some comment>
         adds a comment to task Txxx (or the one in short memory).
         permission: phuser
 
-    .phab Txxx in tag1
-    .phab Txxx not in tag1
-    .phab Txxx in tag1 in tag2 not in tag3 in tag4
+    .phab T123 in tag1
+    .phab T123 not in tag1
+    .phab T123 in tag1 in tag2 not in tag3 in tag4
         adds or remove tags from tasks. Tags are also known as projects
         permission: phuser
 
-    .phab Txxx is open
-    .phab Txxx broken
-    .phab low
-    .phab low = this is a reason
-    .phab low + this is a reason
+    .phab T123 is open
+    .phab T123 is broken
+    .phab is low
+    .phab is low = this is a reason
+    .phab is low + this is a reason
         Changes status or priority for task Txxx. the 'is' is optional.
         If the optional '=' or '+' is used, it will add a comment to that change
         Available statuses are:
@@ -224,11 +224,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         NOTE: this call will record this Task id associated to you for 5 minutes
         permission: phuser
 
-    .phab assign T123 on <someone>
-    .phab assign <someone> on T123
-    .phab assign T123 on <simone>
     .phab T123 on <someone>
-    .phab <someone> on T123
     .phab for <someone>
         assigns the given task to a user (or the given user to the task, 
         which is exactly the same). 

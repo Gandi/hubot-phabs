@@ -726,7 +726,7 @@ class Phabricator
 
   parseAction: (user, item, str, payload = { data: [], messages: [], notices: [] }) ->
     return new Promise (res, err) =>
-      p = new RegExp('^(in|not in|on|is|to) ([^ ]*)')
+      p = new RegExp('^(in|not in|on|for|is|to) ([^ ]*)')
       r = str.trim().match p
       switch r[1]
         when 'in'
@@ -763,7 +763,7 @@ class Phabricator
           .catch (e) ->
             payload.notices.push(e)
             res payload
-        when 'on'
+        when 'on' or 'for'
           @getUser(user, { name: r[2] })
           .then (userphid) =>
             payload.data.push({ type: 'owner', value: userphid })

@@ -266,6 +266,7 @@ module.exports = (robot) ->
     " is (?:#{Object.keys(phab.priorities).join('|')})|" +
     " is (?:#{Object.keys(phab.statuses).join('|')})|" +
     ' on [^ ]+|' +
+    ' for [^ ]+|' +
     ' to [^ ]+|' +
     ' in [^ ]+|' +
     ' not in [^ ]+)*)' +
