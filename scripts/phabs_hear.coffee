@@ -27,10 +27,10 @@ module.exports = (robot) ->
   phab = robot.phab
 
   #   anything Txxx - complements with the title of the cited object
-  if phab.enabledItemsRegex?
+  if phab.enabledItemsRegex()?
     robot.hear new RegExp(
       "(?:.+|^)(?:(#{process.env.PHABRICATOR_URL})/?| |^)" +
-      '(?:(T|F|P|M|B|Q|L|V)([0-9]+)|(r[A-Z]+[a-f0-9]{10,}))'
+      phab.enabledItemsRegex()
     ), (msg) ->
       url = msg.match[1]
       type = msg.match[2] ? msg.match[4]

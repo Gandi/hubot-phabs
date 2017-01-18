@@ -74,6 +74,42 @@ describe 'phabs_hear module', ->
         expect(hubotResponse()).to.be.undefined
 
   # ---------------------------------------------------------------------------------
+  context 'someone talks about a type of item that is disabled per configuration', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      process.env.PHABRICATOR_ENABLED_ITEMS = 'P,r'
+      room = helper.createRoom { httpd: false }
+
+    afterEach ->
+      nock.cleanAll()
+      delete process.env.PHABRICATOR_ENABLED_ITEMS
+      room.robot.brain.data.phabricator.blacklist = [ ]
+
+    context 'whatever about T42 or something', ->
+      hubot 'whatever about T42 or something'
+      it 'does not say anything', ->
+        expect(hubotResponseCount()).to.eql 1
+        expect(hubotResponse()).to.be.undefined
+
+  # ---------------------------------------------------------------------------------
+  context 'someone talks about a type of item but the hear is totaly disabled', ->
+    beforeEach ->
+      do nock.disableNetConnect
+      process.env.PHABRICATOR_ENABLED_ITEMS = ''
+      room = helper.createRoom { httpd: false }
+
+    afterEach ->
+      nock.cleanAll()
+      delete process.env.PHABRICATOR_ENABLED_ITEMS
+      room.robot.brain.data.phabricator.blacklist = [ ]
+
+    context 'whatever about T42 or something', ->
+      hubot 'whatever about T42 or something'
+      it 'does not say anything', ->
+        expect(hubotResponseCount()).to.eql 1
+        expect(hubotResponse()).to.be.undefined
+
+  # ---------------------------------------------------------------------------------
   context 'someone talks about a task', ->
     context 'when the task is unknown', ->
       beforeEach ->

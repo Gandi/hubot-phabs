@@ -85,20 +85,20 @@ class Phabricator
     true
 
   enabledItemsRegex: ->
-    if process.env.PHABRICATOR_ENABLED_ITEMS
+    if process.env.PHABRICATOR_ENABLED_ITEMS?
       r = ''
       i = []
       for item in process.env.PHABRICATOR_ENABLED_ITEMS.split(',')
         if item is 'r'
           r = '|(r[A-Z]+[a-f0-9]{10,})'
-        else if item in itemTypes
+        else if item in @itemTypes
           i.push item
       if i.length > 0
         '(?:(' + i.join('|') + ')([0-9]+)' + r + ')'
       else
         false
     else
-      '(?:' + itemTypes.join('|') + '([0-9]+)|(r[A-Z]+[a-f0-9]{10,}))'
+      '(?:(' + @itemTypes.join('|') + ')([0-9]+)|(r[A-Z]+[a-f0-9]{10,}))'
 
   request: (query, endpoint) =>
     return new Promise (res, err) =>
