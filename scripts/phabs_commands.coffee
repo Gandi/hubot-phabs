@@ -281,7 +281,7 @@ module.exports = (robot) ->
       phab.doActions(msg.envelope.user, id, commands, comment)
     .then (back) ->
       if back.message? and back.message isnt ''
-        msg.send "Ok, T#{back.id} is now #{back.message}."
+        msg.send "Ok, T#{back.id} now has #{back.message}."
       if back.notices.length > 0
         for notice in back.notices
           msg.send notice

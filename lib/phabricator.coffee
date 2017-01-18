@@ -697,8 +697,6 @@ class Phabricator
     .bind({ bot_phid: null })
     .then (bot_phid) =>
       @bot_phid = bot_phid
-      @getUser(user, user)
-    .then (userPhid) =>
       @taskInfo id
     .then (body) =>
       @parseAction user, body.result, commandString
@@ -737,7 +735,7 @@ class Phabricator
             phid = projectData.data.phid
             if phid not in item.projectPHIDs
               payload.data.push({ type: 'projects.add', value: phid })
-              payload.messages.push("added to #{r[2]}")
+              payload.messages.push("been added to #{r[2]}")
             else
               payload.notices.push("T#{item.id} is already in #{r[2]}")
             next = str.trim().replace(p, '')
@@ -754,7 +752,7 @@ class Phabricator
             phid = projectData.data.phid
             if phid in item.projectPHIDs
               payload.data.push({ type: 'projects.remove', value: phid })
-              payload.messages.push("removed from #{r[2]}")
+              payload.messages.push("been removed from #{r[2]}")
             else
               payload.notices.push("T#{item.id} is already not in #{r[2]}")
             next = str.trim().replace(p, '')
