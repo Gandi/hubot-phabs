@@ -2385,6 +2385,119 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Ok, T42 now has owner set to user_with_phid.'
 
   # ---------------------------------------------------------------------------------
+  context 'user issues various commands to a task', ->
+    beforeEach ->
+      room.robot.brain.data.phabricator.projects = {
+        'proj1': {
+          name: 'proj1',
+          phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+          columns: {
+            in_progress: 'PHID-PCOL-123',
+            backlog: 'PHID-PCOL-000'
+          }
+        },
+        'proj2': {
+          name: 'proj2',
+          phid: 'PHID-PROJ-qhmexneudkt62wc7o3z0',
+          columns: {
+            in_progress: 'PHID-PCOL-456',
+            backlog: 'PHID-PCOL-789'
+          }
+        }
+      }
+
+    afterEach ->
+      room.robot.brain.data.phabricator = { }
+
+    context 'when the user is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-42'
+            } })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 is closed on xxx', ->
+        hubot 'xph T424242 is closed on xxx', 'user_with_phid'
+        it 'warns the user that xx is unknown', ->
+          expect(hubotResponse()).to.eql 'Ok, T424242 now has status set to closed.'
+          expect(hubotResponse(2)).to.eql "Sorry, I can't figure xxx email address." +
+                                         ' Can you ask them to `.phab me as <email>`?'
+      context 'phab T424242 is closed on momo', ->
+        hubot 'xph T424242 is closed on momo'
+        it 'warns the user that his email is not known', ->
+          expect(hubotResponse()).to.eql 'Ok, T424242 now has status set to closed.'
+          expect(hubotResponse(2)).to.eql "Sorry, I can't figure out your email address :( " +
+                                         'Can you tell me with `.phab me as <email>`?'
+
+    context 'task is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { error_info: 'No such Maniphest task exists.' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 is low to what', ->
+        hubot 'xph T424242 is low to what', 'user_with_phid'
+        it 'warns the user that the task does not exist', ->
+          expect(hubotResponse()).to.eql 'No such Maniphest task exists.'
+
+    context 'task is known', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-42',
+            projectPHIDs: [
+              'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            ]
+            } })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab is open on user_with_phid', ->
+        hubot 'xph is open on user_with_phid', 'user_with_phid'
+        it 'warns the user that there is no active task in memory', ->
+          expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
+
+      context 'phab T42 in proj2 not in proj1 on user_with_phid', ->
+        hubot 'xph T42 in proj2 not in proj1 on user_with_phid', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to
+          .eql 'Ok, T42 now has been added to proj2, been removed from proj1, ' +
+               'owner set to user_with_phid.'
+
+      context 'phab T42 to backlog is open', ->
+        hubot 'xph T42 to backlog is open', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has column changed to backlog.'
+
+      context 'phab T42 on user_with_phid to backlog is open', ->
+        hubot 'xph T42 on user_with_phid to backlog is open', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to
+          .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog.'
+
+  # ---------------------------------------------------------------------------------
   context 'user adds a comment on a task', ->
 
     context 'task is unknown', ->
