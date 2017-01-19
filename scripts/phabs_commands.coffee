@@ -262,7 +262,7 @@ module.exports = (robot) ->
   #   msg.finish()
 
   robot.respond new RegExp(
-    'xph(?:ab)?(?: T([0-9]+)| (last))?((?:' +
+    'x?ph(?:ab)?(?: T([0-9]+)| (last))?((?:' +
     " is (?:#{Object.keys(phab.priorities).join('|')})|" +
     " is (?:#{Object.keys(phab.statuses).join('|')})|" +
     ' on [^ ]+|' +

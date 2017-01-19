@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.2.1 - 2017-01-20
+- oops forgot to rename xph in ph
+
 ### 2.2.0 - 2017-01-19
 - made possible to restrict what items trigger the passive listening
 - major change in tasks manipulation commands:
