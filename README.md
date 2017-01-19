@@ -85,6 +85,8 @@ If you use `hubot-auth`
 
 You also should use `hubot-restrict-ip` to limit the access to the web endpoints (api and feeds endpoints), or serve only on localhost (`EXPRESS_BIND_ADDRESS=127.0.0.1`) and use a proxy to access those endpoints.
 
+- `PHABRICATOR_ENABLED_ITEMS` - is used with feature `hear` to limit what kind of objects are commonly used in your instance of Phabricator
+
 Features
 ----------------
 
@@ -97,7 +99,7 @@ Typical examples of usage are:
 
 - `PHABS_ENABLED_FEATURES="hear"` if you only want the bot to do automatic announces
 - `PHABS_DISABLED_FEATURES="feeds,api"` if you don't want to expose http endpoints
-- `PHABS_DISABLED_FEATURES="admin,feeds"` if you don't use `hubot-auth`. Note that you can do the setup with the admin feature at first,m and then just disable it (and relaunch the bot in between).
+- `PHABS_DISABLED_FEATURES="admin,feeds"` if you don't use `hubot-auth`. Note that you can do the setup with the admin feature at first, and then just disable it (and relaunch the bot in between).
 
 Available features are loaded in that order:
 
@@ -239,6 +241,17 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         moves the task on the board to the column matching the <column>
         the matching will take the first match.
         A comment can optionaly be added
+        permission: phuser
+
+    .phab T123 on <someone> is low is open to <column>
+        starting with `v2.2.0` it's possible to combine several commands to 
+        change a task. It detects actions to be taken according to the conjonction used:
+        - on      - change owner
+        - for     - change owner (alias to on)
+        - is      - change status or priority
+        - in      - change tag/project (add a tag)
+        - not in  - change tag/project (remove a tag)
+        - to      - change column
         permission: phuser
 
     .phab T123 next <term>
@@ -405,7 +418,7 @@ The feed has an optional way to limit the IP of the sender, by setting the HUBOT
 
 There is a `.hear` feature that also will give information about items that are cited on channel. It tries to do precise pattern matching but sometimes there are some unfortunate coincidences. For example, we work with level3 and talk about it under L3 often. Or one of our project involves a V5. It's kind of annoying to have the bot react on those specific case, so it' possible to blacklist them.
 
-*new in 2.1.5:* There is possibility to only react to certain item type too, by setting the `PHABRICATOR_ENABLED_ITEMS` environment variable. For example `PHABRICATOR_ENABLED_ITEMS="T,P,r"` will restrict reactions to only Tasks, Pastes and Commits items. If that env var is not declared, it will react to all known types.
+There is possibility to only react to certain item type too, by setting the `PHABRICATOR_ENABLED_ITEMS` environment variable. For example `PHABRICATOR_ENABLED_ITEMS="T,P,r"` will restrict reactions to only Tasks, Pastes and Commits items. If that env var is not declared, it will react to all known types.
 
     something about https://phabricator.example.com/T2#17207
     just talking about T123. did you see that one?

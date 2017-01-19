@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.2.0 - wip
+### 2.2.0 - 2017-01-19
 - made possible to restrict what items trigger the passive listening
 - major change in tasks manipulation commands:
   - `.ph assign T123 on <user>` is not usable anymore,
