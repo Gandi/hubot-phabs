@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.2.2 - 2017-01-21
+- make the `is` for status and priority change on tasks optional again
+
 ### 2.2.1 - 2017-01-20
 - oops forgot to rename xph in ph
 
