@@ -196,43 +196,52 @@ module.exports = (robot) ->
   #     msg.send e
   #   msg.finish()
 
-  #   hubot phab Txx is <status> - modifies task Txxx status
-  # robot.respond new RegExp(
-  #   "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.statuses).join('|')})" +
-  #   '(?: (?:=|\\+) (.+))? *$'
-  # ), (msg) ->
-  #   what = msg.match[1] or msg.match[2]
-  #   status = msg.match[3]
-  #   comment = msg.match[4]
-  #   phab.getPermission(msg.envelope.user, 'phuser')
-  #   .then ->
-  #     phab.getId(msg.envelope.user, what)
-  #   .then (id) ->
-  #     phab.updateStatus(msg.envelope.user, id, status, comment)
-  #   .then (id) ->
-  #     msg.send "Ok, T#{id} now has status #{phab.statuses[status]}."
-  #   .catch (e) ->
-  #     msg.send e
-  #   msg.finish()
+  # hubot phab Txx <status> - modifies task Txxx status
+  robot.respond new RegExp(
+    "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.statuses).join('|')})" +
+    '(?: (?:=|\\+) (.+))? *$'
+  ), (msg) ->
+    what = msg.match[1] or msg.match[2]
+    status = msg.match[3]
+    comment = msg.match[4]
+    phab.getPermission(msg.envelope.user, 'phuser')
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (id) ->
+      phab.doActions(msg.envelope.user, id, "is #{status}", comment)
+    .then (back) ->
+      if back.message? and back.message isnt ''
+        msg.send "Ok, T#{back.id} now has #{back.message}."
+      if back.notices.length > 0
+        for notice in back.notices
+          msg.send notice
+    .catch (e) ->
+      msg.send e
+    msg.finish()
 
-  #   hubot phab Txx is <priority> - modifies task Txxx priority
-  # robot.respond new RegExp(
-  #   "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.priorities).join('|')})" +
-  #   '(?: (?:=|\\+) (.+))? *$'
-  # ), (msg) ->
-  #   what = msg.match[1] or msg.match[2]
-  #   priority = msg.match[3]
-  #   comment = msg.match[4]
-  #   phab.getPermission(msg.envelope.user, 'phuser')
-  #   .then ->
-  #     phab.getId(msg.envelope.user, what)
-  #   .then (id) ->
-  #     phab.updatePriority(msg.envelope.user, id, priority, comment)
-  #   .then (id) ->
-  #     msg.send "Ok, T#{id} now has priority #{priority}."
-  #   .catch (e) ->
-  #     msg.send e
-  #   msg.finish()
+  # hubot phab Txx <priority> - modifies task Txxx priority
+  robot.respond new RegExp(
+    "ph(?:ab)?(?: T([0-9]+)| (last))? (?:is )?(#{Object.keys(phab.priorities).join('|')})" +
+    '(?: (?:=|\\+) (.+))? *$'
+  ), (msg) ->
+    what = msg.match[1] or msg.match[2]
+    priority = msg.match[3]
+    comment = msg.match[4]
+    phab.getPermission(msg.envelope.user, 'phuser')
+    .then ->
+      phab.getId(msg.envelope.user, what)
+    .then (id) ->
+      phab.doActions(msg.envelope.user, id, "is #{priority}", comment)
+    .then (back) ->
+      if back.message? and back.message isnt ''
+        msg.send "Ok, T#{back.id} now has #{back.message}."
+      if back.notices.length > 0
+        for notice in back.notices
+          msg.send notice
+    .catch (e) ->
+      msg.send e
+    msg.finish()
+
 
   #   hubot phab assign Txx on <user> - assigns task Txxx on comeone
   # robot.respond new RegExp(

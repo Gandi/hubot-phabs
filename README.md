@@ -206,6 +206,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab T123 is open
     .phab T123 is broken
     .phab is low
+    .phab low
     .phab is low = this is a reason
     .phab is low + this is a reason
         Changes status or priority for task Txxx. the 'is' is optional.

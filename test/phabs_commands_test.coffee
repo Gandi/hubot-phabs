@@ -1995,6 +1995,11 @@ describe 'phabs_commands module', ->
           it 'reports the status as open', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status set to open.'
 
+        context 'phab T42 open', ->
+          hubot 'ph T42 open', 'user_with_phid'
+          it 'reports the status as open', ->
+            expect(hubotResponse()).to.eql 'Ok, T42 now has status set to open.'
+
       context 'phab T42 is resolved', ->
         beforeEach ->
           do nock.disableNetConnect
