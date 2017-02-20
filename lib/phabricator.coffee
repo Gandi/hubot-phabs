@@ -9,6 +9,7 @@
 #  PHABRICATOR_BOT_PHID
 #  PHABRICATOR_TRUSTED_USERS
 #  PHABRICATOR_ENABLED_ITEMS
+#  PHABRICATOR_LAST_TASK_LIFETIME
 #
 # Author:
 #   mose
@@ -356,7 +357,8 @@ class Phabricator
           res id
       else
         user.lastTask ?= moment().utc().format()
-        expires_at = moment(user.lastTask).add(10, 'minutes')
+        lifetime = process.env.PHABRICATOR_LAST_TASK_LIFETIME or 60
+        expires_at = moment(user.lastTask).add(lifetime, 'minutes')
         if user.lastId? and moment().utc().isBefore(expires_at)
           user.lastTask = moment().utc().format()
           res user.lastId

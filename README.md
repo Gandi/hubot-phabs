@@ -78,6 +78,7 @@ Configuration
 
 - `PHABRICATOR_URL` - main url of your Phabricator instance
 - `PHABRICATOR_API_KEY` - api key for the bot user
+- `PHABRICATOR_LAST_TASK_LIFETIME` - how long the last task is remembered for each user (default 60 min)
 
 If you use `hubot-auth`
 - `HUBOT_AUTH_ADMIN` - hardcoded list of hubot admins
@@ -86,6 +87,8 @@ If you use `hubot-auth`
 You also should use `hubot-restrict-ip` to limit the access to the web endpoints (api and feeds endpoints), or serve only on localhost (`EXPRESS_BIND_ADDRESS=127.0.0.1`) and use a proxy to access those endpoints.
 
 - `PHABRICATOR_ENABLED_ITEMS` - is used with feature `hear` to limit what kind of objects are commonly used in your instance of Phabricator
+
+
 
 Features
 ----------------

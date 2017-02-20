@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.2.3 - 2017-02-20
+- make last-task rememberance configurable with PHABRICATOR_LAST_TASK_LIFETIME
+  (default 60 min)
+
 ### 2.2.2 - 2017-01-21
 - make the `is` for status and priority change on tasks optional again
 
