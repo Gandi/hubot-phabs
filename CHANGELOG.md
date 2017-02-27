@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.2.4 - 2017-02-28
+- fix adding and removing tags
+
 ### 2.2.3 - 2017-02-20
 - make last-task rememberance configurable with PHABRICATOR_LAST_TASK_LIFETIME
   (default 60 min)

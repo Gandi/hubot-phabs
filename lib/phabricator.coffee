@@ -709,14 +709,37 @@ class Phabricator
           'transactions[0][type]': 'subscribers.remove',
           'transactions[0][value][0]': "#{@bot_phid}"
         }
-        for action, i in results.data
-          query['transactions[' + (i + 1) + '][type]'] = action.type
-          query['transactions[' + (i + 1) + '][value]'] = action.value
-        query['transactions[' + (i + 1) + '][type]'] = 'comment'
+        project_add = []
+        project_remove = []
+        i = 0
+        for action in results.data
+          if action.type is 'projects.add'
+            project_add.push action.value
+          else if action.type is 'projects.remove'
+            project_remove.push action.value
+          else
+            i = i + 1
+            query['transactions[' + i + '][type]'] = action.type
+            query['transactions[' + i + '][value]'] = action.value
+
+        if project_add.length > 0
+          i = i + 1
+          query['transactions[' + i + '][type]'] = 'projects.add'
+          for phid, j in project_add
+            query['transactions[' + i + '][value][' + j + ']'] = phid
+
+        if project_remove.length > 0
+          i = i + 1
+          query['transactions[' + i + '][type]'] = 'projects.remove'
+          for phid, j in project_remove
+            query['transactions[' + i + '][value][' + j + ']'] = phid
+
+        i = i + 1
+        query['transactions[' + i + '][type]'] = 'comment'
         if comment?
-          query['transactions[' + (i + 1) + '][value]'] = "#{comment} (#{user.name})"
+          query['transactions[' + i + '][value]'] = "#{comment} (#{user.name})"
         else
-          query['transactions[' + (i + 1) + '][value]'] =
+          query['transactions[' + i + '][value]'] =
             "#{results.messages.join(', ')} (by #{user.name})"
         @request(query, 'maniphest.edit')
         .then (body) ->
