@@ -144,11 +144,25 @@ class Phabricator
         res @data.bot_phid
       else
         @request({ }, 'user.whoami')
-          .then (body) =>
-            @data.bot_phid = body.result.phid
-            res @data.bot_phid
-          .catch (e) ->
-            err e
+        .then (body) =>
+          @data.bot_phid = body.result.phid
+          res @data.bot_phid
+        .catch (e) ->
+          err e
+
+  getPHID: (phid) =>
+    return new Promise (res, err) =>
+      query = {
+        'phids[0]': phid
+      }
+      @request(query, 'phid.query')
+      .then (body) =>
+        if body.result[phid]?
+          res body.result[phid]
+        else
+          err "PHID not found."
+      .catch (e) ->
+        err e
 
   getFeed: (payload) =>
     return new Promise (res, err) =>
@@ -159,20 +173,20 @@ class Phabricator
         }
         data = @data
         @request(query, 'maniphest.search')
-          .then (body) ->
-            announces = { message: payload.storyText }
-            announces.rooms = []
-            if body.result.data?
-              for phid in body.result.data[0].attachments.projects.projectPHIDs
-                for name, project of data.projects
-                  if project.phid? and phid is project.phid
-                    project.feeds ?= [ ]
-                    for room in project.feeds
-                      if announces.rooms.indexOf(room) is -1
-                        announces.rooms.push room
-            res announces
-          .catch (e) ->
-            err e
+        .then (body) ->
+          announces = { message: payload.storyText }
+          announces.rooms = []
+          if body.result.data?
+            for phid in body.result.data[0].attachments.projects.projectPHIDs
+              for name, project of data.projects
+                if project.phid? and phid is project.phid
+                  project.feeds ?= [ ]
+                  for room in project.feeds
+                    if announces.rooms.indexOf(room) is -1
+                      announces.rooms.push room
+          res announces
+        .catch (e) ->
+          err e
       else
         err 'no room to announce in'
 
