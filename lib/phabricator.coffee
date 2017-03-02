@@ -156,11 +156,11 @@ class Phabricator
         'phids[0]': phid
       }
       @request(query, 'phid.query')
-      .then (body) =>
+      .then (body) ->
         if body.result[phid]?
           res body.result[phid]
         else
-          err "PHID not found."
+          err 'PHID not found.'
       .catch (e) ->
         err e
 

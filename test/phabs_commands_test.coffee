@@ -2541,6 +2541,40 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
 
   # ---------------------------------------------------------------------------------
+  context 'user request info about a phid', ->
+
+    context 'when there is no matching phid', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.query')
+          .reply(200, { result: { } })
+
+      context 'phid PHID-PROJ-qhmexneudkt62wc7o3z4', ->
+        hubot 'phid PHID-PROJ-qhmexneudkt62wc7o3z4'
+        it 'warns the user that this phid was not found', ->
+          expect(hubotResponse()).to.eql 'PHID not found.'
+
+    context 'when the phid exists', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.query')
+          .reply(200, { result: {
+            'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+              'uri': 'http://example.com/p/something',
+              'name': 'something',
+              'status': 'closed'
+            }
+          } })
+
+      context 'phid PHID-PROJ-qhmexneudkt62wc7o3z4', ->
+        hubot 'phid PHID-PROJ-qhmexneudkt62wc7o3z4'
+        it 'gives back information about the object', ->
+          expect(hubotResponse()).to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4 is something - ' +
+                                         'http://example.com/p/something (closed)'
+
+  # ---------------------------------------------------------------------------------
   context 'user searches through all tasks', ->
 
     context 'there is 2 results', ->
