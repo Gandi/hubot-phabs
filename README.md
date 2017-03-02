@@ -330,6 +330,10 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         displays the version of hubot-phabs that is installed
         permission: all
 
+    .phid <phid>
+        Gives the name and uri for a given PHID (mostly for arcanist use)
+        permission: all
+
 
 ### Templates feature
 

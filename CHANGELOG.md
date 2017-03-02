@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.2.5 - 2017-03-03
+- add a .phid command
+
 ### 2.2.4 - 2017-02-28
 - fix adding and removing tags
 
