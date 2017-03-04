@@ -2543,6 +2543,18 @@ describe 'phabs_commands module', ->
   # ---------------------------------------------------------------------------------
   context 'user request info about a phid', ->
 
+    context 'when there is an error', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.query')
+          .reply(404, { })
+
+      context 'phid PHID-PROJ-qhmexneudkt62wc7o3z4', ->
+        hubot 'phid PHID-PROJ-qhmexneudkt62wc7o3z4'
+        it 'states that an error happened', ->
+          expect(hubotResponse()).to.eql 'http error 404'
+
     context 'when there is no matching phid', ->
       beforeEach ->
         do nock.disableNetConnect
@@ -2554,7 +2566,6 @@ describe 'phabs_commands module', ->
         hubot 'phid PHID-PROJ-qhmexneudkt62wc7o3z4'
         it 'warns the user that this phid was not found', ->
           expect(hubotResponse()).to.eql 'PHID not found.'
-
 
     context 'when there is no matching item', ->
       beforeEach ->

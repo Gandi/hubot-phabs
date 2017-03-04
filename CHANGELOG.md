@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.2.6 - 2017-03-04
+- .phid command now returns phid for aritrary id, when item don't start with PHID
+
 ### 2.2.5 - 2017-03-03
 - add a .phid command
 
