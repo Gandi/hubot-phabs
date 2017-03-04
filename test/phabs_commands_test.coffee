@@ -2555,6 +2555,20 @@ describe 'phabs_commands module', ->
         it 'warns the user that this phid was not found', ->
           expect(hubotResponse()).to.eql 'PHID not found.'
 
+
+    context 'when there is no matching item', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: { } })
+
+      context 'phid T42', ->
+        hubot 'phid T42'
+        it 'warns the user that this item was not found', ->
+          expect(hubotResponse()).to.eql 'T42 not found.'
+
+
     context 'when the phid exists', ->
       beforeEach ->
         do nock.disableNetConnect
@@ -2573,6 +2587,25 @@ describe 'phabs_commands module', ->
         it 'gives back information about the object', ->
           expect(hubotResponse()).to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4 is something - ' +
                                          'http://example.com/p/something (closed)'
+
+    context 'when the item exists', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            'T42': {
+              'phid': 'PHID-TASK-aofqt76nikbssugfkwhi',
+              'uri': 'http://example.com/T42',
+              'name': 'T42',
+              'status': 'closed'
+            }
+          } })
+
+      context 'phid T42', ->
+        hubot 'phid T42'
+        it 'gives back information about the object', ->
+          expect(hubotResponse()).to.eql 'T42 is PHID-TASK-aofqt76nikbssugfkwhi'
 
   # ---------------------------------------------------------------------------------
   context 'user searches through all tasks', ->

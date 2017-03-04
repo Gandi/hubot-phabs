@@ -397,10 +397,21 @@ module.exports = (robot) ->
 
   #   hubot phid <phid> - returns info about an arbitrary phid
   robot.respond /phid ([^ ]+) *$/, (msg) ->
-    phid = msg.match[1]
-    phab.getPHID(phid)
-    .then (data) ->
-      msg.send "#{phid} is #{data.name} - #{data.uri} (#{data.status})"
-    .catch (e) ->
-      msg.send e
-    msg.finish()
+    item = msg.match[1]
+    if /^PHID-/.test item
+      phab.getPHID(item)
+      .then (data) ->
+        msg.send "#{item} is #{data.name} - #{data.uri} (#{data.status})"
+      .catch (e) ->
+        msg.send e
+      msg.finish()
+    else
+      phab.genericInfo(item)
+      .then (body) ->
+        if Object.keys(body.result).length < 1
+          msg.send "#{item} not found."
+        else
+          msg.send "#{item} is #{body.result[item].phid}"
+      .catch (e) ->
+        msg.send e
+      msg.finish()
