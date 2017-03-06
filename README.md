@@ -331,7 +331,9 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         permission: all
 
     .phid <phid>
-        Gives the name and uri for a given PHID (mostly for arcanist use)
+    .phid <name>
+        When provided a PHID-*, gives the name and uri for a given PHID (mostly for arcanist use)
+        When provided an item name (ie. T123), returns the PHID
         permission: all
 
 
