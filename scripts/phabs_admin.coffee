@@ -179,6 +179,9 @@ module.exports = (robot) ->
     .then ->
       phab.getProject(project)
     .then (data) ->
-      msg.send 'Ok.'
+      if Object.keys(data.data.columns).length > 0
+        msg.send "Columns for #{project}: #{Object.keys(data.data.columns).join(', ')}"
+      else
+        msg.send "The project #{project} has no columns."
     .catch (e) ->
       msg.send e.message

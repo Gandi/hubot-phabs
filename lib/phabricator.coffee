@@ -276,7 +276,9 @@ class Phabricator
       for k, i of body.result
         query['ids[]'].push i.id
       if query['ids[]'].length is 0
-        throw new Error("Sorry, we can't find columns until there are tasks created.")
+        @robot.logger.warning "Sorry, we can't find columns for #{phid} " +
+                              "until there are tasks created."
+        { result: { } }
       else
         @request(query, 'maniphest.gettasktransactions')
     .then (body) =>
@@ -290,8 +292,10 @@ class Phabricator
       columns = columns.filter (value, index, self) ->
         self.indexOf(value) is index
       if columns.length is 0
-        throw new Error('Sorry, the tasks in that project have to be moved around ' +
-              'before we can get the columns.')
+        @robot.logger.warning 'Sorry, the tasks in project ' + phid +
+              ' have to be moved around ' +
+              'before we can get the columns.'
+        { result: { } }
       else
         query = { 'names[]': columns }
         @request(query, 'phid.lookup')

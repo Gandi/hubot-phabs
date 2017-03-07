@@ -34,6 +34,9 @@ describe 'phabs_admin module', ->
     process.env.PHABRICATOR_API_KEY = 'xxx'
     process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
     room = helper.createRoom { httpd: false }
+    room.robot.logger = sinon.spy()
+    room.robot.logger.warning = sinon.stub()
+    room.robot.logger.debug = sinon.stub()
     room.robot.brain.userForId 'user', {
       name: 'user'
     }
@@ -1022,6 +1025,7 @@ describe 'phabs_admin module', ->
 
     context 'but project never had any task', ->
       beforeEach ->
+        room.robot.brain.data.phabricator = { }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/project.query')
@@ -1048,8 +1052,9 @@ describe 'phabs_admin module', ->
       context 'phad columns project1', ->
         hubot 'phad columns project1'
         it 'should say there is no task', ->
+          expect(room.robot.logger.warning).calledTwice
           expect(hubotResponse())
-            .to.eql "Sorry, we can't find columns until there are tasks created."
+            .to.eql "The project project1 has no columns."
 
     context 'but the tasks in that project never moved around', ->
       beforeEach ->
@@ -1086,8 +1091,7 @@ describe 'phabs_admin module', ->
         hubot 'phad columns project1'
         it 'should say that tasks did not move', ->
           expect(hubotResponse())
-            .to.eql 'Sorry, the tasks in that project have to be moved around ' +
-                    'before we can get the columns.'
+            .to.eql 'The project project1 has no columns.'
 
     context 'and there is a way to get columns from existing tasks', ->
       context 'with a project name', ->
@@ -1194,7 +1198,7 @@ describe 'phabs_admin module', ->
           hubot 'phad columns project1'
           it 'should say ok', ->
             expect(hubotResponse())
-              .to.eql 'Ok.'
+              .to.eql 'Columns for project1: back_log, done'
 
       context 'with a project PHID', ->
         beforeEach ->
@@ -1300,7 +1304,7 @@ describe 'phabs_admin module', ->
           hubot 'phad columns PHID-PROJ-qhmexneudkt62wc7o3z4'
           it 'should say ok', ->
             expect(hubotResponse())
-              .to.eql 'Ok.'
+              .to.eql 'Columns for PHID-PROJ-qhmexneudkt62wc7o3z4: back_log, done'
 
   # ---------------------------------------------------------------------------------
   context 'permissions system', ->
