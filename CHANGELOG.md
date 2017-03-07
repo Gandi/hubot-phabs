@@ -1,6 +1,11 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.3.0 - wip
+- `.phad info <project>` now recognize projects that don't have columns or tickets
+- `.phad feedall to #channel` for a catchall feed command
+- `.phad removeall from #channel` to remove catchall
+
 ### 2.2.6 - 2017-03-04
 - .phid command now returns phid for arbitrary id, when item don't start with PHID
 

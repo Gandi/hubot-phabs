@@ -407,11 +407,20 @@ Some configuration variables are stored the brain. They are managed by the phabs
     .phad feed <project> to <room>
     .phad feeds <project> to <room>
         creates a feed for <project> to <room>.
-        Feeds are comming from feed.http-hooks
+        Feeds are comming from feed.http-hooks. Only tasks are included in this feed.
         permission: phadmin
 
     .phad remove <project> from <room>
         remove a feed
+        permission: phadmin
+
+    .phad feedall to <room>
+        creates a catchall feed to <room>.
+        Only tasks are included in this feed.
+        permission: phadmin
+
+    .phad removeall from <room>
+        remove a catchall feed
         permission: phadmin
 
 
