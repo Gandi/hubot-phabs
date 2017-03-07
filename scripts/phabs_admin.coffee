@@ -124,7 +124,7 @@ module.exports = (robot) ->
     .catch (e) ->
       msg.send e
 
-  #   hubot phad feed <project> to <room>
+  #   hubot phad feedall to <room>
   robot.respond /phad feedall to (.+)$/, (msg) ->
     room = msg.match[1]
     phab.getPermission(msg.envelope.user, 'phadmin')
@@ -138,8 +138,6 @@ module.exports = (robot) ->
         data.projects['*'].feeds ?= [ ]
         data.projects['*'].feeds.push room
         msg.send "Ok, all feeds will be announced on '#{room}'."
-    .catch (e) ->
-      msg.send e
 
   #   hubot phad remove <project> from <room>
   robot.respond /phad remove (.+) from (.+)$/, (msg) ->
@@ -158,6 +156,21 @@ module.exports = (robot) ->
         msg.send "Sorry, '#{proj.data.name}' is not feeding '#{room}'."
     .catch (e) ->
       msg.send e
+
+  #   hubot phad removeall from <room>
+  robot.respond /phad removeall from (.+)$/, (msg) ->
+    room = msg.match[1]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
+      phab.getProject('*')
+    .then (proj) ->
+      proj.data.feeds ?= [ ]
+      if room in proj.data.feeds
+        idx = data.projects['*'].feeds.indexOf room
+        data.projects['*'].feeds.splice(idx, 1)
+        msg.send "Ok, The catchall feed to '#{room}' was removed."
+      else
+        msg.send "Sorry, the catchall feed for '#{room}' doesn't exist."
 
   #   hubot phad columns <project>
   robot.respond /phad columns (.+)$/, (msg) ->

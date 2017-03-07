@@ -973,6 +973,51 @@ describe 'phabs_admin module', ->
             .to.eql "Sorry, 'bug report' is not feeding '#dev'."
 
   # ---------------------------------------------------------------------------------
+  context 'user wants to remove a catchall feed', ->
+
+    context 'and the feed exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          '*': {
+            feeds: [
+              '#dev'
+            ]
+          },
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad removeall from #dev', ->
+        hubot 'phad removeall from #dev'
+        it 'should say that the feed was removed', ->
+          expect(hubotResponse())
+            .to.eql "Ok, The catchall feed to '#dev' was removed."
+          expect(room.robot.brain.data.phabricator.projects['*'].feeds)
+            .not.to.include '#dev'
+
+    context 'but the feed do not already exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          '*': {
+            feeds: [ ]
+          },
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad removeall from #dev', ->
+        hubot 'phad removeall from #dev'
+        it 'should say that the feed could not be removed', ->
+          expect(hubotResponse())
+            .to.eql "Sorry, the catchall feed for '#dev' doesn't exist."
+
+  # ---------------------------------------------------------------------------------
   context 'user wants to know the columns for a project', ->
 
     context 'but project never had any task', ->
