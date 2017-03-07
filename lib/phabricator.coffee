@@ -75,6 +75,7 @@ class Phabricator
     @data.templates ?= { }
     @data.blacklist ?= [ ]
     @data.users ?= { }
+    @data.projects['*'] ?= { }
 
   ready: ->
     if not process.env.PHABRICATOR_URL
@@ -179,7 +180,7 @@ class Phabricator
           if body.result.data?
             for phid in body.result.data[0].attachments.projects.projectPHIDs
               for name, project of data.projects
-                if project.phid? and phid is project.phid
+                if name is '*' or (project.phid? and phid is project.phid)
                   project.feeds ?= [ ]
                   for room in project.feeds
                     if announces.rooms.indexOf(room) is -1

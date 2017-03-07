@@ -32,8 +32,10 @@ module.exports = (robot) ->
 
   #   hubot phad projects
   robot.respond /phad (?:projects|list) *$/, (msg) ->
-    if Object.keys(data.projects).length > 0
-      msg.send "Known Projects: #{Object.keys(data.projects).join(', ')}"
+    projects = Object.keys(data.projects).filter (i) ->
+      i isnt '*'
+    if Object.keys(projects).length > 0
+      msg.send "Known Projects: #{projects.join(', ')}"
     else
       msg.send 'There is no project.'
 
@@ -119,6 +121,23 @@ module.exports = (robot) ->
         data.projects[proj.data.name].feeds ?= [ ]
         data.projects[proj.data.name].feeds.push room
         msg.send "Ok, '#{proj.data.name}' is now feeding '#{room}'."
+    .catch (e) ->
+      msg.send e
+
+  #   hubot phad feed <project> to <room>
+  robot.respond /phad feedall to (.+)$/, (msg) ->
+    room = msg.match[1]
+    phab.getPermission(msg.envelope.user, 'phadmin')
+    .then ->
+      phab.getProject('*')
+    .then (proj) ->
+      proj.data.feeds ?= [ ]
+      if room in proj.data.feeds
+        msg.send "The catchall feed to '#{room}' already exist."
+      else
+        data.projects['*'].feeds ?= [ ]
+        data.projects['*'].feeds.push room
+        msg.send "Ok, all feeds will be announced on '#{room}'."
     .catch (e) ->
       msg.send e
 

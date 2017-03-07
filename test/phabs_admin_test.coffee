@@ -68,6 +68,7 @@ describe 'phabs_admin module', ->
     context 'when there is some projects registered', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
+          '*': { },
           'project1': { },
           'project2': { },
           'project3': { },
@@ -795,6 +796,54 @@ describe 'phabs_admin module', ->
           expect(hubotResponse())
             .to.eql "Ok, 'bug report' is now feeding '#dev'."
           expect(room.robot.brain.data.phabricator.projects['bug report'].feeds)
+            .to.include '#dev'
+
+  # ---------------------------------------------------------------------------------
+  context 'user wants to add a catchall feed', ->
+
+    context 'but the feed already exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          '*': {
+            feeds: [
+              '#dev'
+            ]
+          },
+          'project with phid': { phid: 'PHID-PROJ-1234567' },
+        }
+        room.robot.brain.data.phabricator.aliases = {
+          bugs: 'bug report',
+          bug: 'bug report'
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad feedall to #dev', ->
+        hubot 'phad feedall to #dev'
+        it 'should say that the feed is already there', ->
+          expect(hubotResponse())
+            .to.eql "The catchall feed to '#dev' already exist."
+
+    context 'and the feed do not already exists', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          '*': { }
+        }
+        do nock.disableNetConnect
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phad feedall to #dev', ->
+        hubot 'phad feedall to #dev'
+        it 'should say that the feed was created', ->
+          expect(hubotResponse())
+            .to.eql "Ok, all feeds will be announced on '#dev'."
+          expect(room.robot.brain.data.phabricator.projects['*'].feeds)
             .to.include '#dev'
 
   # ---------------------------------------------------------------------------------
