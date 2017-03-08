@@ -215,6 +215,7 @@ class Phabricator
       for a, p of @data.aliases
         if a is project and @data.projects[p]?
           projectData = @data.projects[p]
+          project = projectData.name
           break
     if projectData? and not refresh
       return new Promise (res, err) =>
@@ -225,7 +226,7 @@ class Phabricator
   getProjectData: (project) ->
     data = @data
     projectname = null
-    @requestProject(project)
+    @searchProject(project)
     .then (projectinfo) =>
       projectname = projectinfo.name
       data.projects[projectname] = projectinfo
@@ -263,6 +264,38 @@ class Phabricator
           err "Sorry, #{project} not found."
       .catch (e) ->
         err e
+
+  searchProject: (project) ->
+    return new Promise (res, err) =>
+      if /^PHID-PROJ-/.test project
+        query = { 'constraints[phid]': project }
+      else
+        query = { 'constraints[name]': project }
+      @request(query, 'project.search')
+      .then (body) ->
+        data = body.result.data
+        if data.length > 0
+          found = null
+          for proj in data
+            if /^PHID-PROJ-/.test(project) and proj.phid is project or
+               proj.fields.name is project
+              found = proj
+              break
+          if found?
+            phid = found.phid
+            name = found.fields.name.trim()
+            if found.fields.parent?
+              parent = found.fields.parent.name.trim()
+            else
+              parent = null
+            res { name: name, phid: phid, parent: parent }
+          else
+            err "Sorry, #{project} not found."
+        else
+          err "Sorry, #{project} not found."
+      .catch (e) ->
+        err e
+
 
   getColumns: (phid) ->
     query = {

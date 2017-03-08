@@ -150,7 +150,7 @@ describe 'phabs_admin module', ->
           }
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/project.query')
+            .get('/api/project.search')
             .query({
               'names[0]': 'project1',
               'api.token': 'xxx'
@@ -186,19 +186,26 @@ describe 'phabs_admin module', ->
           }
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/project.query')
+            .get('/api/project.search')
             .query({
               'names[0]': 'project1',
               'api.token': 'xxx'
             })
             .reply(200, { result: {
-              'data': {
-                'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+              'data': [
+                {
                   'id': '1402',
                   'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                  'name': 'Bug Report',
+                  'fields': {
+                    'name': 'Bug Report',
+                    'parent': {
+                      'id': 42,
+                      'phid': 'PHID-PROJ-1234',
+                      'name': 'parent-project'
+                    }
+                  }
                 }
-              }
+              ]
             } })
             .get('/api/maniphest.query')
             .query({
@@ -240,6 +247,8 @@ describe 'phabs_admin module', ->
           it 'should remember the phid from asking to phabricator', ->
             expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            expect(room.robot.brain.data.phabricator.projects['Bug Report'].parent)
+              .to.eql 'parent-project'
 
 
       context 'and is known to phabricator', ->
@@ -253,19 +262,21 @@ describe 'phabs_admin module', ->
           }
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/project.query')
+            .get('/api/project.search')
             .query({
               'names[0]': 'project1',
               'api.token': 'xxx'
             })
             .reply(200, { result: {
-              'data': {
-                'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+              'data': [
+                {
                   'id': '1402',
                   'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                  'name': 'Bug Report',
+                  'fields': {
+                    'name': 'Bug Report',
+                  }
                 }
-              }
+              ]
             } })
             .get('/api/maniphest.query')
             .query({
@@ -366,7 +377,10 @@ describe 'phabs_admin module', ->
     context 'when project has phid recorded, and aliases', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
-          'Bug Report': { phid: 'PHID-PROJ-1234567' }
+          'Bug Report': { 
+            phid: 'PHID-PROJ-1234567',
+            name: 'Bug Report'
+          }
         }
         room.robot.brain.data.phabricator.aliases = {
           bugs: 'Bug Report',
@@ -374,19 +388,21 @@ describe 'phabs_admin module', ->
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
           })
           .reply(200, { result: {
-            'data': {
-              'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+            'data': [
+              {
                 'id': '1402',
                 'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                'name': 'Bug Report',
+                'fields': {
+                  'name': 'Bug Report',
+                }
               }
-            }
+            ]
           } })
           .get('/api/maniphest.query')
           .query({
@@ -579,7 +595,7 @@ describe 'phabs_admin module', ->
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
@@ -720,7 +736,7 @@ describe 'phabs_admin module', ->
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
@@ -864,7 +880,7 @@ describe 'phabs_admin module', ->
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
@@ -901,7 +917,7 @@ describe 'phabs_admin module', ->
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
@@ -1028,19 +1044,21 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
           })
           .reply(200, { result: {
-            'data': {
-              'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+            'data': [
+              {
                 'id': '1402',
                 'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                'name': 'Bug Report',
+                'fields': {
+                  'name': 'project1',
+                }
               }
-            }
+            ]
           } })
           .get('/api/maniphest.query')
           .reply(200, { result: { } })
@@ -1052,27 +1070,29 @@ describe 'phabs_admin module', ->
       context 'phad columns project1', ->
         hubot 'phad columns project1'
         it 'should say there is no task', ->
-          expect(room.robot.logger.warning).calledTwice
           expect(hubotResponse())
             .to.eql "The project project1 has no columns."
+          expect(room.robot.logger.warning).calledTwice
 
     context 'but the tasks in that project never moved around', ->
       beforeEach ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
           })
           .reply(200, { result: {
-            'data': {
-              'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+            'data': [
+              {
                 'id': '1402',
                 'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                'name': 'Bug Report',
+                'fields': {
+                  'name': 'project1',
+                }
               }
-            }
+            ]
           } })
           .get('/api/maniphest.query')
           .reply(200, { result: {
@@ -1098,19 +1118,21 @@ describe 'phabs_admin module', ->
         beforeEach ->
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/project.query')
+            .get('/api/project.search')
             .query({
               'names[0]': 'project1',
               'api.token': 'xxx'
             })
             .reply(200, { result: {
-              'data': {
-                'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+              'data': [
+                {
                   'id': '1402',
                   'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                  'name': 'Bug Report',
+                  'fields': {
+                    'name': 'project1',
+                  }
                 }
-              }
+              ]
             } })
             .get('/api/maniphest.query')
             .query({
@@ -1204,19 +1226,21 @@ describe 'phabs_admin module', ->
         beforeEach ->
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
-            .get('/api/project.query')
+            .get('/api/project.search')
             .query({
               'names[0]': 'project1',
               'api.token': 'xxx'
             })
             .reply(200, { result: {
-              'data': {
-                'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+              'data': [
+                {
                   'id': '1402',
                   'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                  'name': 'Bug Report',
+                  'fields': {
+                    'name': 'project1',
+                  }
                 }
-              }
+              ]
             } })
             .get('/api/maniphest.query')
             .query({

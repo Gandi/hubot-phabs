@@ -1139,19 +1139,21 @@ describe 'phabs_commands module', ->
         room.robot.brain.data.phabricator.projects = { }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'proj2',
             'api.token': 'xxx'
           })
           .reply(200, { result: {
-            'data': {
-              'PHID-PROJ-qhmexneudkt62wc7o3z4': {
+            'data': [
+              {
                 'id': '1402',
                 'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-                'name': 'proj2',
+                'fields': {
+                  'name': 'proj2',
+                }
               }
-            }
+            ]
           } })
           .get('/api/maniphest.query')
           .query({
@@ -1251,7 +1253,7 @@ describe 'phabs_commands module', ->
         room.robot.brain.data.phabricator.projects = { }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'proj2',
             'api.token': 'xxx'
@@ -1285,7 +1287,7 @@ describe 'phabs_commands module', ->
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
@@ -1518,7 +1520,7 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
           .reply(200, { result: { description: 'some templated description' } })
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
@@ -1645,7 +1647,7 @@ describe 'phabs_commands module', ->
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
@@ -2911,7 +2913,7 @@ describe 'phabs_commands module', ->
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
@@ -3216,7 +3218,7 @@ describe 'phabs_commands module', ->
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
-          .get('/api/project.query')
+          .get('/api/project.search')
           .query({
             'names[0]': 'project1',
             'api.token': 'xxx'
