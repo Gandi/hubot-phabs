@@ -272,13 +272,13 @@ class Phabricator
       else
         query = { 'constraints[name]': project }
       @request(query, 'project.search')
-      .then (body) ->
+      .then (body) =>
         data = body.result.data
         if data.length > 0
           found = null
           for proj in data
             if /^PHID-PROJ-/.test(project) and proj.phid is project or
-               proj.fields.name is project
+               @aliasize(proj.fields.name) is @aliasize(project)
               found = proj
               break
           if found?
@@ -310,7 +310,7 @@ class Phabricator
         query['ids[]'].push i.id
       if query['ids[]'].length is 0
         @robot.logger.warning "Sorry, we can't find columns for #{phid} " +
-                              "until there are tasks created."
+                              'until there are tasks created.'
         { result: { } }
       else
         @request(query, 'maniphest.gettasktransactions')
@@ -326,8 +326,8 @@ class Phabricator
         self.indexOf(value) is index
       if columns.length is 0
         @robot.logger.warning 'Sorry, the tasks in project ' + phid +
-              ' have to be moved around ' +
-              'before we can get the columns.'
+                              ' have to be moved around' +
+                              ' before we can get the columns.'
         { result: { } }
       else
         query = { 'names[]': columns }

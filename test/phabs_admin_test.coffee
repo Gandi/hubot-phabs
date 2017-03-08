@@ -377,7 +377,7 @@ describe 'phabs_admin module', ->
     context 'when project has phid recorded, and aliases', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
-          'Bug Report': { 
+          'Bug Report': {
             phid: 'PHID-PROJ-1234567',
             name: 'Bug Report'
           }
@@ -1071,7 +1071,7 @@ describe 'phabs_admin module', ->
         hubot 'phad columns project1'
         it 'should say there is no task', ->
           expect(hubotResponse())
-            .to.eql "The project project1 has no columns."
+            .to.eql 'The project project1 has no columns.'
           expect(room.robot.logger.warning).calledTwice
 
     context 'but the tasks in that project never moved around', ->

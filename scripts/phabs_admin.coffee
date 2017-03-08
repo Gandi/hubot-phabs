@@ -34,7 +34,7 @@ module.exports = (robot) ->
   robot.respond /phad (?:projects|list) *$/, (msg) ->
     projects = Object.keys(data.projects).filter (i) ->
       i isnt '*'
-    if Object.keys(projects).length > 0
+    if projects.length > 0
       msg.send "Known Projects: #{projects.join(', ')}"
     else
       msg.send 'There is no project.'
@@ -179,7 +179,7 @@ module.exports = (robot) ->
     .then ->
       phab.getProject(project)
     .then (data) ->
-      if Object.keys(data.data.columns).length > 0
+      if data.data.columns? and Object.keys(data.data.columns).length > 0
         msg.send "Columns for #{project}: #{Object.keys(data.data.columns).join(', ')}"
       else
         msg.send "The project #{project} has no columns."
