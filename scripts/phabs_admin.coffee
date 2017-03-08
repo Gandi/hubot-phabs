@@ -70,9 +70,12 @@ module.exports = (robot) ->
       else
         response += ', with no feed'
       if proj.data.columns? and Object.keys(proj.data.columns).length > 0
-        response += ", columns #{Object.keys(proj.data.columns).join(', ')}."
+        response += ", columns #{Object.keys(proj.data.columns).join(', ')}"
       else
-        response += ', and no columns.'
+        response += ', and no columns'
+      if proj.data.parent?
+        response += " (child of #{proj.data.parent})"
+      response += '.'
       msg.send response
     .catch (e) ->
       msg.send e

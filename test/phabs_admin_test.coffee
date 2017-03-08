@@ -243,7 +243,7 @@ describe 'phabs_admin module', ->
           it 'should reply with proper info', ->
             expect(hubotResponse())
               .to.eql "'Bug Report' is 'Bug Report' (aka bug_report), " +
-                      'with no feed, and no columns.'
+                      'with no feed, and no columns (child of parent-project).'
           it 'should remember the phid from asking to phabricator', ->
             expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
