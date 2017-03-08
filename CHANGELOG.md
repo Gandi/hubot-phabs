@@ -8,6 +8,7 @@ Hubot-phabs Changelog
 - `.phad info <project>` now stores and show parent project if any
   - NOTE: you may need to `.phad refresh <project>` on existing projects 
     to re=populate the cached data.
+- feeds now are also announced on parent projects feeds (useful for milestones)
 
 ### 2.2.6 - 2017-03-04
 - .phid command now returns phid for arbitrary id, when item don't start with PHID

@@ -180,8 +180,12 @@ class Phabricator
           if body.result.data?
             for phid in body.result.data[0].attachments.projects.projectPHIDs
               for name, project of data.projects
-                if name is '*' or (project.phid? and phid is project.phid)
+                if name is '*' or
+                    (project.phid? and phid is project.phid)
                   project.feeds ?= [ ]
+                  if project.parent?
+                    data.projects[project.parent].feeds ?= [ ]
+                    project.feeds = project.feeds.concat(data.projects[project.parent].feeds)
                   for room in project.feeds
                     if announces.rooms.indexOf(room) is -1
                       announces.rooms.push room
@@ -247,23 +251,23 @@ class Phabricator
   aliasize: (str) ->
     str.trim().toLowerCase().replace(/[^-_a-z0-9]/g, '_')
 
-  requestProject: (project) ->
-    return new Promise (res, err) =>
-      if /^PHID-PROJ-/.test project
-        query = { 'phids[0]': project }
-      else
-        query = { 'names[0]': project }
-      @request(query, 'project.query')
-      .then (body) ->
-        data = body.result.data
-        if data.length > 0 or Object.keys(data).length > 0
-          phid = Object.keys(data)[0]
-          name = data[phid].name.trim()
-          res { name: name, phid: phid }
-        else
-          err "Sorry, #{project} not found."
-      .catch (e) ->
-        err e
+  # requestProject: (project) ->
+  #   return new Promise (res, err) =>
+  #     if /^PHID-PROJ-/.test project
+  #       query = { 'phids[0]': project }
+  #     else
+  #       query = { 'names[0]': project }
+  #     @request(query, 'project.query')
+  #     .then (body) ->
+  #       data = body.result.data
+  #       if data.length > 0 or Object.keys(data).length > 0
+  #         phid = Object.keys(data)[0]
+  #         name = data[phid].name.trim()
+  #         res { name: name, phid: phid }
+  #       else
+  #         err "Sorry, #{project} not found."
+  #     .catch (e) ->
+  #       err e
 
   searchProject: (project) ->
     return new Promise (res, err) =>
@@ -295,7 +299,6 @@ class Phabricator
           err "Sorry, #{project} not found."
       .catch (e) ->
         err e
-
 
   getColumns: (phid) ->
     query = {
