@@ -357,9 +357,9 @@ class Phabricator
           @data.users[user.id].phid = user.phid
           res @data.users[user.id].phid
         else
-          email = @data.users[user.id].email_address or
-                  @robot.brain.userForId(user.id)?.email_address or
-                  user.email_address
+          email = user.email_address or
+                  @data.users[user.id].email_address or
+                  @robot.brain.userForId(user.id)?.email_address
           unless email
             err @_ask_for_email(from, user)
           else
