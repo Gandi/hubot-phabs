@@ -1800,6 +1800,144 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'T424242 is already not in proj1'
 
   # ---------------------------------------------------------------------------------
+  context 'user changes subscribers for a task', ->
+    beforeEach ->
+      room.robot.brain.data.phabricator.users.toto = {
+        name: 'toto',
+        id: 'toto',
+        phid: 'PHID-USER-123456789'
+      }
+      afterEach ->
+        room.robot.brain.data.phabricator.users = { }
+
+    context 'when the task is unknown', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { error_info: 'No object exists with ID "424242".' })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 sub toto', ->
+        hubot 'ph T424242 sub toto', 'user_with_phid'
+        it "warns the user that this Task doesn't exist", ->
+          expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
+
+    context 'when the task is known, and already subscribed', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            'id': '424242',
+            'ccPHIDs': [
+              'PHID-USER-123456789'
+            ]
+            ''
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 sub toto', ->
+        hubot 'ph T424242 sub toto', 'user_with_phid'
+        it 'tells the user that this task is already subscribed', ->
+          expect(hubotResponse()).to.eql 'toto already subscribed to T424242'
+
+    context 'when the task is known, and not yet subscribed', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            'id': '424242',
+            'ccPHIDs': [
+              'PHID-USER-xxx'
+            ]
+          } })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 424242 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 sub toto', ->
+        hubot 'ph T424242 sub toto', 'user_with_phid'
+        it 'tells the user that the task is now in the subscribed', ->
+          expect(hubotResponse()).to.eql 'Ok, T424242 now has subscribed toto.'
+
+    context 'when the task is known, and already subscribed', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            'id': '424242',
+            'ccPHIDs': [
+              'PHID-USER-123456789'
+            ]
+          } })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 unsub toto', ->
+        hubot 'ph T424242 unsub toto', 'user_with_phid'
+        it 'tells user that task has been unsubscribed', ->
+          expect(hubotResponse()).to.eql 'Ok, T424242 now has unsubscribed toto.'
+
+    context 'when the task is known, and not yet subscribed', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            'id': '424242',
+            'ccPHIDs': [
+              'PHID-USER-xxx'
+            ]
+          } })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 unsub toto', ->
+        hubot 'ph T424242 unsub toto', 'user_with_phid'
+        it 'tells user that that task is actually not subscribed so, whatever', ->
+          expect(hubotResponse()).to.eql 'toto is not subscribed to T424242'
+
+  # ---------------------------------------------------------------------------------
   context 'user changes column for a task', ->
     beforeEach ->
       room.robot.brain.data.phabricator.projects = {

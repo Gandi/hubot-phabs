@@ -588,12 +588,18 @@ class Phabricator
         }
         project_add = []
         project_remove = []
+        subscriber_add = []
+        subscriber_remove = []
         i = 0
         for action in results.data
           if action.type is 'projects.add'
             project_add.push action.value
           else if action.type is 'projects.remove'
             project_remove.push action.value
+          else if action.type is 'subscribers.add'
+            subscriber_add.push action.value
+          else if action.type is 'subscribers.remove'
+            subscriber_remove.push action.value
           else
             i = i + 1
             query['transactions[' + i + '][type]'] = action.type
@@ -609,6 +615,18 @@ class Phabricator
           i = i + 1
           query['transactions[' + i + '][type]'] = 'projects.remove'
           for phid, j in project_remove
+            query['transactions[' + i + '][value][' + j + ']'] = phid
+
+        if subscriber_add.length > 0
+          i = i + 1
+          query['transactions[' + i + '][type]'] = 'subscribers.add'
+          for phid, j in subscriber_add
+            query['transactions[' + i + '][value][' + j + ']'] = phid
+
+        if subscriber_remove.length > 0
+          i = i + 1
+          query['transactions[' + i + '][type]'] = 'subscribers.remove'
+          for phid, j in subscriber_remove
             query['transactions[' + i + '][value][' + j + ']'] = phid
 
         i = i + 1
@@ -628,7 +646,7 @@ class Phabricator
 
   parseAction: (user, item, str, payload = { data: [], messages: [], notices: [] }) ->
     return new Promise (res, err) =>
-      p = new RegExp('^(in|not in|on|for|is|to) ([^ ]*)')
+      p = new RegExp('^(in|not in|on|for|is|to|sub|unsub) ([^ ]*)')
       r = str.trim().match p
       switch r[1]
         when 'in'
@@ -670,6 +688,38 @@ class Phabricator
           .then (userphid) =>
             payload.data.push({ type: 'owner', value: userphid })
             payload.messages.push("owner set to #{r[2]}")
+            next = str.trim().replace(p, '')
+            if next.trim() isnt ''
+              res @parseAction(user, item, next, payload)
+            else
+              res payload
+          .catch (e) ->
+            payload.notices.push(e)
+            res payload
+        when 'sub'
+          @getUser(user, { name: r[2] })
+          .then (userphid) =>
+            if userphid not in item.ccPHIDs
+              payload.data.push({ type: 'subscribers.add', value: [userphid] })
+              payload.messages.push("subscribed #{r[2]}")
+            else
+              payload.notices.push("#{r[2]} already subscribed to T#{item.id}")
+            next = str.trim().replace(p, '')
+            if next.trim() isnt ''
+              res @parseAction(user, item, next, payload)
+            else
+              res payload
+          .catch (e) ->
+            payload.notices.push(e)
+            res payload
+        when 'unsub'
+          @getUser(user, { name: r[2] })
+          .then (userphid) =>
+            if userphid in item.ccPHIDs
+              payload.data.push({ type: 'subscribers.remove', value: [userphid] })
+              payload.messages.push("unsubscribed #{r[2]}")
+            else
+              payload.notices.push("#{r[2]} is not subscribed to T#{item.id}")
             next = str.trim().replace(p, '')
             if next.trim() isnt ''
               res @parseAction(user, item, next, payload)
