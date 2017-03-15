@@ -580,7 +580,6 @@ class Phabricator
     .then (body) =>
       @parseAction user, body.result, commandString
     .then (results) =>
-      console.log results
       if results.data.length > 0
         query = {
           'objectIdentifier': "T#{id}",

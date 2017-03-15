@@ -2642,13 +2642,15 @@ describe 'phabs_commands module', ->
       context 'phab T42 to backlog is open', ->
         hubot 'ph T42 to backlog is open', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
-          expect(hubotResponse()).to.eql 'Ok, T42 now has column changed to backlog.'
+          expect(hubotResponse()).to
+          .eql 'Ok, T42 now has column changed to backlog, status set to open.'
 
       context 'phab T42 on user_with_phid to backlog is open', ->
         hubot 'ph T42 on user_with_phid to backlog is open', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to
-          .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog.'
+          .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog, ' + 
+               'status set to open.'
 
       context 'phab T42 on user_with_phid to backlog is open sub toto', ->
         hubot 'ph T42 on user_with_phid to backlog is open sub toto', 'user_with_phid'
@@ -2657,7 +2659,7 @@ describe 'phabs_commands module', ->
           .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog, ' + 
                'status set to open, subscribed toto.'
 
-      context.only 'phab T42 sub user_with_phid to backlog is closed unsub toto', ->
+      context 'phab T42 sub user_with_phid to backlog is closed unsub toto', ->
         hubot 'ph T42 sub user_with_phid to backlog is closed unsub toto', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to
