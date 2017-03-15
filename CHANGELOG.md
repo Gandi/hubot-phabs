@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.3.1 - wip
+### 2.3.1 - 2017-03-15
 - `.phab Txx sub user` and unsub makes possible to add subscribers to tasks
   (and ubsubscribe)
 - fix on multi-commands so that columns change don't block further commands
