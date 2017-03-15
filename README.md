@@ -247,6 +247,14 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         A comment can optionaly be added
         permission: phuser
 
+    .phab T123 sub <user>
+    .phad sub <user>
+    .phad T123 sub <user> + some comment
+    .phad T123 unsub <user> = some comment
+        subscribes and unsubscribes users to tasks.
+        A comment can optionaly be added
+        permission: phuser
+
     .phab T123 on <someone> is low is open to <column>
         starting with `v2.2.0` it's possible to combine several commands to 
         change a task. It detects actions to be taken according to the conjonction used:
@@ -256,6 +264,8 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         - in      - change tag/project (add a tag)
         - not in  - change tag/project (remove a tag)
         - to      - change column
+        - sub     - subscribes user
+        - unsub   - unsubscribes user
         permission: phuser
 
     .phab T123 next <term>
