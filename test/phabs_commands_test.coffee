@@ -2610,6 +2610,7 @@ describe 'phabs_commands module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.info')
           .reply(200, { result: {
+            id: '42',
             status: 'open',
             priority: 'Low',
             name: 'Test task',
@@ -2665,6 +2666,15 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to
           .eql 'Ok, T42 now has subscribed user_with_phid, column changed to backlog, ' + 
                'status set to closed.'
+
+      context 'phab T42 sub user_with_phid unsub toto to backlog is closed', ->
+        hubot 'ph T42 sub user_with_phid unsub toto to backlog is closed', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to
+          .eql 'Ok, T42 now has subscribed user_with_phid, ' + 
+               'column changed to backlog, status set to closed.'
+          expect(hubotResponse(2)).to
+          .eql 'toto is not subscribed to T42'
 
 # --------------------------------------------------------------------------------------------------
   context 'user adds a comment on a task', ->
