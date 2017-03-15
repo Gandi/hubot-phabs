@@ -2650,28 +2650,28 @@ describe 'phabs_commands module', ->
         hubot 'ph T42 on user_with_phid to backlog is open', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to
-          .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog, ' + 
+          .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog, ' +
                'status set to open.'
 
       context 'phab T42 on user_with_phid to backlog is open sub toto', ->
         hubot 'ph T42 on user_with_phid to backlog is open sub toto', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to
-          .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog, ' + 
+          .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog, ' +
                'status set to open, subscribed toto.'
 
       context 'phab T42 sub user_with_phid to backlog is closed unsub toto', ->
         hubot 'ph T42 sub user_with_phid to backlog is closed unsub toto', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to
-          .eql 'Ok, T42 now has subscribed user_with_phid, column changed to backlog, ' + 
+          .eql 'Ok, T42 now has subscribed user_with_phid, column changed to backlog, ' +
                'status set to closed.'
 
       context 'phab T42 sub user_with_phid unsub toto to backlog is closed', ->
         hubot 'ph T42 sub user_with_phid unsub toto to backlog is closed', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to
-          .eql 'Ok, T42 now has subscribed user_with_phid, ' + 
+          .eql 'Ok, T42 now has subscribed user_with_phid, ' +
                'column changed to backlog, status set to closed.'
           expect(hubotResponse(2)).to
           .eql 'toto is not subscribed to T42'
