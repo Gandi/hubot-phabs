@@ -13,7 +13,7 @@ expect = require('chai').use(require('sinon-chai')).expect
 
 room = null
 
-# ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 describe 'phabs_commands module with no bot_phid', ->
 
   hubotHear = (message, userName = 'momo', tempo = 40) ->
@@ -101,7 +101,7 @@ describe 'phabs_commands module with no bot_phid', ->
         it 'replies with the object id', ->
           expect(hubotResponse()).to.eql 'Unknown user'
 
-# ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
 describe 'phabs_commands module', ->
 
   hubotEmit = (e, data, tempo = 40) ->
@@ -160,7 +160,7 @@ describe 'phabs_commands module', ->
     delete process.env.PHABRICATOR_API_KEY
     delete process.env.PHABRICATOR_BOT_PHID
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user wants to know hubot-phabs version', ->
 
     context 'phab version', ->
@@ -173,7 +173,7 @@ describe 'phabs_commands module', ->
       it 'should reply version number', ->
         expect(hubotResponse()).to.match /hubot-phabs module is version [0-9]+\.[0-9]+\.[0-9]+/
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user blacklists an item', ->
     beforeEach ->
       room.robot.brain.data.phabricator.blacklist = [ ]
@@ -188,7 +188,7 @@ describe 'phabs_commands module', ->
     it 'adds the item in brain blacklist', ->
       expect(room.robot.brain.data.phabricator.blacklist).to.contains 'T42'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user unblacklists an item', ->
     beforeEach ->
       room.robot.brain.data.phabricator.blacklist = [ 'T42', 'V5' ]
@@ -203,7 +203,7 @@ describe 'phabs_commands module', ->
     it 'adds the item in brain blacklist', ->
       expect(room.robot.brain.data.phabricator.blacklist).not.to.contains 'T42'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user asks for task info', ->
 
     context 'task id is provided', ->
@@ -348,7 +348,7 @@ describe 'phabs_commands module', ->
         it 'gives information about the task Txxx', ->
           expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner unknown)'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user asks for next checkbox of a task', ->
 
     context 'task id is provided', ->
@@ -442,7 +442,7 @@ describe 'phabs_commands module', ->
         it 'complains that there is no active object id in memory', ->
           expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user asks for previous checkbox of a task', ->
 
     context 'task id is provided', ->
@@ -525,7 +525,7 @@ describe 'phabs_commands module', ->
         it 'complains that there is no active object id in memory', ->
           expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user checks the checkbox of a task', ->
 
     context 'task id is provided', ->
@@ -690,7 +690,7 @@ describe 'phabs_commands module', ->
         it 'complains that there is no active object id in memory', ->
           expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user unchecks the checkbox of a task', ->
 
     context 'task id is provided', ->
@@ -855,7 +855,7 @@ describe 'phabs_commands module', ->
         it 'complains that there is no active object id in memory', ->
           expect(hubotResponse()).to.eql "Sorry, you don't have any task active right now."
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user asks about a user', ->
 
     context 'an unknown user', ->
@@ -953,7 +953,7 @@ describe 'phabs_commands module', ->
         expect(room.robot.brain.data.phabricator.users.user_with_phid.phid).
           to.eql 'PHID-USER-123456789'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user declares his own email', ->
     beforeEach ->
       do nock.disableNetConnect
@@ -971,7 +971,7 @@ describe 'phabs_commands module', ->
         expect(hubotResponse()).to.eql 'Now I know you, you are PHID-USER-999'
         expect(phid).to.eql 'PHID-USER-999'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user declares email for somebody else', ->
     beforeEach ->
       do nock.disableNetConnect
@@ -989,7 +989,7 @@ describe 'phabs_commands module', ->
         expect(hubotResponse()).to.eql "Now I know user, he's PHID-USER-999"
         expect(phid).to.eql 'PHID-USER-999'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user creates a new task, ', ->
 
     context 'a task without description, ', ->
@@ -1311,7 +1311,7 @@ describe 'phabs_commands module', ->
         it 'replies that project is unknown', ->
           expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user creates a new task with a template, ', ->
     beforeEach ->
       room.robot.brain.data.phabricator.templates = {
@@ -1544,7 +1544,7 @@ describe 'phabs_commands module', ->
         it 'replies that project is unknown', ->
           expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'someone creates a new paste', ->
     context 'something goes wrong', ->
       beforeEach ->
@@ -1585,7 +1585,7 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to.eql 'Paste P24 created = ' +
                                          'edit on http://example.com/paste/edit/24'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user asks to count tasks in a project or column', ->
 
     context 'phab count proj1', ->
@@ -1671,7 +1671,7 @@ describe 'phabs_commands module', ->
         it 'replies that project is unknown', ->
           expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user changes tags for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
@@ -1799,7 +1799,7 @@ describe 'phabs_commands module', ->
         it 'tells user that that task is actually not in this tag so, whatever', ->
           expect(hubotResponse()).to.eql 'T424242 is already not in proj1'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user changes subscribers for a task', ->
     beforeEach ->
       room.robot.brain.data.phabricator.users.toto = {
@@ -1937,7 +1937,7 @@ describe 'phabs_commands module', ->
         it 'tells user that that task is actually not subscribed so, whatever', ->
           expect(hubotResponse()).to.eql 'toto is not subscribed to T424242'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user changes column for a task', ->
     beforeEach ->
       room.robot.brain.data.phabricator.projects = {
@@ -2045,7 +2045,7 @@ describe 'phabs_commands module', ->
             it 'tells the user that everything went fine', ->
               expect(hubotResponse()).to.eql 'Ok, T424242 now has column changed to backlog.'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user changes status for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
@@ -2250,7 +2250,7 @@ describe 'phabs_commands module', ->
           it 'reports the status as spite', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status set to spite.'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user changes priority for a task', ->
     context 'when the task is unknown', ->
       beforeEach ->
@@ -2442,7 +2442,7 @@ describe 'phabs_commands module', ->
           it 'reports the priority to be Low', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has priority set to low.'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user assigns someone to a task', ->
     context 'when the user is unknown', ->
       beforeEach ->
@@ -2529,7 +2529,7 @@ describe 'phabs_commands module', ->
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok, T42 now has owner set to user_with_phid.'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user issues various commands to a task', ->
     beforeEach ->
       room.robot.brain.data.phabricator.projects = {
@@ -2549,6 +2549,11 @@ describe 'phabs_commands module', ->
             backlog: 'PHID-PCOL-789'
           }
         }
+      }
+      room.robot.brain.data.phabricator.users.toto = {
+        name: 'toto',
+        id: 'toto',
+        phid: 'PHID-USER-123456789'
       }
 
     afterEach ->
@@ -2611,8 +2616,11 @@ describe 'phabs_commands module', ->
             ownerPHID: 'PHID-USER-42',
             projectPHIDs: [
               'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            ],
+            ccPHIDs: [
+              'PHID-USER-qhmexneudkt62wc7o3z4'
             ]
-            } })
+          } })
           .get('/api/maniphest.edit')
           .reply(200, { result: { object: { id: 42 } } })
 
@@ -2642,7 +2650,21 @@ describe 'phabs_commands module', ->
           expect(hubotResponse()).to
           .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog.'
 
-  # ---------------------------------------------------------------------------------
+      context 'phab T42 on user_with_phid to backlog is open sub toto', ->
+        hubot 'ph T42 on user_with_phid to backlog is open sub toto', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to
+          .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog, ' + 
+               'status set to open, subscribed toto.'
+
+      context.only 'phab T42 sub user_with_phid to backlog is closed unsub toto', ->
+        hubot 'ph T42 sub user_with_phid to backlog is closed unsub toto', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to
+          .eql 'Ok, T42 now has subscribed user_with_phid, column changed to backlog, ' + 
+               'status set to closed.'
+
+# --------------------------------------------------------------------------------------------------
   context 'user adds a comment on a task', ->
 
     context 'task is unknown', ->
@@ -2680,7 +2702,7 @@ describe 'phabs_commands module', ->
         it 'gives a feedback that the comment was added', ->
           expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user request info about a phid', ->
 
     context 'when there is an error on a phid', ->
@@ -2770,7 +2792,7 @@ describe 'phabs_commands module', ->
         it 'gives back information about the object', ->
           expect(hubotResponse()).to.eql 'T42 is PHID-TASK-aofqt76nikbssugfkwhi'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user searches through all tasks', ->
 
     context 'there is 2 results', ->
@@ -3075,7 +3097,7 @@ describe 'phabs_commands module', ->
         it 'replies that project is unknown', ->
           expect(hubotResponse()).to.eql 'Sorry, proj4 not found.'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'user searches through tasks', ->
 
     context 'there is 2 results', ->
@@ -3380,7 +3402,7 @@ describe 'phabs_commands module', ->
         it 'replies that project is unknown', ->
           expect(hubotResponse()).to.eql 'Sorry, proj4 not found.'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'error: non json', ->
     beforeEach ->
       do nock.disableNetConnect
@@ -3447,7 +3469,7 @@ describe 'phabs_commands module', ->
       it 'reports a http error', ->
         expect(hubotResponse()).to.eql 'http error 400'
 
-  # ---------------------------------------------------------------------------------
+# --------------------------------------------------------------------------------------------------
   context 'permissions system', ->
     beforeEach ->
       process.env.HUBOT_AUTH_ADMIN = 'admin_user'
@@ -3542,3 +3564,5 @@ describe 'phabs_commands module', ->
         hubot 'phab T24 + some comment', 'user_with_phid'
         it 'warns the user that he has no permission to use that command', ->
           expect(hubotResponse()).to.eql 'Ok. Added comment "some comment" to T24.'
+
+# --------------------------------------------------------------------------------------------------

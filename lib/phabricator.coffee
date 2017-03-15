@@ -580,6 +580,7 @@ class Phabricator
     .then (body) =>
       @parseAction user, body.result, commandString
     .then (results) =>
+      console.log results
       if results.data.length > 0
         query = {
           'objectIdentifier': "T#{id}",
@@ -739,7 +740,7 @@ class Phabricator
                   if (new RegExp(r[2])).test i
                     return { colname: i, colphid: projectData.data.columns[i] }
             Promise.all(cols)
-            .then (cols) ->
+            .then (cols) =>
               cols = cols.filter (c) ->
                 c?
               if cols.length > 0
