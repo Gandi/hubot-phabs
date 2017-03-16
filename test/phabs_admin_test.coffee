@@ -175,6 +175,50 @@ describe 'phabs_admin module', ->
             expect(hubotResponse())
               .to.eql 'Sorry, unknown not found.'
 
+      context 'and is unknown to phabricator but name returns results', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'Bug Report': { },
+            'project with phid': { phid: 'PHID-PROJ-1234567' },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'project with phid',
+            bug: 'project with phid'
+          }
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/project.search')
+            .query({
+              'names[0]': 'project1',
+              'api.token': 'xxx'
+            })
+            .reply(200, { result: {
+              'data': [
+                {
+                  'id': '1402',
+                  'phid': 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+                  'fields': {
+                    'name': 'Bug Report 2',
+                    'parent': {
+                      'id': 42,
+                      'phid': 'PHID-PROJ-1234',
+                      'name': 'parent-project'
+                    }
+                  }
+                }
+              ]
+            } })
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'phad info unknown', ->
+          hubot 'phad info unknown'
+          it 'should reply with proper info', ->
+            expect(hubotResponse())
+              .to.eql 'Sorry, unknown not found.'
+
       context 'and is known to phabricator', ->
         beforeEach ->
           room.robot.brain.data.phabricator.projects = {
