@@ -12,7 +12,7 @@ Hubot-phabs Changelog
 - `.phad removeall from #channel` to remove catchall
 - `.phad info <project>` now stores and show parent project if any
   - NOTE: you may need to `.phad refresh <project>` on existing projects 
-    to re=populate the cached data.
+    to re-populate the cached data.
 - feeds now are also announced on parent projects feeds (useful for milestones)
 - fix on `.ph user x = email` to override previously recorded email
 
