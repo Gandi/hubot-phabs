@@ -1937,6 +1937,44 @@ describe 'phabs_commands module', ->
         it 'tells user that that task is actually not subscribed so, whatever', ->
           expect(hubotResponse()).to.eql 'toto is not subscribed to T424242'
 
+    context 'when the task is known, and not yet subscribed', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj1': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/user.query')
+          .reply(200, { result: [ ] })
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            'id': '424242',
+            'ccPHIDs': [
+              'PHID-USER-xxx'
+            ]
+          } })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 42 } } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab T424242 unsub nobody', ->
+        hubot 'ph T424242 unsub nobody', 'user_with_phid'
+        it 'tells user that that task is actually not subscribed so, whatever', ->
+          expect(hubotResponse())
+          .to.eql 'Sorry, I can\'t figure nobody email address. ' + 
+                  'Can you ask them to `.phab me as <email>`?'
+
+      context 'phab T424242 sub nobody', ->
+        hubot 'ph T424242 sub nobody', 'user_with_phid'
+        it 'tells user that that task is actually not subscribed so, whatever', ->
+          expect(hubotResponse())
+          .to.eql 'Sorry, I can\'t figure nobody email address. ' + 
+                  'Can you ask them to `.phab me as <email>`?'
+
 # --------------------------------------------------------------------------------------------------
   context 'user changes column for a task', ->
     beforeEach ->
@@ -1983,6 +2021,23 @@ describe 'phabs_commands module', ->
           it 'warns the user that this column was not found', ->
             expect(hubotResponse()).to.eql 'T424242 cannot be moved to pouet'
 
+      context 'with a column that is unknown', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.info')
+            .reply(200, { result: {
+              id: '424242',
+              projectPHIDs: [
+                'PHID-PROJ-qhmexneudkt62wc7o3z4'
+              ]
+            } })
+
+        context 'phab T424242 to nocolumns', ->
+          hubot 'ph T424242 to nocolumns', 'user_with_phid'
+          it 'tells the user what the error was', ->
+            expect(hubotResponse()).to.eql 'T424242 cannot be moved to nocolumns'
+
       context 'with a column that is known', ->
         context 'but an error occured', ->
           beforeEach ->
@@ -2002,6 +2057,7 @@ describe 'phabs_commands module', ->
             hubot 'ph T424242 to backlog', 'user_with_phid'
             it 'tells the user what the error was', ->
               expect(hubotResponse()).to.eql 'No object exists with ID "424242".'
+
 
         context 'and everything went fine', ->
           beforeEach ->
@@ -2675,6 +2731,44 @@ describe 'phabs_commands module', ->
                'column changed to backlog, status set to closed.'
           expect(hubotResponse(2)).to
           .eql 'toto is not subscribed to T42'
+
+      context 'phab T42 sub user_with_phid unsub toto to backlog in noproject', ->
+        beforeEach ->
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/project.search')
+            .query({
+              'names[0]': 'noproject',
+              'api.token': 'xxx'
+            })
+            .reply(200, { result: {
+              'data': [ ],
+              'slugMap': [ ],
+              'cursor': {
+                'limit': 100,
+                'after': null,
+                'before': null
+              }
+            } })
+
+        hubot 'ph T42 sub user_with_phid unsub toto to backlog in noproject', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to
+          .eql 'Ok, T42 now has subscribed user_with_phid, ' +
+               'column changed to backlog.'
+          expect(hubotResponse(2)).to
+          .eql 'toto is not subscribed to T42'
+          expect(hubotResponse(3)).to
+          .eql 'Sorry, noproject not found.'
+
+        hubot 'ph T42 sub user_with_phid unsub toto to backlog not in noproject', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to
+          .eql 'Ok, T42 now has subscribed user_with_phid, ' +
+               'column changed to backlog.'
+          expect(hubotResponse(2)).to
+          .eql 'toto is not subscribed to T42'
+          expect(hubotResponse(3)).to
+          .eql 'Sorry, noproject not found.'
 
 # --------------------------------------------------------------------------------------------------
   context 'user adds a comment on a task', ->
