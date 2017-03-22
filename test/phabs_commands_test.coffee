@@ -1965,14 +1965,14 @@ describe 'phabs_commands module', ->
         hubot 'ph T424242 unsub nobody', 'user_with_phid'
         it 'tells user that that task is actually not subscribed so, whatever', ->
           expect(hubotResponse())
-          .to.eql 'Sorry, I can\'t figure nobody email address. ' + 
+          .to.eql 'Sorry, I can\'t figure nobody email address. ' +
                   'Can you ask them to `.phab me as <email>`?'
 
       context 'phab T424242 sub nobody', ->
         hubot 'ph T424242 sub nobody', 'user_with_phid'
         it 'tells user that that task is actually not subscribed so, whatever', ->
           expect(hubotResponse())
-          .to.eql 'Sorry, I can\'t figure nobody email address. ' + 
+          .to.eql 'Sorry, I can\'t figure nobody email address. ' +
                   'Can you ask them to `.phab me as <email>`?'
 
 # --------------------------------------------------------------------------------------------------
