@@ -89,6 +89,59 @@ describe 'phabs_feeds module', ->
 
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  context 'it is a task but there is a problem contacting phabricator', ->
+    beforeEach ->
+      room.robot.brain.data.phabricator.projects = {
+        'Bug Report': {
+          phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+          feeds: [
+            'room1'
+          ]
+        },
+        'project with phid': { phid: 'PHID-PROJ-1234567' },
+      }
+      room.robot.brain.data.phabricator.aliases = {
+        bugs: 'Bug Report',
+        bug: 'Bug Report'
+      }
+      nock(process.env.PHABRICATOR_URL)
+        .get('/api/maniphest.search')
+        .query({
+          'constraints[phids][0]': 'PHID-TASK-sx2g66opn67h4yfl7wk6',
+          'attachments[projects]': '1',
+          'api.token': 'xxx'
+        })
+        .reply(500, { error: { code: 500, message: 'oops' } })
+
+      @postData = '{
+        "storyID": "7297",
+        "storyType": "PhabricatorApplicationTransactionFeedStory",
+        "storyData": {
+          "objectPHID": "PHID-TASK-sx2g66opn67h4yfl7wk6",
+          "transactionPHIDs": {
+            "PHID-XACT-TASK-fkyairn5ltzbzkj": "PHID-XACT-TASK-fkyairn5ltzbzkj",
+            "PHID-XACT-TASK-dh5r5rtwa5hpfia": "PHID-XACT-TASK-dh5r5rtwa5hpfia"
+          }
+        },
+        "storyAuthorPHID": "PHID-USER-qzoqvowxnb5k5screlji",
+        "storyText": "mose triaged T2569: setup webhooks as High priority.",
+        "epoch": "1469085410"
+      }'
+
+    afterEach ->
+      room.robot.brain.data.phabricator = { }
+      room.destroy()
+
+    it 'should not react', ->
+      expected = { }
+      phab = new Phabricator room.robot, process.env
+      phab.getFeed(JSON.parse(@postData))
+        .then (announce) ->
+          expect(announce).to.eql expected
+        .catch (e) ->
+          expect(e).to.eql 'http error 500'
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   context 'it is a task but is not in any feed', ->
     beforeEach ->
       room.robot.brain.data.phabricator.projects = {
