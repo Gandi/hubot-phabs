@@ -239,18 +239,18 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         permission: phuser
 
     .phab T123 to <column>
-    .phad to <column>
-    .phad T123 to <column> + some comment
-    .phad T123 to <column> = some comment
+    .phab to <column>
+    .phab T123 to <column> + some comment
+    .phab T123 to <column> = some comment
         moves the task on the board to the column matching the <column>
         the matching will take the first match.
         A comment can optionaly be added
         permission: phuser
 
     .phab T123 sub <user>
-    .phad sub <user>
-    .phad T123 sub <user> + some comment
-    .phad T123 unsub <user> = some comment
+    .phab sub <user>
+    .phab T123 sub <user> + some comment
+    .phab T123 unsub <user> = some comment
         subscribes and unsubscribes users to tasks.
         A comment can optionaly be added
         permission: phuser
