@@ -2585,6 +2585,11 @@ describe 'phabs_commands module', ->
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok, T42 now has owner set to user_with_phid.'
 
+      context 'phab T42 for user_with_phid', ->
+        hubot 'ph T42 for user_with_phid', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has owner set to user_with_phid.'
+
 # --------------------------------------------------------------------------------------------------
   context 'user issues various commands to a task', ->
     beforeEach ->
@@ -2711,6 +2716,13 @@ describe 'phabs_commands module', ->
 
       context 'phab T42 on user_with_phid to backlog is open sub toto', ->
         hubot 'ph T42 on user_with_phid to backlog is open sub toto', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to
+          .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog, ' +
+               'status set to open, subscribed toto.'
+
+      context 'phab T42 for user_with_phid to backlog is open sub toto', ->
+        hubot 'ph T42 for user_with_phid to backlog is open sub toto', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to
           .eql 'Ok, T42 now has owner set to user_with_phid, column changed to backlog, ' +

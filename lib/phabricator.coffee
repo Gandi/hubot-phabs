@@ -683,7 +683,7 @@ class Phabricator
           .catch (e) ->
             payload.notices.push(e)
             res payload
-        when 'on' or 'for'
+        when 'on', 'for'
           @getUser(user, { name: r[2] })
           .then (userphid) =>
             payload.data.push({ type: 'owner', value: userphid })

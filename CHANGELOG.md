@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.3.2 - 2017-03-22
+- fix `.phab Txx for user` as alias to `.phab Txx on user`
+
 ### 2.3.1 - 2017-03-15
 - `.phab Txx sub user` and unsub makes possible to add subscribers to tasks
   (and ubsubscribe)
