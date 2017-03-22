@@ -1989,6 +1989,37 @@ describe 'phabs_commands module', ->
         }
       }
 
+    context 'when task is in unknown project', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            id: 'T424242',
+            projectPHIDs: [
+              'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            ]
+          } })
+          .get('/api/project.search')
+          .query({
+            'names[0]': 'noproject',
+            'api.token': 'xxx'
+          })
+          .reply(200, { result: {
+            'data': [ ],
+            'slugMap': [ ],
+            'cursor': {
+              'limit': 100,
+              'after': null,
+              'before': null
+            }
+          } })
+
+      context 'phab T424242 to pouet', ->
+        hubot 'ph T424242 to pouet', 'user_with_phid'
+        it 'warns the user that this task has no tag', ->
+          expect(hubotResponse()).to.eql 'TT424242 cannot be moved to pouet'
+
     context 'when task is not in any project yet', ->
       beforeEach ->
         do nock.disableNetConnect
