@@ -2772,6 +2772,24 @@ describe 'phabs_commands module', ->
           expect(hubotResponse(3)).to
           .eql 'Sorry, noproject not found.'
 
+      context 'phab T42 sub user_with_phid unsub toto to backlog not in noproject', ->
+        beforeEach ->
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/project.search')
+            .query({
+              'names[0]': 'noproject',
+              'api.token': 'xxx'
+            })
+            .reply(200, { result: {
+              'data': [ ],
+              'slugMap': [ ],
+              'cursor': {
+                'limit': 100,
+                'after': null,
+                'before': null
+              }
+            } })
+
         hubot 'ph T42 sub user_with_phid unsub toto to backlog not in noproject', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to
