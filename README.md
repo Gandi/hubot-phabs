@@ -160,11 +160,17 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
 
 Requests can be done on arbitrary projects. Their PHID will be retrieved at first call and cached in hubot brain. Those projects can use aliases, like short names, interchangeably, for convenience (set them up using the `.phad` command).
 
-    .phab <project> search terms
-        will grab the 3 newest matches in tasks matching search terms.
+    .phab [all] <project> <search terms>
+        will grab the 3 newest matches in tasks matching search terms and included in project.
         note that there are some special rules:
         - non-alphanumeric chars will be mess up
         - the match is done on full-words: test won't match tests
+        - if the 'all' prefix is used, it will also search in task that are not in status 'open'
+        permission: all
+
+    .phab search [all] <search terms>
+        will grab the 3 newest matches in tasks matching search terms.
+        Same rules apply as the search per project/tag.
         permission: all
 
     .phab new <project> <task title>

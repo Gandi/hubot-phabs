@@ -3056,9 +3056,9 @@ describe 'phabs_commands module', ->
         hubot 'phab all proj3 gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1'
+            .to.eql 'http://example.com/T2490 - Task 1 (Resolved)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
           expect(hubotResponseCount()).to.eql 2
 
     context 'there is more than 3 results', ->
@@ -3185,11 +3185,11 @@ describe 'phabs_commands module', ->
         hubot 'phab all proj3 gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T2078 - Task 3'
+            .to.eql 'http://example.com/T2078 - Task 3 (Open)'
           expect(hubotResponse(4))
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 4
@@ -3355,9 +3355,9 @@ describe 'phabs_commands module', ->
         hubot 'phab search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
           expect(hubotResponseCount()).to.eql 2
 
     context 'there is more than 3 results', ->
@@ -3477,11 +3477,25 @@ describe 'phabs_commands module', ->
         hubot 'phab search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T2078 - Task 3'
+            .to.eql 'http://example.com/T2078 - Task 3 (Open)'
+          expect(hubotResponse(4))
+            .to.eql '... and there is more.'
+          expect(hubotResponseCount()).to.eql 4
+
+
+      context 'phab search all gitlab', ->
+        hubot 'phab search all gitlab'
+        it 'gives a list of results', ->
+          expect(hubotResponse())
+            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
+          expect(hubotResponse(2))
+            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
+          expect(hubotResponse(3))
+            .to.eql 'http://example.com/T2078 - Task 3 (Open)'
           expect(hubotResponse(4))
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 4
@@ -3629,9 +3643,9 @@ describe 'phabs_commands module', ->
         hubot 'phab proj3 gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
           expect(hubotResponseCount()).to.eql 2
 
     context 'there is more than 3 results', ->
@@ -3758,11 +3772,11 @@ describe 'phabs_commands module', ->
         hubot 'phab proj3 gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T2078 - Task 3'
+            .to.eql 'http://example.com/T2078 - Task 3 (Open)'
           expect(hubotResponse(4))
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 4

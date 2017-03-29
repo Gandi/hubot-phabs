@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.3.3 - 2017-03-29
+- add a `.ph search [all] <terms>` to search in tasks across various projects
+
 ### 2.3.2 - 2017-03-22
 - fix `.phab Txx for user` as alias to `.phab Txx on user`
 

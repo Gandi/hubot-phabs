@@ -28,6 +28,8 @@
 #   hubot phab <user> - checks if user is known or not
 #   hubot phab me as <email> - makes caller known with <email>
 #   hubot phab <user> = <email> - associates user to email
+#   hubot phab search [all] earch terms - searches for terms in tasks ([all] to search non-open)
+#   hubot phab [all] <project> search terms - searches for terms in tasks in project ([all] to search non-open)
 #
 # Author:
 #   mose
@@ -46,14 +48,6 @@ module.exports = (robot) ->
     pkg = require path.join __dirname, '..', 'package.json'
     msg.send "hubot-phabs module is version #{pkg.version}"
     msg.finish()
-
-  # robot.respond /ph phid (.+) *$/, (msg) ->
-  #   phab.getProject(msg.match[1])
-  #   .then (proj) ->
-  #     msg.send proj.data.phid
-  #   .catch (e) ->
-  #     msg.send e
-  #   msg.finish()
 
   #   hubot phab new <project>[:<template>] <name of the task>
   robot.respond (
@@ -355,58 +349,47 @@ module.exports = (robot) ->
       msg.send e
     msg.finish()
 
-  #   hubot phab all <project> search terms - searches for terms in project
-  robot.respond /ph(?:ab)? search (.+)$/, (msg) ->
-    terms = msg.match[1]
-    phab.searchAllTask(terms)
+  #   hubot phab search [all] <project> search terms - searches for terms in project
+  robot.respond /ph(?:ab)? search( all)? (.+)$/, (msg) ->
+    status =  if msg.match[1]?
+                'open'
+              else
+                undefined
+    terms = msg.match[2]
+    phab.searchAllTask(terms, status)
     .then (payload) ->
       if payload.result.data.length is 0
         msg.send "There is no task matching '#{terms}'."
       else
         for task in payload.result.data
-          msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
+          msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}" +
+                   " (#{task.fields.status.name})"
         if payload.result.cursor.after?
           msg.send '... and there is more.'
     .catch (e) ->
       msg.send e
     msg.finish()
 
-  #   hubot phab all <project> search terms - searches for terms in project
-  robot.respond /ph(?:ab)? all ([^ ]+) (.+)$/, (msg) ->
-    project = msg.match[1]
-    terms = msg.match[2]
+  #   hubot phab [all] <project> search terms - searches for terms in project
+  robot.respond /ph(?:ab)?( all)? ([^ ]+) (.+)$/, (msg) ->
+    status =  if msg.match[1]?
+                'open'
+              else
+                undefined
+    project = msg.match[2]
+    terms = msg.match[3]
     name = null
     phab.getProject(project)
     .then (proj) ->
       name = proj.data.name
-      phab.searchTask(proj.data.phid, terms)
+      phab.searchTask(proj.data.phid, terms, status)
     .then (payload) ->
       if payload.result.data.length is 0
         msg.send "There is no task matching '#{terms}' in project '#{name}'."
       else
         for task in payload.result.data
-          msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
-        if payload.result.cursor.after?
-          msg.send '... and there is more.'
-    .catch (e) ->
-      msg.send e
-    msg.finish()
-
-  #   hubot phab <project> search terms - searches for terms in project
-  robot.respond /ph(?:ab)? ([^ ]+) (.+)$/, (msg) ->
-    project = msg.match[1]
-    terms = msg.match[2]
-    name = null
-    phab.getProject(project)
-    .then (proj) ->
-      name = proj.data.name
-      phab.searchTask(proj.data.phid, terms, 'open')
-    .then (payload) ->
-      if payload.result.data.length is 0
-        msg.send "There is no task matching '#{terms}' in project '#{name}'."
-      else
-        for task in payload.result.data
-          msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
+          msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}" +
+                   " (#{task.fields.status.name})"
         if payload.result.cursor.after?
           msg.send '... and there is more.'
     .catch (e) ->
