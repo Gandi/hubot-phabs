@@ -352,9 +352,9 @@ module.exports = (robot) ->
   #   hubot phab search [all] <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)? search( all)? (.+)$/, (msg) ->
     status =  if msg.match[1]?
-                'open'
-              else
                 undefined
+              else
+                'open'
     terms = msg.match[2]
     phab.searchAllTask(terms, status)
     .then (payload) ->
@@ -373,9 +373,9 @@ module.exports = (robot) ->
   #   hubot phab [all] <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)?( all)? ([^ ]+) (.+)$/, (msg) ->
     status =  if msg.match[1]?
-                'open'
-              else
                 undefined
+              else
+                'open'
     project = msg.match[2]
     terms = msg.match[3]
     name = null
