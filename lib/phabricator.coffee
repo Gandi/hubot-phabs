@@ -467,20 +467,20 @@ class Phabricator
     query = { 'names[]': name }
     @request query, 'phid.lookup'
 
-  searchTask: (phid, terms, limit = 3) ->
+  searchTask: (phid, terms, status = false, limit = 3) ->
     query = {
       'constraints[fulltext]': terms,
-      'constraints[statuses][0]': 'open',
       'constraints[projects][0]': phid,
       'order': 'newest',
       'limit': limit
     }
+    if status?
+      query['constraints[statuses][0]'] = status
     @request query, 'maniphest.search'
 
-  searchAllTask: (phid, terms, limit = 3) ->
+  searchAllTask: (terms, limit = 3) ->
     query = {
       'constraints[fulltext]': terms,
-      'constraints[projects][0]': phid,
       'order': 'newest',
       'limit': limit
     }

@@ -356,6 +356,22 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab all <project> search terms - searches for terms in project
+  robot.respond /ph(?:ab)? search (.+)$/, (msg) ->
+    terms = msg.match[1]
+    phab.searchAllTask(terms)
+    .then (payload) ->
+      if payload.result.data.length is 0
+        msg.send "There is no task matching '#{terms}'."
+      else
+        for task in payload.result.data
+          msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}"
+        if payload.result.cursor.after?
+          msg.send '... and there is more.'
+    .catch (e) ->
+      msg.send e
+    msg.finish()
+
+  #   hubot phab all <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)? all ([^ ]+) (.+)$/, (msg) ->
     project = msg.match[1]
     terms = msg.match[2]
@@ -363,7 +379,7 @@ module.exports = (robot) ->
     phab.getProject(project)
     .then (proj) ->
       name = proj.data.name
-      phab.searchAllTask(proj.data.phid, terms)
+      phab.searchTask(proj.data.phid, terms)
     .then (payload) ->
       if payload.result.data.length is 0
         msg.send "There is no task matching '#{terms}' in project '#{name}'."
@@ -384,7 +400,7 @@ module.exports = (robot) ->
     phab.getProject(project)
     .then (proj) ->
       name = proj.data.name
-      phab.searchTask(proj.data.phid, terms)
+      phab.searchTask(proj.data.phid, terms, 'open')
     .then (payload) ->
       if payload.result.data.length is 0
         msg.send "There is no task matching '#{terms}' in project '#{name}'."
