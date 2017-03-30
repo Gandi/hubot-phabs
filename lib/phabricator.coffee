@@ -10,6 +10,7 @@
 #  PHABRICATOR_TRUSTED_USERS
 #  PHABRICATOR_ENABLED_ITEMS
 #  PHABRICATOR_LAST_TASK_LIFETIME
+#  PHABRICATOR_FEED_EVERYTHING
 #
 # Author:
 #   mose
@@ -167,12 +168,21 @@ class Phabricator
 
   getFeed: (payload) =>
     return new Promise (res, err) =>
-      if /^PHID-TASK-/.test payload.storyData.objectPHID
+      data = @data
+      if process.env.PHABRICATOR_FEED_EVERYTHING? and
+         process.env.PHABRICATOR_FEED_EVERYTHING isnt '0' and
+         data.projects['*']?
+        announces = { message: payload.storyText }
+        announces.rooms = []
+        for room in data.projects['*'].feeds
+          if announces.rooms.indexOf(room) is -1
+            announces.rooms.push room
+        res announces
+      else if /^PHID-TASK-/.test payload.storyData.objectPHID
         query = {
           'constraints[phids][0]': payload.storyData.objectPHID,
           'attachments[projects]': 1
         }
-        data = @data
         @request(query, 'maniphest.search')
         .then (body) ->
           announces = { message: payload.storyText }

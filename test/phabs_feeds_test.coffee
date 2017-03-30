@@ -75,18 +75,88 @@ describe 'phabs_feeds module', ->
     afterEach ->
       room.destroy()
 
-    it 'should not react', ->
-      expected = {
-        message: 'mose triaged T2569: setup webhooks as High priority.',
-        rooms: [ ]
-      }
-      phab = new Phabricator room.robot, process.env
-      phab.getFeed(JSON.parse(@postData))
-        .then (announce) ->
-          null
-        .catch (e) ->
-          expect(e).to.eql 'no room to announce in'
+    context 'and there is no feedall with everything enabled', ->
+      it 'should not react', ->
+        phab = new Phabricator room.robot, process.env
+        phab.getFeed(JSON.parse(@postData))
+          .then (announce) ->
+            null
+          .catch (e) ->
+            expect(e).to.eql 'no room to announce in'
 
+    context 'and there is a feedall but no feed_everything var', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          '*': {
+            feeds: [
+              'room1'
+            ]
+          }
+        }
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+
+      it 'should announce on the room', ->
+        expected = {
+          message: 'ash created P6 new test paste.',
+          rooms: [ 'room1' ]
+        }
+        phab = new Phabricator room.robot, process.env
+        phab.getFeed(JSON.parse(@postData))
+          .then (announce) ->
+            null
+          .catch (e) ->
+            expect(e).to.eql 'no room to announce in'
+
+    context 'and there is a feedall but a disabled feed_everything var', ->
+      beforeEach ->
+        process.env.PHABRICATOR_FEED_EVERYTHING = '0'
+        room.robot.brain.data.phabricator.projects = {
+          '*': {
+            feeds: [
+              'room1'
+            ]
+          }
+        }
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        delete process.env.PHABRICATOR_FEED_EVERYTHING
+
+      it 'should announce on the room', ->
+        expected = {
+          message: 'ash created P6 new test paste.',
+          rooms: [ 'room1' ]
+        }
+        phab = new Phabricator room.robot, process.env
+        phab.getFeed(JSON.parse(@postData))
+          .then (announce) ->
+            null
+          .catch (e) ->
+            expect(e).to.eql 'no room to announce in'
+
+    context 'and there is a feedall', ->
+      beforeEach ->
+        process.env.PHABRICATOR_FEED_EVERYTHING = '1'
+        room.robot.brain.data.phabricator.projects = {
+          '*': {
+            feeds: [
+              'room1'
+            ]
+          }
+        }
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        delete process.env.PHABRICATOR_FEED_EVERYTHING
+
+      it 'should announce on the room', ->
+        expected = {
+          message: 'ash created P6 new test paste.',
+          rooms: [ 'room1' ]
+        }
+        phab = new Phabricator room.robot, process.env
+        phab.getFeed(JSON.parse(@postData))
+          .then (announce) ->
+            expect(announce).to.eql expected
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   context 'it is a task but there is a problem contacting phabricator', ->

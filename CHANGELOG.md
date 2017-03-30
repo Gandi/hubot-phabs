@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.3.4 - 2017-03-30
+- add a PHABRICATOR_FEED_EVERYTHING to have non-tasks events announce with the feedall feature.
+
 ### 2.3.3 - 2017-03-29
 - add a `.ph search [all] <terms>` to search in tasks across various projects
 

@@ -87,7 +87,7 @@ If you use `hubot-auth`
 You also should use `hubot-restrict-ip` to limit the access to the web endpoints (api and feeds endpoints), or serve only on localhost (`EXPRESS_BIND_ADDRESS=127.0.0.1`) and use a proxy to access those endpoints.
 
 - `PHABRICATOR_ENABLED_ITEMS` - is used with feature `hear` to limit what kind of objects are commonly used in your instance of Phabricator
-
+- `PHABRICATOR_FEED_EVERYTHING` - if set to a value that is not '0' (like 1 or yes), then the feedall feature will not only announce tasks. Note that this option only applies to the `.ph feedall to <room>` case, not to specific projects feeds.
 
 
 Features
@@ -432,7 +432,8 @@ Some configuration variables are stored the brain. They are managed by the phabs
 
     .phad feedall to <room>
         creates a catchall feed to <room>.
-        Only tasks are included in this feed.
+        Only tasks are included in this feed 
+        unless the var PHABRICATOR_FEED_EVERYTHING is set and is not set to '0'
         permission: phadmin
 
     .phad removeall from <room>
