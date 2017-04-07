@@ -43,7 +43,8 @@
     "mocha": "~3.0.2",
     "nock": "~8.0.0",
     "sinon": "~1.4.2",
-    "sinon-chai": "~2.8.0"
+    "sinon-chai": "~2.8.0",
+    "sloc": "^0.2.0"
   },
   "scripts": {
     "test": "make test",

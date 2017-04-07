@@ -50,4 +50,11 @@ test-cov:
 lint:
 	@NODE_ENV=test ./node_modules/.bin/coffeelint test/* scripts/* lib/* index.coffee
 
-.PHONY: test test-spec test-w test-coverage test-cov test-full lint
+sloc:
+	@NODE_ENV=test ./node_modules/.bin/sloc --details \
+       --format cli-table \
+       --keys total,source,comment \
+       --exclude i18n*.\.coffee \
+       scripts/ lib/ test/
+
+.PHONY: test test-spec test-w test-coverage test-cov test-full lint sloc
