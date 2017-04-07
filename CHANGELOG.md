@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.3.5 - wip
+- make possible to use "me" in assignment and subscription
+  (which makes "me" a restricted name that nobody should use unless looking for trouble)
+
 ### 2.3.4 - 2017-03-30
 - add a PHABRICATOR_FEED_EVERYTHING to have non-tasks events announce with the feedall feature.
 
