@@ -244,8 +244,8 @@ describe 'phabs_admin module', ->
                     'name': 'Bug Report',
                     'parent': {
                       'id': 42,
-                      'phid': 'PHID-PROJ-1234',
-                      'name': 'parent-project'
+                      'phid': 'PHID-PROJ-1234567',
+                      'name': 'project with phid'
                     }
                   }
                 }
@@ -286,14 +286,46 @@ describe 'phabs_admin module', ->
           hubot 'phad info Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'Bug Report' is 'Bug Report' (aka bug_report), " +
-                      'with no feed, and no columns (child of parent-project).'
+              .to.eql "'Bug Report' is 'project with phid/Bug Report' " +
+                      '(aka project_with_phid_bug_report), ' +
+                      'with no feed, and no columns (child of project with phid).'
           it 'should remember the phid from asking to phabricator', ->
-            expect(room.robot.brain.data.phabricator.projects['Bug Report'].phid)
+            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
-            expect(room.robot.brain.data.phabricator.projects['Bug Report'].parent)
-              .to.eql 'parent-project'
+            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].parent)
+              .to.eql 'project with phid'
 
+        context 'phad info parent-project / Bug Report', ->
+          hubot 'phad info parent-project / Bug Report'
+          it 'should reply with proper info', ->
+            expect(hubotResponse())
+              .to.eql 'Parent project parent-project not found. Please .phad info parent-project'
+
+        context 'phad info project with phid / Bug Report', ->
+          hubot 'phad info project with phid / Bug Report'
+          it 'should reply with proper info', ->
+            expect(hubotResponse())
+              .to.eql "'project with phid / Bug Report' is 'project with phid/Bug Report' " +
+                      '(aka project_with_phid_bug_report), ' +
+                      'with no feed, and no columns (child of project with phid).'
+          it 'should remember the phid from asking to phabricator', ->
+            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].phid)
+              .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].parent)
+              .to.eql 'project with phid'
+
+        context 'phad info project with phid/Bug Report', ->
+          hubot 'phad info project with phid/Bug Report'
+          it 'should reply with proper info', ->
+            expect(hubotResponse())
+              .to.eql "'project with phid/Bug Report' is 'project with phid/Bug Report' " +
+                      '(aka project_with_phid_bug_report), ' +
+                      'with no feed, and no columns (child of project with phid).'
+          it 'should remember the phid from asking to phabricator', ->
+            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].phid)
+              .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].parent)
+              .to.eql 'project with phid'
 
       context 'and is known to phabricator', ->
         beforeEach ->

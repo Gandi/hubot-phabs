@@ -60,7 +60,11 @@ module.exports = (robot) ->
     project = msg.match[2]
     phab.getProject(project, refresh)
     .then (proj) ->
-      response = "'#{project}' is '#{proj.data.name}'"
+      response = "'#{project}' is"
+      if proj.data.parent?
+        response += " '#{proj.data.parent}/#{proj.data.name}'"
+      else
+        response += " '#{proj.data.name}'"
       if proj.aliases? and proj.aliases.length > 0
         response += " (aka #{proj.aliases.join(', ')})"
       else

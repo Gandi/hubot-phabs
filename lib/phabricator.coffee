@@ -243,6 +243,8 @@ class Phabricator
     @searchProject(project)
     .then (projectinfo) =>
       projectname = projectinfo.name
+      if projectinfo.parent?
+        projectname = projectinfo.parent + '/' + projectname
       data.projects[projectname] = projectinfo
       if @aliasize(projectname) isnt projectname
         data.aliases[@aliasize(projectname)] = projectname
@@ -282,9 +284,27 @@ class Phabricator
   searchProject: (project) ->
     return new Promise (res, err) =>
       if /^PHID-PROJ-/.test project
-        query = { 'constraints[phid]': project }
+        query = { 'constraints[phids][0]': project }
       else
-        query = { 'constraints[name]': project }
+        if /\//.test project
+          [ parent, project ] = project.split(/\s*\/\s*/)
+          parent_phid = undefined
+          if @data.projects[parent]?
+            parent_phid = @data.projects[parent].phid
+          else
+            for a, p of @data.aliases
+              if a is project and @data.projects[p]?
+                parent_phid = @data.projects[p].phid
+                break
+          if parent_phid?
+            query = {
+              'constraints[name]': project,
+              'constraints[parents][0]': parent_phid
+            }
+          else
+            err "Parent project #{parent} not found. Please .phad info #{parent}"
+        else
+          query = { 'constraints[name]': project }
       @request(query, 'project.search')
       .then (body) =>
         data = body.result.data
