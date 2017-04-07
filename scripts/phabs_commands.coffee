@@ -29,7 +29,7 @@
 #   hubot phab me as <email> - makes caller known with <email>
 #   hubot phab <user> = <email> - associates user to email
 #   hubot phab search [all] earch terms - searches for terms in tasks ([all] to search non-open)
-#   hubot phab [all] <project> search terms - searches for terms in tasks in project ([all] to search non-open)
+#   hubot phab [all] <project> search terms - searches terms in project ([all] to search non-open)
 #
 # Author:
 #   mose
@@ -351,10 +351,10 @@ module.exports = (robot) ->
 
   #   hubot phab search [all] <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)? search( all)? (.+)$/, (msg) ->
-    status =  if msg.match[1]?
-                undefined
-              else
-                'open'
+    status = if msg.match[1]?
+      undefined
+    else
+      'open'
     terms = msg.match[2]
     phab.searchAllTask(terms, status)
     .then (payload) ->
@@ -372,10 +372,10 @@ module.exports = (robot) ->
 
   #   hubot phab [all] <project> search terms - searches for terms in project
   robot.respond /ph(?:ab)?( all)? ([^ ]+) (.+)$/, (msg) ->
-    status =  if msg.match[1]?
-                undefined
-              else
-                'open'
+    status = if msg.match[1]?
+      undefined
+    else
+      'open'
     project = msg.match[2]
     terms = msg.match[3]
     name = null

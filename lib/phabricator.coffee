@@ -354,6 +354,8 @@ class Phabricator
       
   getUser: (from, user) =>
     return new Promise (res, err) =>
+      if user.name is 'me'
+        user = from
       unless user.id?
         user.id = user.name
       if @data.users[user.id]?.phid?
@@ -698,6 +700,8 @@ class Phabricator
         when 'on', 'for'
           @getUser(user, { name: r[2] })
           .then (userphid) =>
+            if r[2] is 'me'
+              r[2] = user.name
             payload.data.push({ type: 'owner', value: userphid })
             payload.messages.push("owner set to #{r[2]}")
             next = str.trim().replace(p, '')
@@ -711,6 +715,8 @@ class Phabricator
         when 'sub'
           @getUser(user, { name: r[2] })
           .then (userphid) =>
+            if r[2] is 'me'
+              r[2] = user.name
             if userphid not in item.ccPHIDs
               payload.data.push({ type: 'subscribers.add', value: [userphid] })
               payload.messages.push("subscribed #{r[2]}")

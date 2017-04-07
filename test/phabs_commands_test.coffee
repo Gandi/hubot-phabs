@@ -1883,6 +1883,11 @@ describe 'phabs_commands module', ->
         it 'tells the user that the task is now in the subscribed', ->
           expect(hubotResponse()).to.eql 'Ok, T424242 now has subscribed toto.'
 
+      context 'phab T424242 sub me', ->
+        hubot 'ph T424242 sub me', 'user_with_phid'
+        it 'tells the user that the task is now in the subscribed', ->
+          expect(hubotResponse()).to.eql 'Ok, T424242 now has subscribed user_with_phid.'
+
     context 'when the task is known, and already subscribed', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
@@ -2618,6 +2623,11 @@ describe 'phabs_commands module', ->
 
       context 'phab T42 for user_with_phid', ->
         hubot 'ph T42 for user_with_phid', 'user_with_phid'
+        it 'gives a feedback that the assignment went ok', ->
+          expect(hubotResponse()).to.eql 'Ok, T42 now has owner set to user_with_phid.'
+
+      context 'phab T42 for me', ->
+        hubot 'ph T42 for me', 'user_with_phid'
         it 'gives a feedback that the assignment went ok', ->
           expect(hubotResponse()).to.eql 'Ok, T42 now has owner set to user_with_phid.'
 
@@ -3534,7 +3544,7 @@ describe 'phabs_commands module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(500, { result: { message: "oops" } })
+          .reply(500, { result: { message: 'oops' } })
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
@@ -3543,7 +3553,7 @@ describe 'phabs_commands module', ->
       context 'phab search gitlab', ->
         hubot 'phab search gitlab'
         it 'gives a message that there is an error', ->
-          expect(hubotResponse()).to.eql "http error 500"
+          expect(hubotResponse()).to.eql 'http error 500'
           expect(hubotResponseCount()).to.eql 1
 
 # --------------------------------------------------------------------------------------------------
@@ -3828,7 +3838,7 @@ describe 'phabs_commands module', ->
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(500, { result: { message: "oops" } })
+          .reply(500, { result: { message: 'oops' } })
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
@@ -3837,7 +3847,7 @@ describe 'phabs_commands module', ->
       context 'phab proj3 gitlab', ->
         hubot 'phab proj3 gitlab'
         it 'gives a message that there is an error', ->
-          expect(hubotResponse()).to.eql "http error 500"
+          expect(hubotResponse()).to.eql 'http error 500'
           expect(hubotResponseCount()).to.eql 1
 
 # --------------------------------------------------------------------------------------------------
