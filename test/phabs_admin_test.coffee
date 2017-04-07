@@ -327,6 +327,20 @@ describe 'phabs_admin module', ->
             expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].parent)
               .to.eql 'project with phid'
 
+        context 'phad info bugs /Bug Report', ->
+          hubot 'phad info bugs /Bug Report'
+          it 'should reply with proper info', ->
+            expect(hubotResponse())
+              .to.eql "'bugs /Bug Report' is 'project with phid/Bug Report' " +
+                      '(aka project_with_phid_bug_report), ' +
+                      'with no feed, and no columns (child of project with phid).'
+          it 'should remember the phid from asking to phabricator', ->
+            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].phid)
+              .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].parent)
+              .to.eql 'project with phid'
+
+
       context 'and is known to phabricator', ->
         beforeEach ->
           room.robot.brain.data.phabricator.projects = {

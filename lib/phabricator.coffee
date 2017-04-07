@@ -293,7 +293,7 @@ class Phabricator
             parent_phid = @data.projects[parent].phid
           else
             for a, p of @data.aliases
-              if a is project and @data.projects[p]?
+              if a is parent and @data.projects[p]?
                 parent_phid = @data.projects[p].phid
                 break
           if parent_phid?
