@@ -1275,7 +1275,7 @@ describe 'phabs_commands module', ->
       context 'when project is unknown', ->
         hubot 'phab new proj2 a task', 'user_with_phid'
         it 'replies that project is unknown', ->
-          expect(hubotResponse()).to.eql 'Sorry, proj2 not found.'
+          expect(hubotResponse()).to.eql 'Sorry, tag proj2 not found.'
 
 
     context 'phab new proj3 a task', ->
@@ -1309,7 +1309,7 @@ describe 'phabs_commands module', ->
       context 'when project is unknown', ->
         hubot 'phab new proj3 a task', 'user_with_phid'
         it 'replies that project is unknown', ->
-          expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
+          expect(hubotResponse()).to.eql 'Sorry, tag proj3 not found.'
 
 # --------------------------------------------------------------------------------------------------
   context 'user creates a new task with a template, ', ->
@@ -1616,7 +1616,7 @@ describe 'phabs_commands module', ->
       context 'when project is unknown', ->
         hubot 'phab new proj3:template1 a task', 'user_with_phid'
         it 'replies that project is unknown', ->
-          expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
+          expect(hubotResponse()).to.eql 'Sorry, tag proj3 not found.'
 
 # --------------------------------------------------------------------------------------------------
   context 'someone creates a new paste', ->
@@ -1743,7 +1743,7 @@ describe 'phabs_commands module', ->
       context 'when project is unknown', ->
         hubot 'phab count proj3', 'user_with_phid'
         it 'replies that project is unknown', ->
-          expect(hubotResponse()).to.eql 'Sorry, proj3 not found.'
+          expect(hubotResponse()).to.eql 'Sorry, tag proj3 not found.'
 
 # --------------------------------------------------------------------------------------------------
   context 'user changes tags for a task', ->
@@ -1988,6 +1988,11 @@ describe 'phabs_commands module', ->
         hubot 'ph T424242 unsub toto', 'user_with_phid'
         it 'tells user that task has been unsubscribed', ->
           expect(hubotResponse()).to.eql 'Ok, T424242 now has unsubscribed toto.'
+
+      context 'phab T424242 unsub me', ->
+        hubot 'ph T424242 unsub me', 'user_with_phid'
+        it 'tells user that task has been unsubscribed', ->
+          expect(hubotResponse()).to.eql 'Ok, T424242 now has unsubscribed user_with_phid.'
 
     context 'when the task is known, and not yet subscribed', ->
       beforeEach ->
@@ -2885,7 +2890,7 @@ describe 'phabs_commands module', ->
           expect(hubotResponse(2)).to
           .eql 'toto is not subscribed to T42'
           expect(hubotResponse(3)).to
-          .eql 'Sorry, noproject not found.'
+          .eql 'Sorry, tag noproject not found.'
 
       context 'phab T42 sub user_with_phid unsub toto to backlog not in noproject', ->
         beforeEach ->
@@ -2913,7 +2918,7 @@ describe 'phabs_commands module', ->
           expect(hubotResponse(2)).to
           .eql 'toto is not subscribed to T42'
           expect(hubotResponse(3)).to
-          .eql 'Sorry, noproject not found.'
+          .eql 'Sorry, tag noproject not found.'
 
 # --------------------------------------------------------------------------------------------------
   context 'user adds a comment on a task', ->
@@ -3346,7 +3351,7 @@ describe 'phabs_commands module', ->
       context 'when project is unknown', ->
         hubot 'phab all proj4 gitlab', 'user_with_phid'
         it 'replies that project is unknown', ->
-          expect(hubotResponse()).to.eql 'Sorry, proj4 not found.'
+          expect(hubotResponse()).to.eql 'Sorry, tag proj4 not found.'
 
 
 # --------------------------------------------------------------------------------------------------

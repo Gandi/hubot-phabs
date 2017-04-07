@@ -173,7 +173,7 @@ describe 'phabs_admin module', ->
           hubot 'phad info unknown'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql 'Sorry, unknown not found.'
+              .to.eql 'Sorry, tag unknown not found.'
 
       context 'and is unknown to phabricator but name returns results', ->
         beforeEach ->
@@ -217,7 +217,7 @@ describe 'phabs_admin module', ->
           hubot 'phad info unknown'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql 'Sorry, unknown not found.'
+              .to.eql 'Sorry, tag unknown not found.'
 
       context 'and is known to phabricator', ->
         beforeEach ->
@@ -662,7 +662,7 @@ describe 'phabs_admin module', ->
         hubot 'phad alias project1 as bug'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql 'Sorry, project1 not found.'
+            .to.eql 'Sorry, tag project1 not found.'
 
     context 'when the alias already exists', ->
       beforeEach ->
@@ -803,7 +803,7 @@ describe 'phabs_admin module', ->
         hubot 'phad feed project1 to #dev'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql 'Sorry, project1 not found.'
+            .to.eql 'Sorry, tag project1 not found.'
 
     context 'but the feed already exists', ->
       beforeEach ->
@@ -947,7 +947,7 @@ describe 'phabs_admin module', ->
         hubot 'phad remove project1 from #dev'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql 'Sorry, project1 not found.'
+            .to.eql 'Sorry, tag project1 not found.'
 
     context 'and phabricator reports an error', ->
       beforeEach ->
