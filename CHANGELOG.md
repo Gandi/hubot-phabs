@@ -1,6 +1,12 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.4.0 - 2017-04-07
+- make possible to get info on project sub-projects
+  with `.phad info <parent> / <subproject>`
+  it will make possible to also enable the subfeed feature
+  (so all tasks in subproject are displayed in the parent feed)
+
 ### 2.3.6 - 2017-04-07
 - fix feedback message for .ph unsub me
 - fix 'tag not found' message for it to be more epxlicit

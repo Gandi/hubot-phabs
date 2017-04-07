@@ -409,6 +409,12 @@ Some configuration variables are stored the brain. They are managed by the phabs
         gives info about <project>, including aliases, feeds and columns
         permission: all
 
+    .phad info <parent> / <project>
+    .phad show <parent> / <project>
+        gives info about <project> given that it is a subproject or milestone of <parent>, 
+        retunred information includes aliases, feeds and columns
+        permission: all
+
     .phad refresh <project>
         refresh info for <project> form phabricator
         typically useful when there are new columns in a workboard
