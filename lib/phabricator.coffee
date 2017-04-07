@@ -423,14 +423,17 @@ class Phabricator
           @recordId user, id
           res id
       else
-        user.lastTask ?= moment().utc().format()
-        lifetime = process.env.PHABRICATOR_LAST_TASK_LIFETIME or 60
-        expires_at = moment(user.lastTask).add(lifetime, 'minutes')
-        if user.lastId? and moment().utc().isBefore(expires_at)
-          user.lastTask = moment().utc().format()
+        if user.lastId? and process.env.PHABRICATOR_LAST_TASK_LIFETIME is '-'
           res user.lastId
         else
-          err "Sorry, you don't have any task active right now."
+          user.lastTask ?= moment().utc().format()
+          lifetime = process.env.PHABRICATOR_LAST_TASK_LIFETIME or 60
+          expires_at = moment(user.lastTask).add(lifetime, 'minutes')
+          if user.lastId? and moment().utc().isBefore(expires_at)
+            user.lastTask = moment().utc().format()
+            res user.lastId
+          else
+            err "Sorry, you don't have any task active right now."
 
   getUserByPhid: (phid) ->
     return new Promise (res, err) =>

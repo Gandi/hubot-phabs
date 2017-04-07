@@ -78,7 +78,7 @@ Configuration
 
 - `PHABRICATOR_URL` - main url of your Phabricator instance
 - `PHABRICATOR_API_KEY` - api key for the bot user
-- `PHABRICATOR_LAST_TASK_LIFETIME` - how long the last task is remembered for each user (default 60 min)
+- `PHABRICATOR_LAST_TASK_LIFETIME` - how long the last task is remembered for each user (default 60 min). If set to "0" there is memory on the last task remembered. If set to "-" the memory is never expired.
 
 If you use `hubot-auth`
 - `HUBOT_AUTH_ADMIN` - hardcoded list of hubot admins
@@ -181,7 +181,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         The issuer of the command will be added in the list of subscribers
         for the newly created task.
         The <description> is optional, and will be used as description if provided
-        NOTE: this call will record this Task id associated to you for 5 minutes
+        NOTE: this call will record this Task id associated to you for 1 hour
         permission: phuser
 
     .phab new <project>:<template> <task title>
@@ -198,7 +198,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab T123
     .phab
         gives the status, priority and owner of the task xxx
-        NOTE: this call will record this Task id associated to you for 5 minutes
+        NOTE: this call will record this Task id associated to you for 1 hour
         permission: all
 
     .phab T123 + <some comment>
@@ -233,7 +233,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         - normal                  -> Normal
         - low                     -> Low
         - wish, wishlist          -> Whishlist
-        NOTE: this call will record this Task id associated to you for 5 minutes
+        NOTE: this call will record this Task id associated to you for 1 hour
         permission: phuser
 
     .phab T123 on <someone>
@@ -241,7 +241,8 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
         assigns the given task to a user (or the given user to the task, 
         which is exactly the same). 
         The 'for' and 'on' conjunctions are inter-changeable.
-        NOTE: this call will record this Task id associated to you for 5 minutes
+        You can use 'me' as username and it will substitute your username
+        NOTE: this call will record this Task id associated to you for 1 hour
         permission: phuser
 
     .phab T123 to <column>
@@ -258,7 +259,8 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab T123 sub <user> + some comment
     .phab T123 unsub <user> = some comment
         subscribes and unsubscribes users to tasks.
-        A comment can optionaly be added
+        A comment can optionaly be added.
+        You can use 'me' as username and it will substitute your username
         permission: phuser
 
     .phab T123 on <someone> is low is open to <column>

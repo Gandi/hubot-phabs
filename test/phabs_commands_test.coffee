@@ -1508,6 +1508,80 @@ describe 'phabs_commands module', ->
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
           expect(hubotResponse(3)).to.eql 'T24 - some task (open, Low, owner user_with_phid)'
 
+    context 'implicit re-use of the object id with no memorization', ->
+      beforeEach ->
+        process.env.PHABRICATOR_LAST_TASK_LIFETIME = "0"
+        room.robot.brain.data.phabricator.projects = {
+          'proj2': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: { description: 'some templated description' } })
+          .get('/api/user.query')
+          .reply(200, { result: [ { phid: 'PHID-USER-42', userName: 'user_with_phid' } ] })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 24 } } })
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            title: 'some task',
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-123456789'
+            } })
+
+      afterEach ->
+        delete process.env.PHABRICATOR_LAST_TASK_LIFETIME
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'phab new proj2:template1 a task', 'user_with_phid'
+        hubot 'ph', 'user_with_phid'
+        it 'replies with the object id', ->
+          expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
+          expect(hubotResponse(3)).to.eql 'Sorry, you don\'t have any task active right now.'
+
+    context 'implicit re-use of the object id with no expiration', ->
+      beforeEach ->
+        process.env.PHABRICATOR_LAST_TASK_LIFETIME = "-"
+        room.robot.brain.data.phabricator.projects = {
+          'proj2': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.info')
+          .reply(200, { result: { description: 'some templated description' } })
+          .get('/api/user.query')
+          .reply(200, { result: [ { phid: 'PHID-USER-42', userName: 'user_with_phid' } ] })
+          .get('/api/maniphest.edit')
+          .reply(200, { result: { object: { id: 24 } } })
+          .get('/api/maniphest.info')
+          .reply(200, { result: {
+            title: 'some task',
+            status: 'open',
+            priority: 'Low',
+            name: 'Test task',
+            ownerPHID: 'PHID-USER-123456789'
+            } })
+
+      afterEach ->
+        delete process.env.PHABRICATOR_LAST_TASK_LIFETIME
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'when user is known and his phid is in the brain', ->
+        hubot 'phab new proj2:template1 a task', 'user_with_phid'
+        hubot 'ph', 'user_with_phid'
+        it 'replies with the object id', ->
+          expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
+          expect(hubotResponse(3)).to.eql 'T24 - some task (open, Low, owner user_with_phid)'
+
 
     context 'phab new proj3:template1 a task', ->
       beforeEach ->
