@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.3.6 - 2017-04-07
+- fix feedback message for .ph unsub me
+- fix 'tag not found' message for it to be more epxlicit
+
 ### 2.3.5 - 2017-04-07
 - make possible to use "me" in assignment and subscription
   (which makes "me" a restricted name that nobody should use unless looking for trouble)

@@ -304,9 +304,9 @@ class Phabricator
               parent = null
             res { name: name, phid: phid, parent: parent }
           else
-            err "Sorry, #{project} not found."
+            err "Sorry, tag #{project} not found."
         else
-          err "Sorry, #{project} not found."
+          err "Sorry, tag #{project} not found."
       .catch (e) ->
         err e
 
@@ -736,6 +736,8 @@ class Phabricator
         when 'unsub'
           @getUser(user, { name: r[2] })
           .then (userphid) =>
+            if r[2] is 'me'
+              r[2] = user.name
             if userphid in item.ccPHIDs
               payload.data.push({ type: 'subscribers.remove', value: [userphid] })
               payload.messages.push("unsubscribed #{r[2]}")
