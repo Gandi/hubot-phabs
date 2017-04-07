@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.3.5 - wip
+### 2.3.5 - 2017-04-07
 - make possible to use "me" in assignment and subscription
   (which makes "me" a restricted name that nobody should use unless looking for trouble)
 - make last-id memorization PHABRICATOR_LAST_TASK_LIFETIME optional (with "0") or inifinite (with "-")
