@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.4.1 - wip
+- make possible to specify an optional limit to search commands
+  with `.ph search 10 <terms>` or `.ph <project> 10 <terms>`
+
 ### 2.4.0 - 2017-04-07
 - make possible to get info on project sub-projects
   with `.phad info <parent> / <subproject>`

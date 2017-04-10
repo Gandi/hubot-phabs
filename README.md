@@ -160,15 +160,18 @@ Commands prefixed by `.phab` are here taking in account we use the `.` as hubot 
 
 Requests can be done on arbitrary projects. Their PHID will be retrieved at first call and cached in hubot brain. Those projects can use aliases, like short names, interchangeably, for convenience (set them up using the `.phad` command).
 
-    .phab [all] <project> <search terms>
+    .phab [all] [limit] <project> <search terms>
         will grab the 3 newest matches in tasks matching search terms and included in project.
         note that there are some special rules:
         - non-alphanumeric chars will be mess up
         - the match is done on full-words: test won't match tests
         - if the 'all' prefix is used, it will also search in task that are not in status 'open'
+        - if the limit is specified, it has to be a number. without limit the default is 3
+          remember that phabricator search api has a hard limit of 100 in any case
+          (so '.phab 1000 <project> <term>' will only return 100 results anyways)
         permission: all
 
-    .phab search [all] <search terms>
+    .phab search [all] [limit] <search terms>
         will grab the 3 newest matches in tasks matching search terms.
         Same rules apply as the search per project/tag.
         permission: all
