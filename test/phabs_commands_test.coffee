@@ -3107,6 +3107,65 @@ describe 'phabs_commands module', ->
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 4
 
+    context 'user asks for 5 results', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj3': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj3'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.search')
+          .reply(200, require('./samples/search_result_5.json'))
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phab all 5 proj3 gitlab', ->
+        hubot 'phab all 5 proj3 gitlab'
+        it 'gives a list of results', ->
+          expect(hubotResponse())
+            .to.eql 'http://example.com/T4920 - pouet (Open)'
+          expect(hubotResponse(2))
+            .to.eql 'http://example.com/T4123 - zarma (Open)'
+          expect(hubotResponse(3))
+            .to.eql 'http://example.com/T4121 - pouet (Open)'
+          expect(hubotResponse(6))
+            .to.eql '... and there is more.'
+          expect(hubotResponseCount()).to.eql 6
+
+    context 'user asks for 1000 results', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.projects = {
+          'proj3': {
+            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+            name: 'proj3'
+          }
+        }
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.search')
+          .reply(200, require('./samples/search_result_long.json'))
+
+      afterEach ->
+        room.robot.brain.data.phabricator = { }
+        nock.cleanAll()
+
+      context 'phab all 1000 proj3 gitlab', ->
+        hubot 'phab all 1000 proj3 gitlab'
+        it 'gives a list of results', ->
+          expect(hubotResponse())
+            .to.eql 'http://example.com/T4920 - pouet (Open)'
+          expect(hubotResponse(2))
+            .to.eql 'http://example.com/T4123 - zarma (Open)'
+          expect(hubotResponse(3))
+            .to.eql 'http://example.com/T4121 - pouet (Open)'
+          expect(hubotResponse(47))
+            .to.eql 'http://example.com/T2263 - woualou another one again more (Invalid)'
+          expect(hubotResponseCount()).to.eql 47
 
     context 'there is no results', ->
       beforeEach ->
@@ -3237,6 +3296,77 @@ describe 'phabs_commands module', ->
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 4
 
+    context 'user asks for 5 results', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.search')
+          .reply(200, require('./samples/search_result_5.json'))
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab search 5 gitlab', ->
+        hubot 'phab search 5 gitlab'
+        it 'gives a list of results', ->
+          expect(hubotResponse())
+            .to.eql 'http://example.com/T4920 - pouet (Open)'
+          expect(hubotResponse(2))
+            .to.eql 'http://example.com/T4123 - zarma (Open)'
+          expect(hubotResponse(3))
+            .to.eql 'http://example.com/T4121 - pouet (Open)'
+          expect(hubotResponse(6))
+            .to.eql '... and there is more.'
+          expect(hubotResponseCount()).to.eql 6
+
+      context 'phab search all 5 gitlab', ->
+        hubot 'phab search all 5 gitlab'
+        it 'gives a list of results', ->
+          expect(hubotResponse())
+            .to.eql 'http://example.com/T4920 - pouet (Open)'
+          expect(hubotResponse(2))
+            .to.eql 'http://example.com/T4123 - zarma (Open)'
+          expect(hubotResponse(3))
+            .to.eql 'http://example.com/T4121 - pouet (Open)'
+          expect(hubotResponse(6))
+            .to.eql '... and there is more.'
+          expect(hubotResponseCount()).to.eql 6
+
+    context 'user asks for 50 results', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/maniphest.search')
+          .reply(200, require('./samples/search_result_long.json'))
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'phab search 50 gitlab', ->
+        hubot 'phab search 50 gitlab'
+        it 'gives a list of results', ->
+          expect(hubotResponse())
+            .to.eql 'http://example.com/T4920 - pouet (Open)'
+          expect(hubotResponse(2))
+            .to.eql 'http://example.com/T4123 - zarma (Open)'
+          expect(hubotResponse(3))
+            .to.eql 'http://example.com/T4121 - pouet (Open)'
+          expect(hubotResponse(47))
+            .to.eql 'http://example.com/T2263 - woualou another one again more (Invalid)'
+          expect(hubotResponseCount()).to.eql 47
+
+      context 'phab search all 50 gitlab', ->
+        hubot 'phab search all 50 gitlab'
+        it 'gives a list of results', ->
+          expect(hubotResponse())
+            .to.eql 'http://example.com/T4920 - pouet (Open)'
+          expect(hubotResponse(2))
+            .to.eql 'http://example.com/T4123 - zarma (Open)'
+          expect(hubotResponse(3))
+            .to.eql 'http://example.com/T4121 - pouet (Open)'
+          expect(hubotResponse(47))
+            .to.eql 'http://example.com/T2263 - woualou another one again more (Invalid)'
+          expect(hubotResponseCount()).to.eql 47
 
     context 'there is no results', ->
       beforeEach ->

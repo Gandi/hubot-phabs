@@ -357,7 +357,7 @@ module.exports = (robot) ->
       'open'
     limit = msg.match[2] or 3
     terms = msg.match[3]
-    phab.searchAllTask(terms, status)
+    phab.searchAllTask(terms, status, limit)
     .then (payload) ->
       if payload.result.data.length is 0
         msg.send "There is no task matching '#{terms}'."
@@ -384,7 +384,7 @@ module.exports = (robot) ->
     phab.getProject(project)
     .then (proj) ->
       name = proj.data.name
-      phab.searchTask(proj.data.phid, terms, status)
+      phab.searchTask(proj.data.phid, terms, status, limit)
     .then (payload) ->
       if payload.result.data.length is 0
         msg.send "There is no task matching '#{terms}' in project '#{name}'."
