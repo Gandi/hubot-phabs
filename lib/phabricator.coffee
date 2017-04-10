@@ -511,6 +511,7 @@ class Phabricator
     }
     if status?
       query['constraints[statuses][0]'] = status
+    console.log query
     @request query, 'maniphest.search'
 
   searchAllTask: (terms, status = undefined, limit = 3) ->

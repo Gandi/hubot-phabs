@@ -355,7 +355,8 @@ module.exports = (robot) ->
       undefined
     else
       'open'
-    terms = msg.match[2]
+    limit = msg.match[2] or 3
+    terms = msg.match[3]
     phab.searchAllTask(terms, status)
     .then (payload) ->
       if payload.result.data.length is 0
@@ -377,7 +378,8 @@ module.exports = (robot) ->
     else
       'open'
     project = msg.match[2]
-    terms = msg.match[3]
+    limit = msg.match[3] or 3
+    terms = msg.match[4]
     name = null
     phab.getProject(project)
     .then (proj) ->
