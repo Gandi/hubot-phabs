@@ -263,24 +263,6 @@ class Phabricator
   aliasize: (str) ->
     str.trim().toLowerCase().replace(/[^-_a-z0-9]/g, '_')
 
-  # requestProject: (project) ->
-  #   return new Promise (res, err) =>
-  #     if /^PHID-PROJ-/.test project
-  #       query = { 'phids[0]': project }
-  #     else
-  #       query = { 'names[0]': project }
-  #     @request(query, 'project.query')
-  #     .then (body) ->
-  #       data = body.result.data
-  #       if data.length > 0 or Object.keys(data).length > 0
-  #         phid = Object.keys(data)[0]
-  #         name = data[phid].name.trim()
-  #         res { name: name, phid: phid }
-  #       else
-  #         err "Sorry, #{project} not found."
-  #     .catch (e) ->
-  #       err e
-
   searchProject: (project) ->
     return new Promise (res, err) =>
       if /^PHID-PROJ-/.test project
