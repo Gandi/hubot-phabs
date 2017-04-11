@@ -15,7 +15,67 @@ expect      = chai.expect
 querystring = require('querystring')
 room = null
 
-describe 'phabs_feeds module', ->
+# -------------------------------------------------------------------------------------------------
+describe 'phabs_feeds commands', ->
+
+  hubotEmit = (e, data, tempo = 40) ->
+    beforeEach (done) ->
+      room.robot.emit e, data
+      setTimeout (done), tempo
+ 
+  hubotHear = (message, userName = 'momo', tempo = 40) ->
+    beforeEach (done) ->
+      room.user.say userName, message
+      setTimeout (done), tempo
+
+  hubot = (message, userName = 'momo') ->
+    hubotHear "@hubot #{message}", userName
+
+  hubotResponse = (i = 1) ->
+    room.messages[i]?[1]
+
+  hubotResponseCount = ->
+    room.messages?.length - 1
+
+  beforeEach ->
+    process.env.PHABRICATOR_URL = 'http://example.com'
+    process.env.PHABRICATOR_API_KEY = 'xxx'
+    process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
+    room = helper.createRoom { httpd: false }
+    room.robot.brain.userForId 'user', {
+      name: 'user'
+    }
+    room.robot.brain.userForId 'user_with_email', {
+      name: 'user_with_email',
+      email_address: 'user@example.com'
+    }
+    room.robot.brain.userForId 'user_with_phid', {
+      name: 'user_with_phid',
+      phid: 'PHID-USER-123456789'
+    }
+    room.robot.brain.data.phabricator.users['user_with_phid'] = {
+      phid: 'PHID-USER-123456789',
+      id: 'user_with_phid',
+      name: 'user_with_phid'
+    }
+    room.robot.brain.data.phabricator.users['user_phab'] = {
+      phid: 'PHID-USER-123456789',
+      id: 'user_phab',
+      name: 'user_phab'
+    }
+    room.receive = (userName, message) ->
+      new Promise (resolve) =>
+        @messages.push [userName, message]
+        user = { name: userName, id: userName }
+        @robot.receive(new Hubot.TextMessage(user, message), resolve)
+
+  afterEach ->
+    delete process.env.PHABRICATOR_URL
+    delete process.env.PHABRICATOR_API_KEY
+    delete process.env.PHABRICATOR_BOT_PHID
+
+# -------------------------------------------------------------------------------------------------
+describe 'phabs_feeds hook', ->
 
   hubotHear = (message, userName = 'momo', tempo = 40) ->
     beforeEach (done) ->
@@ -55,7 +115,7 @@ describe 'phabs_feeds module', ->
     delete process.env.PHABRICATOR_API_KEY
     delete process.env.PHABRICATOR_BOT_PHID
 
-  # ---------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------------------------
   context 'it is not a task', ->
     beforeEach ->
       @postData = '{

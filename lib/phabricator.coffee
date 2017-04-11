@@ -76,6 +76,7 @@ class Phabricator
     @data.templates ?= { }
     @data.blacklist ?= [ ]
     @data.users ?= { }
+    @data.alerts ?= { }
     @data.projects['*'] ?= { }
 
   ready: ->
@@ -463,6 +464,21 @@ class Phabricator
         err "You don't have permission to do that."
       else
         res()
+
+
+  setAlerts: (username, userPhid) ->
+    return new Promise (res, err) =>
+      if @data.alerts[username]?
+        err 'This alert is already set.'
+      else
+        @data.alerts[username] = userPhid
+
+  unsetAlerts: (username) ->
+    return new Promise (res, err) =>
+      if @data.alerts[username]?
+        delete @data.alerts[username]
+      else
+        err 'This alert is not set yet.'
 
   taskInfo: (id) ->
     query = { 'task_id': id }
