@@ -91,6 +91,23 @@ describe 'phabs_feeds', ->
           expect(hubotResponse()).to.eql 'This alert is already set.'
 
 # -------------------------------------------------------------------------------------------------
+  context 'user wants to set alerts for someone else', ->
+    afterEach ->
+      room.robot.brain.data.phabricator.alerts = { }
+      room.destroy()
+
+    context 'and he\'s not receiving them yet', ->
+
+      context 'ph user_with_phid set alerts', ->
+        hubot 'ph user_with_phid set alerts'
+        it 'says that alerts was recorded', ->
+          expect(hubotResponse())
+          .to.eql 'Ok, user_with_phid will now receive private messages when their owned or ' +
+                  'subscribed items are modified.'
+          expect(room.robot.brain.data.phabricator.alerts.user_with_phid)
+          .to.eql 'PHID-USER-123456789'
+
+# -------------------------------------------------------------------------------------------------
   context 'user wants to stop receiving alerts', ->
     afterEach ->
       room.destroy()
@@ -119,6 +136,30 @@ describe 'phabs_feeds', ->
         it 'says that alerts was recorded', ->
           expect(hubotResponse())
           .to.eql 'Ok, you will stop receiving private messages when your owned or ' +
+                  'subscribed items are modified.'
+          expect(room.robot.brain.data.phabricator.alerts.user_with_phid)
+          .to.eql undefined
+
+# -------------------------------------------------------------------------------------------------
+  context 'user wants to unset alerts for someone else', ->
+    afterEach ->
+      room.robot.brain.data.phabricator.alerts = { }
+      room.destroy()
+
+    context 'and he\'s not receiving them yet', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.alerts = {
+          'user_with_phid': 'PHID-USER-123456789'
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator.alerts = { }
+
+      context 'ph user_with_phid unset alerts', ->
+        hubot 'ph user_with_phid unset alerts'
+        it 'says that alerts was recorded', ->
+          expect(hubotResponse())
+          .to.eql 'Ok, user_with_phid will stop receiving private messages when their owned or ' +
                   'subscribed items are modified.'
           expect(room.robot.brain.data.phabricator.alerts.user_with_phid)
           .to.eql undefined
