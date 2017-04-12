@@ -16,96 +16,7 @@ querystring = require('querystring')
 room = null
 
 # -------------------------------------------------------------------------------------------------
-describe 'phabs_feeds commands', ->
-
-  hubotEmit = (e, data, tempo = 40) ->
-    beforeEach (done) ->
-      @room.robot.emit e, data
-      setTimeout (done), tempo
- 
-  hubotHear = (message, userName = 'momo', tempo = 40) ->
-    beforeEach (done) ->
-      @room.user.say userName, message
-      setTimeout (done), tempo
-
-  hubot = (message, userName = 'momo') ->
-    hubotHear "@hubot #{message}", userName
-
-  hubotResponse = (i = 1) ->
-    @room.messages[i]?[1]
-
-  hubotResponseCount = ->
-    @room.messages?.length - 1
-
-  beforeEach ->
-    process.env.PHABRICATOR_URL = 'http://example.com'
-    process.env.PHABRICATOR_API_KEY = 'xxx'
-    process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
-    @room = helper.createRoom { httpd: false }
-    @room.robot.brain.userForId 'user', {
-      name: 'user'
-    }
-    @room.robot.brain.userForId 'user_with_email', {
-      name: 'user_with_email',
-      email_address: 'user@example.com'
-    }
-    @room.robot.brain.userForId 'user_with_phid', {
-      name: 'user_with_phid',
-      phid: 'PHID-USER-123456789'
-    }
-    @room.robot.brain.data.phabricator.users['user_with_phid'] = {
-      phid: 'PHID-USER-123456789',
-      id: 'user_with_phid',
-      name: 'user_with_phid'
-    }
-    @room.robot.brain.data.phabricator.users['user_phab'] = {
-      phid: 'PHID-USER-123456789',
-      id: 'user_phab',
-      name: 'user_phab'
-    }
-    room.receive = (userName, message) ->
-      new Promise (resolve) =>
-        @messages.push [userName, message]
-        user = { name: userName, id: userName }
-        @robot.receive(new Hubot.TextMessage(user, message), resolve)
-
-  afterEach ->
-    delete process.env.PHABRICATOR_URL
-    delete process.env.PHABRICATOR_API_KEY
-    delete process.env.PHABRICATOR_BOT_PHID
-
-# -------------------------------------------------------------------------------------------------
-  # context 'user wants to receive alerts', ->
-
-  #   context 'and he\'s not receiving them yet', ->
-  #     beforeEach ->
-  #       @room.robot.brain.data.phabricator.alerts = { }
-
-  #     afterEach ->
-  #       nock.cleanAll()
-
-  #     context 'ph me set alerts', ->
-  #       hubot 'ph me set alerts', 'user_with_phid'
-  #       it 'says that alerts was recorded', ->
-  #         expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner toto)'
-
-  #   context 'and he\'s already receiving them', ->
-  #     beforeEach ->
-  #       do nock.disableNetConnect
-  #       @room.robot.brain.data.phabricator.alerts = {
-  #         'user_with_phid': 'PHID-USER-123456789'
-  #       }
-
-  #     afterEach ->
-  #       @room.robot.brain.data.phabricator.alerts = { }
-
-  #     context 'ph me set alerts', ->
-  #       hubot 'ph me set alerts', 'user_with_phid'
-  #       it 'says that alerts was recorded', ->
-  #         expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner toto)'
-
-# -------------------------------------------------------------------------------------------------
-describe 'phabs_feeds hook', ->
+describe 'phabs_feeds', ->
 
   hubotHear = (message, userName = 'momo', tempo = 40) ->
     beforeEach (done) ->
@@ -126,7 +37,7 @@ describe 'phabs_feeds hook', ->
     process.env.PHABRICATOR_API_KEY = 'xxx'
     process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
     process.env.PORT = 8088
-    room = helper.createRoom()
+    room = helper.createRoom { httpd: true }
     room.robot.brain.userForId 'user', {
       name: 'user'
     }
@@ -138,12 +49,79 @@ describe 'phabs_feeds hook', ->
       name: 'user_with_phid',
       phid: 'PHID-USER-123456789'
     }
-
+    room.robot.brain.data.phabricator.users['user_with_phid'] = {
+      phid: 'PHID-USER-123456789',
+      id: 'user_with_phid',
+      name: 'user_with_phid'
+    }
 
   afterEach ->
     delete process.env.PHABRICATOR_URL
     delete process.env.PHABRICATOR_API_KEY
     delete process.env.PHABRICATOR_BOT_PHID
+
+# -------------------------------------------------------------------------------------------------
+  context 'user wants to receive alerts', ->
+    afterEach ->
+      room.destroy()
+
+    context 'and he\'s not receiving them yet', ->
+
+      context 'ph me set alerts', ->
+        hubot 'ph me set alerts', 'user_with_phid'
+        it 'says that alerts was recorded', ->
+          expect(hubotResponse())
+          .to.eql 'Ok, you will now receive private messages when your owned or ' +
+                  'subscribed items are modified.'
+          expect(room.robot.brain.data.phabricator.alerts.user_with_phid)
+          .to.eql 'PHID-USER-123456789'
+
+    context 'and he\'s already receiving them', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.alerts = {
+          'user_with_phid': 'PHID-USER-123456789'
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator.alerts = { }
+
+      context 'ph me set alerts', ->
+        hubot 'ph me set alerts', 'user_with_phid'
+        it 'says that alerts was recorded', ->
+          expect(hubotResponse()).to.eql 'This alert is already set.'
+
+# -------------------------------------------------------------------------------------------------
+  context 'user wants to stop receiving alerts', ->
+    afterEach ->
+      room.destroy()
+
+    context 'and he\'s not receiving them yet', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.alerts = { }
+
+      context 'ph me unset alerts', ->
+        hubot 'ph me unset alerts', 'user_with_phid'
+        it 'says that alerts was recorded', ->
+          expect(hubotResponse())
+          .to.eql 'This alert is not set yet.'
+
+    context 'and he\'s already receiving them', ->
+      beforeEach ->
+        room.robot.brain.data.phabricator.alerts = {
+          'user_with_phid': 'PHID-USER-123456789'
+        }
+
+      afterEach ->
+        room.robot.brain.data.phabricator.alerts = { }
+
+      context 'ph me unset alerts', ->
+        hubot 'ph me unset alerts', 'user_with_phid'
+        it 'says that alerts was recorded', ->
+          expect(hubotResponse())
+          .to.eql 'Ok, you will stop receiving private messages when your owned or ' +
+                  'subscribed items are modified.'
+          expect(room.robot.brain.data.phabricator.alerts.user_with_phid)
+          .to.eql undefined
 
 # -------------------------------------------------------------------------------------------------
   context 'it is not a task', ->
@@ -722,3 +700,4 @@ describe 'phabs_feeds hook', ->
 
       it 'responds with status 200', ->
         expect(@response.statusCode).to.equal 200
+

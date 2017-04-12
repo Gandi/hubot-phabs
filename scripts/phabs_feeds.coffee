@@ -37,7 +37,7 @@ module.exports = (robot) ->
       perm = 'phadmin'
     phab.getPermission(msg.envelope.user, perm)
     .then ->
-      phab.getUser(msg.envelope.user, assigned)
+      phab.getUser(msg.envelope.user, { name: assigned })
     .then (userPhid) ->
       phab.setAlerts(assigned, userPhid)
     .then ->

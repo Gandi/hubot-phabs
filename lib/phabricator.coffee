@@ -472,11 +472,13 @@ class Phabricator
         err 'This alert is already set.'
       else
         @data.alerts[username] = userPhid
+        res()
 
   unsetAlerts: (username) ->
     return new Promise (res, err) =>
       if @data.alerts[username]?
         delete @data.alerts[username]
+        res()
       else
         err 'This alert is not set yet.'
 
