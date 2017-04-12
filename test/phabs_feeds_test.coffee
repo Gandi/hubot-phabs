@@ -783,6 +783,7 @@ describe 'phabs_feeds', ->
     context 'with valid payload', ->
       beforeEach (done) ->
         do nock.enableNetConnect
+        room.messageRoom = sinon.spy()
         options = {
           host: 'localhost',
           port: process.env.PORT,
@@ -792,9 +793,22 @@ describe 'phabs_feeds', ->
             'Content-Type': 'application/json'
           }
         }
-        data = '{ "storyID": "1", "storyData": { "objectPHID": "PHID-TASK-12" }}'
+        @postData = '{
+          "storyID": "7297",
+          "storyType": "PhabricatorApplicationTransactionFeedStory",
+          "storyData": {
+            "objectPHID": "PHID-TASK-sx2g66opn67h4yfl7wk6",
+            "transactionPHIDs": {
+              "PHID-XACT-TASK-fkyairn5ltzbzkj": "PHID-XACT-TASK-fkyairn5ltzbzkj",
+              "PHID-XACT-TASK-dh5r5rtwa5hpfia": "PHID-XACT-TASK-dh5r5rtwa5hpfia"
+            }
+          },
+          "storyAuthorPHID": "PHID-USER-qzoqvowxnb5k5screlji",
+          "storyText": "mose triaged T2569: setup webhooks as High priority.",
+          "epoch": "1469085410"
+        }'
         req = http.request options, (@response) => done()
-        req.write(data)
+        req.write(@postData)
         req.end()
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': {
@@ -812,7 +826,7 @@ describe 'phabs_feeds', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
           .query({
-            'constraints[phids][0]': 'PHID-TASK-12',
+            'constraints[phids][0]': 'PHID-TASK-sx2g66opn67h4yfl7wk6',
             'attachments[projects]': '1',
             'api.token': 'xxx'
           })
@@ -835,7 +849,7 @@ describe 'phabs_feeds', ->
                 'attachments': {
                   'projects': {
                     'projectPHIDs': [
-                      'PHID-PROJ-1234567'
+                      'PHID-PROJ-qhmexneudkt62wc7o3z4'
                     ]
                   }
                 }

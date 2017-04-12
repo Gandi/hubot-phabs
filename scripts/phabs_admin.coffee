@@ -121,11 +121,10 @@ module.exports = (robot) ->
     .then ->
       phab.getProject(project)
     .then (proj) ->
-      proj.data.feeds ?= [ ]
-      if room in proj.data.feeds
+      data.projects[proj.data.name].feeds ?= [ ]
+      if room in data.projects[proj.data.name].feeds
         msg.send "The feed from '#{proj.data.name}' to '#{room}' already exist."
       else
-        data.projects[proj.data.name].feeds ?= [ ]
         data.projects[proj.data.name].feeds.push room
         msg.send "Ok, '#{proj.data.name}' is now feeding '#{room}'."
     .catch (e) ->
@@ -138,11 +137,10 @@ module.exports = (robot) ->
     .then ->
       phab.getProject('*')
     .then (proj) ->
-      proj.data.feeds ?= [ ]
-      if room in proj.data.feeds
+      data.projects['*'].feeds ?= [ ]
+      if room in data.projects['*'].feeds
         msg.send "The catchall feed to '#{room}' already exist."
       else
-        data.projects['*'].feeds ?= [ ]
         data.projects['*'].feeds.push room
         msg.send "Ok, all feeds will be announced on '#{room}'."
 
@@ -154,8 +152,8 @@ module.exports = (robot) ->
     .then ->
       phab.getProject(project)
     .then (proj) ->
-      proj.data.feeds ?= [ ]
-      if room in proj.data.feeds
+      data.projects[proj.data.name].feeds ?= [ ]
+      if room in data.projects[proj.data.name].feeds
         idx = data.projects[proj.data.name].feeds.indexOf room
         data.projects[proj.data.name].feeds.splice(idx, 1)
         msg.send "Ok, The feed from '#{proj.data.name}' to '#{room}' was removed."
@@ -172,7 +170,8 @@ module.exports = (robot) ->
       phab.getProject('*')
     .then (proj) ->
       proj.data.feeds ?= [ ]
-      if room in proj.data.feeds
+      data.projects['*'].feeds ?= [ ]
+      if room in data.projects['*'].feeds
         idx = data.projects['*'].feeds.indexOf room
         data.projects['*'].feeds.splice(idx, 1)
         msg.send "Ok, The catchall feed to '#{room}' was removed."
