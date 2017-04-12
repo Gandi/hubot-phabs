@@ -80,6 +80,8 @@ module.exports = (robot) ->
       .then (announce) ->
         for room in announce.rooms
           robot.messageRoom room, announce.message
+        for user in announce.users
+          robot.messageRoom user, announce.message
         robot.logger.debug "#{req.ip} - ok - #{res.statusCode}"
       .catch (e) ->
         robot.logger.debug "#{req.ip} - no - #{res.statusCode} - #{e}"

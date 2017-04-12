@@ -182,12 +182,14 @@ class Phabricator
       else if /^PHID-TASK-/.test payload.storyData.objectPHID
         query = {
           'constraints[phids][0]': payload.storyData.objectPHID,
-          'attachments[projects]': 1
+          'attachments[projects]': 1,
+          'attachments[subscribers]': 1
         }
         @request(query, 'maniphest.search')
         .then (body) ->
           announces = { message: payload.storyText }
           announces.rooms = []
+          announces.users = []
           if body.result.data?
             for phid in body.result.data[0].attachments.projects.projectPHIDs
               for name, project of data.projects
@@ -200,6 +202,14 @@ class Phabricator
                   for room in project.feeds
                     if announces.rooms.indexOf(room) is -1
                       announces.rooms.push room
+            for username, userphid of data.alerts
+              if body.result.data[0].fields.ownerPHID is userphid
+                if announces.users.indexOf(username) is -1
+                  announces.users.push username
+              for phid in body.result.data[0].attachments.subscribers.subscriberPHIDs
+                if userphid is phid
+                  if announces.users.indexOf(username) is -1
+                    announces.users.push username
           res announces
         .catch (e) ->
           err e
