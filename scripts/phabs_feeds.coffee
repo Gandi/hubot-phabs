@@ -26,8 +26,8 @@ module.exports = (robot) ->
   robot.phab ?= new Phabricator robot, process.env
   phab = robot.phab
 
-  #   hubot phab <user> set alerts - so private messages will be sent to user on task subscribed or owned
-  #   hubot phab me set alerts - so private messages will be sent to user on task subscribed or owned
+  #   hubot phab <user> set alerts - private messages sent to user on task subscribed or owned
+  #   hubot phab me set alerts - private messages sent to user on task subscribed or owned
   robot.respond /ph(?:ab)? ([^ ]*) set alerts *$/, (msg) ->
     assigned = msg.match[1]
     if assigned is 'me'

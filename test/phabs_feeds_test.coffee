@@ -700,4 +700,3 @@ describe 'phabs_feeds', ->
 
       it 'responds with status 200', ->
         expect(@response.statusCode).to.equal 200
-

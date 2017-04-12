@@ -142,11 +142,11 @@ describe 'phabs_admin module', ->
         beforeEach ->
           room.robot.brain.data.phabricator.projects = {
             'Bug Report': { },
-            'project with phid': { phid: 'PHID-PROJ-1234567' },
+            'project': { phid: 'PHID-PROJ-1234567' },
           }
           room.robot.brain.data.phabricator.aliases = {
-            bugs: 'project with phid',
-            bug: 'project with phid'
+            bugs: 'project',
+            bug: 'project'
           }
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
@@ -179,11 +179,11 @@ describe 'phabs_admin module', ->
         beforeEach ->
           room.robot.brain.data.phabricator.projects = {
             'Bug Report': { },
-            'project with phid': { phid: 'PHID-PROJ-1234567' },
+            'project': { phid: 'PHID-PROJ-1234567' },
           }
           room.robot.brain.data.phabricator.aliases = {
-            bugs: 'project with phid',
-            bug: 'project with phid'
+            bugs: 'project',
+            bug: 'project'
           }
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
@@ -222,11 +222,11 @@ describe 'phabs_admin module', ->
       context 'and is known to phabricator', ->
         beforeEach ->
           room.robot.brain.data.phabricator.projects = {
-            'project with phid': { phid: 'PHID-PROJ-1234567' },
+            'project': { phid: 'PHID-PROJ-1234567' },
           }
           room.robot.brain.data.phabricator.aliases = {
-            bugs: 'project with phid',
-            bug: 'project with phid'
+            bugs: 'project',
+            bug: 'project'
           }
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
@@ -245,7 +245,7 @@ describe 'phabs_admin module', ->
                     'parent': {
                       'id': 42,
                       'phid': 'PHID-PROJ-1234567',
-                      'name': 'project with phid'
+                      'name': 'project'
                     }
                   }
                 }
@@ -286,14 +286,14 @@ describe 'phabs_admin module', ->
           hubot 'phad info Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'Bug Report' is 'project with phid/Bug Report' " +
-                      '(aka project_with_phid_bug_report), ' +
-                      'with no feed, and no columns (child of project with phid).'
+              .to.eql "'Bug Report' is 'project/Bug Report' " +
+                      '(aka project_bug_report), ' +
+                      'with no feed, and no columns (child of project).'
           it 'should remember the phid from asking to phabricator', ->
-            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].phid)
+            expect(room.robot.brain.data.phabricator.projects['project/Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
-            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].parent)
-              .to.eql 'project with phid'
+            expect(room.robot.brain.data.phabricator.projects['project/Bug Report'].parent)
+              .to.eql 'project'
 
         context 'phad info parent-project / Bug Report', ->
           hubot 'phad info parent-project / Bug Report'
@@ -301,54 +301,54 @@ describe 'phabs_admin module', ->
             expect(hubotResponse())
               .to.eql 'Parent project parent-project not found. Please .phad info parent-project'
 
-        context 'phad info project with phid / Bug Report', ->
-          hubot 'phad info project with phid / Bug Report'
+        context 'phad info project / Bug Report', ->
+          hubot 'phad info project / Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'project with phid / Bug Report' is 'project with phid/Bug Report' " +
-                      '(aka project_with_phid_bug_report), ' +
-                      'with no feed, and no columns (child of project with phid).'
+              .to.eql "'project / Bug Report' is 'project/Bug Report' " +
+                      '(aka project_bug_report), ' +
+                      'with no feed, and no columns (child of project).'
           it 'should remember the phid from asking to phabricator', ->
-            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].phid)
+            expect(room.robot.brain.data.phabricator.projects['project/Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
-            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].parent)
-              .to.eql 'project with phid'
+            expect(room.robot.brain.data.phabricator.projects['project/Bug Report'].parent)
+              .to.eql 'project'
 
-        context 'phad info project with phid/Bug Report', ->
-          hubot 'phad info project with phid/Bug Report'
+        context 'phad info project/Bug Report', ->
+          hubot 'phad info project/Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'project with phid/Bug Report' is 'project with phid/Bug Report' " +
-                      '(aka project_with_phid_bug_report), ' +
-                      'with no feed, and no columns (child of project with phid).'
+              .to.eql "'project/Bug Report' is 'project/Bug Report' " +
+                      '(aka project_bug_report), ' +
+                      'with no feed, and no columns (child of project).'
           it 'should remember the phid from asking to phabricator', ->
-            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].phid)
+            expect(room.robot.brain.data.phabricator.projects['project/Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
-            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].parent)
-              .to.eql 'project with phid'
+            expect(room.robot.brain.data.phabricator.projects['project/Bug Report'].parent)
+              .to.eql 'project'
 
         context 'phad info bugs /Bug Report', ->
           hubot 'phad info bugs /Bug Report'
           it 'should reply with proper info', ->
             expect(hubotResponse())
-              .to.eql "'bugs /Bug Report' is 'project with phid/Bug Report' " +
-                      '(aka project_with_phid_bug_report), ' +
-                      'with no feed, and no columns (child of project with phid).'
+              .to.eql "'bugs /Bug Report' is 'project/Bug Report' " +
+                      '(aka project_bug_report), ' +
+                      'with no feed, and no columns (child of project).'
           it 'should remember the phid from asking to phabricator', ->
-            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].phid)
+            expect(room.robot.brain.data.phabricator.projects['project/Bug Report'].phid)
               .to.eql 'PHID-PROJ-qhmexneudkt62wc7o3z4'
-            expect(room.robot.brain.data.phabricator.projects['project with phid/Bug Report'].parent)
-              .to.eql 'project with phid'
+            expect(room.robot.brain.data.phabricator.projects['project/Bug Report'].parent)
+              .to.eql 'project'
 
 
       context 'and is known to phabricator', ->
         beforeEach ->
           room.robot.brain.data.phabricator.projects = {
-            'project with phid': { phid: 'PHID-PROJ-1234567' },
+            'project': { phid: 'PHID-PROJ-1234567' },
           }
           room.robot.brain.data.phabricator.aliases = {
-            bugs: 'project with phid',
-            bug: 'project with phid'
+            bugs: 'project',
+            bug: 'project'
           }
           do nock.disableNetConnect
           nock(process.env.PHABRICATOR_URL)
@@ -594,14 +594,14 @@ describe 'phabs_admin module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': { },
-          'project with phid': {
+          'project': {
             phid: 'PHID-PROJ-1234567',
-            name: 'project with phid'
+            name: 'project'
           },
         }
         room.robot.brain.data.phabricator.aliases = {
-          bugs: 'project with phid',
-          bug: 'project with phid'
+          bugs: 'project',
+          bug: 'project'
         }
         do nock.disableNetConnect
 
@@ -609,11 +609,11 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad info project with phid', ->
-        hubot 'phad info project with phid'
+      context 'phad info project', ->
+        hubot 'phad info project'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql "'project with phid' is 'project with phid' (aka bugs, bug), " +
+            .to.eql "'project' is 'project' (aka bugs, bug), " +
                     'with no feed, and no columns.'
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -621,9 +621,9 @@ describe 'phabs_admin module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': { },
-          'project with phid': {
+          'project': {
             phid: 'PHID-PROJ-1234567',
-            name: 'project with phid',
+            name: 'project',
             feeds: [ '#dev' ]
           },
         }
@@ -637,11 +637,11 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad info project with phid', ->
-        hubot 'phad info project with phid'
+      context 'phad info project', ->
+        hubot 'phad info project'
         it 'should reply with proper info', ->
           expect(hubotResponse())
-            .to.eql "'project with phid' is 'project with phid', with no alias, " +
+            .to.eql "'project' is 'project', with no alias, " +
                     'announced on #dev, and no columns.'
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -652,7 +652,7 @@ describe 'phabs_admin module', ->
             phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
             name: 'bug report'
           },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
           bugs: 'bug report',
@@ -677,11 +677,11 @@ describe 'phabs_admin module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': { },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
-          bugs: 'project with phid',
-          bug: 'project with phid'
+          bugs: 'project',
+          bug: 'project'
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
@@ -714,7 +714,7 @@ describe 'phabs_admin module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
           bugs: 'Bug Report',
@@ -726,8 +726,8 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad alias project with phid as bug', ->
-        hubot 'phad alias project with phid as bug'
+      context 'phad alias project as bug', ->
+        hubot 'phad alias project as bug'
         it 'should say that the alias already exists', ->
           expect(hubotResponse())
             .to.eql "The alias 'bug' already exists for project 'Bug Report'."
@@ -737,9 +737,9 @@ describe 'phabs_admin module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
-          'project with phid': {
+          'project': {
             phid: 'PHID-PROJ-1234567',
-            name: 'project with phid'
+            name: 'project'
           },
         }
         room.robot.brain.data.phabricator.aliases = {
@@ -752,11 +752,11 @@ describe 'phabs_admin module', ->
         room.robot.brain.data.phabricator = { }
         nock.cleanAll()
 
-      context 'phad alias project with phid as pwp', ->
-        hubot 'phad alias project with phid as pwp'
+      context 'phad alias project as pwp', ->
+        hubot 'phad alias project as pwp'
         it 'should say that the alias was created', ->
           expect(hubotResponse())
-            .to.eql "Ok, 'project with phid' will be known as 'pwp'."
+            .to.eql "Ok, 'project' will be known as 'pwp'."
 
   # ---------------------------------------------------------------------------------
   context 'user wants to remove an alias', ->
@@ -768,7 +768,7 @@ describe 'phabs_admin module', ->
             phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
             name: 'Bug Report'
           },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
           bugs: 'Bug Report',
@@ -793,7 +793,7 @@ describe 'phabs_admin module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
           bugs: 'Bug Report',
@@ -818,11 +818,11 @@ describe 'phabs_admin module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': { },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
-          bugs: 'project with phid',
-          bug: 'project with phid'
+          bugs: 'project',
+          bug: 'project'
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
@@ -861,7 +861,7 @@ describe 'phabs_admin module', ->
               '#dev'
             ]
           },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
           bugs: 'bug report',
@@ -887,7 +887,7 @@ describe 'phabs_admin module', ->
             name: 'bug report',
             feeds: [ ]
           },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
           bugs: 'bug report',
@@ -918,7 +918,7 @@ describe 'phabs_admin module', ->
               '#dev'
             ]
           },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
           bugs: 'bug report',
@@ -962,11 +962,11 @@ describe 'phabs_admin module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': { },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
-          bugs: 'project with phid',
-          bug: 'project with phid'
+          bugs: 'project',
+          bug: 'project'
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
@@ -999,11 +999,11 @@ describe 'phabs_admin module', ->
       beforeEach ->
         room.robot.brain.data.phabricator.projects = {
           'Bug Report': { },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
-          bugs: 'project with phid',
-          bug: 'project with phid'
+          bugs: 'project',
+          bug: 'project'
         }
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
@@ -1035,7 +1035,7 @@ describe 'phabs_admin module', ->
               '#dev'
             ]
           },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
           bugs: 'bug report',
@@ -1063,7 +1063,7 @@ describe 'phabs_admin module', ->
             name: 'bug report',
             feeds: [ ]
           },
-          'project with phid': { phid: 'PHID-PROJ-1234567' },
+          'project': { phid: 'PHID-PROJ-1234567' },
         }
         room.robot.brain.data.phabricator.aliases = {
           bugs: 'bug report',
@@ -1450,9 +1450,9 @@ describe 'phabs_admin module', ->
         beforeEach ->
           room.robot.brain.data.phabricator.projects = {
             'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
-            'project with phid': {
+            'project': {
               phid: 'PHID-PROJ-1234567',
-              name: 'project with phid'
+              name: 'project'
             },
           }
           room.robot.brain.data.phabricator.aliases = {
@@ -1465,19 +1465,19 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad alias project with phid as pwp', ->
-          hubot 'phad alias project with phid as pwp', 'admin_user'
+        context 'phad alias project as pwp', ->
+          hubot 'phad alias project as pwp', 'admin_user'
           it 'should say that the alias was created', ->
             expect(hubotResponse())
-              .to.eql "Ok, 'project with phid' will be known as 'pwp'."
+              .to.eql "Ok, 'project' will be known as 'pwp'."
 
       context 'and user is phadmin', ->
         beforeEach ->
           room.robot.brain.data.phabricator.projects = {
             'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
-            'project with phid': {
+            'project': {
               phid: 'PHID-PROJ-1234567',
-              name: 'project with phid'
+              name: 'project'
             },
           }
           room.robot.brain.data.phabricator.aliases = {
@@ -1490,17 +1490,17 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator = { }
           nock.cleanAll()
 
-        context 'phad alias project with phid as pwp', ->
-          hubot 'phad alias project with phid as pwp', 'phadmin_user'
+        context 'phad alias project as pwp', ->
+          hubot 'phad alias project as pwp', 'phadmin_user'
           it 'should say that the alias was created', ->
             expect(hubotResponse())
-              .to.eql "Ok, 'project with phid' will be known as 'pwp'."
+              .to.eql "Ok, 'project' will be known as 'pwp'."
 
       context 'and user is phuser', ->
         beforeEach ->
           room.robot.brain.data.phabricator.projects = {
             'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
-            'project with phid': { phid: 'PHID-PROJ-1234567' },
+            'project': { phid: 'PHID-PROJ-1234567' },
           }
           room.robot.brain.data.phabricator.aliases = {
             bugs: 'Bug Report',

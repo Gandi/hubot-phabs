@@ -1510,7 +1510,7 @@ describe 'phabs_commands module', ->
 
     context 'implicit re-use of the object id with no memorization', ->
       beforeEach ->
-        process.env.PHABRICATOR_LAST_TASK_LIFETIME = "0"
+        process.env.PHABRICATOR_LAST_TASK_LIFETIME = '0'
         room.robot.brain.data.phabricator.projects = {
           'proj2': {
             phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
@@ -1547,7 +1547,7 @@ describe 'phabs_commands module', ->
 
     context 'implicit re-use of the object id with no expiration', ->
       beforeEach ->
-        process.env.PHABRICATOR_LAST_TASK_LIFETIME = "-"
+        process.env.PHABRICATOR_LAST_TASK_LIFETIME = '-'
         room.robot.brain.data.phabricator.projects = {
           'proj2': {
             phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
