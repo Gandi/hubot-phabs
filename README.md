@@ -171,7 +171,7 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
           (so '.phab 1000 <project> <term>' will only return 100 results anyways)
         permission: all
 
-    .phab search [all] [limit] <search terms>
+    .phab [all] [limit] search <search terms>
         will grab the 3 newest matches in tasks matching search terms.
         Same rules apply as the search per project/tag.
         permission: all

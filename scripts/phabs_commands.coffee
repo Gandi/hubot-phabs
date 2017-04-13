@@ -349,7 +349,7 @@ module.exports = (robot) ->
       msg.send e
     msg.finish()
 
-  #   hubot phab [all] search [limit] search terms - searches for terms in project
+  #   hubot phab [all] [limit] search <search terms> - searches for terms in project
   robot.respond /ph(?:ab)?( all)? search( all)?(?: (\d+))? (.+)$/, (msg) ->
     status = if msg.match[1]?
       undefined
@@ -371,7 +371,7 @@ module.exports = (robot) ->
       msg.send e
     msg.finish()
 
-  #   hubot phab [all] <project> [limit] search terms - searches for terms in project
+  #   hubot phab [all] [limit] <project> <search terms> - searches for terms in project
   robot.respond /ph(?:ab)?( all)?(?: (\d+))? ([^ ]+) (.+)$/, (msg) ->
     status = if msg.match[1]?
       undefined
