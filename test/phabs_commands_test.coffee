@@ -3283,8 +3283,8 @@ describe 'phabs_commands module', ->
           expect(hubotResponseCount()).to.eql 4
 
 
-      context 'phab search all gitlab', ->
-        hubot 'phab search all gitlab'
+      context 'phab all search gitlab', ->
+        hubot 'phab all search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
             .to.eql 'http://example.com/T2490 - Task 1 (Open)'
@@ -3306,8 +3306,8 @@ describe 'phabs_commands module', ->
       afterEach ->
         nock.cleanAll()
 
-      context 'phab search 5 gitlab', ->
-        hubot 'phab search 5 gitlab'
+      context 'phab 5 search gitlab', ->
+        hubot 'phab 5 search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
             .to.eql 'http://example.com/T4920 - pouet (Open)'
@@ -3319,8 +3319,8 @@ describe 'phabs_commands module', ->
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 6
 
-      context 'phab search all 5 gitlab', ->
-        hubot 'phab search all 5 gitlab'
+      context 'phab all 5 search gitlab', ->
+        hubot 'phab all 5 search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
             .to.eql 'http://example.com/T4920 - pouet (Open)'
@@ -3342,8 +3342,8 @@ describe 'phabs_commands module', ->
       afterEach ->
         nock.cleanAll()
 
-      context 'phab search 50 gitlab', ->
-        hubot 'phab search 50 gitlab'
+      context 'phab 50 search gitlab', ->
+        hubot 'phab 50 search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
             .to.eql 'http://example.com/T4920 - pouet (Open)'
@@ -3355,8 +3355,8 @@ describe 'phabs_commands module', ->
             .to.eql 'http://example.com/T2263 - woualou another one again more (Invalid)'
           expect(hubotResponseCount()).to.eql 47
 
-      context 'phab search all 50 gitlab', ->
-        hubot 'phab search all 50 gitlab'
+      context 'phab all 50 search gitlab', ->
+        hubot 'phab all 50 search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
             .to.eql 'http://example.com/T4920 - pouet (Open)'
