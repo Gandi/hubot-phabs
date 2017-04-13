@@ -1,8 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.4.2 - wip
+### 2.4.2 - 2017-04-13
 - improve search on multi-words by replacing spaces by '+'
+- change syntax for the .ph search for consistency with the `.ph <project>`
+  right syntax is now `.ph [all] [limit] search <terms>`
 
 ### 2.4.1 - 2017-04-13
 - make possible to specify an optional limit to search commands
