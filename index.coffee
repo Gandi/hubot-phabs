@@ -3,10 +3,10 @@ path = require 'path'
 phabs_available_features = [
   'events',
   'api',
+  'feeds',
   'commands',
   'templates',
   'admin',
-  'feeds',
   'hear'
 ]
 

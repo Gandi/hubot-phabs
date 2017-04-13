@@ -5,6 +5,9 @@ Hubot-phabs Changelog
 - make possible to specify an optional limit to search commands
   with `.ph search 10 <terms>` or `.ph <project> 10 <terms>`
 - fix duplication of feeds array elements (no impact, just annoying)
+- added a system of alerts: users can be notified in private of tasks 
+  that he owns or is subscribed to. `.phab me set alerts`
+- `.phab me unset alerts` to cancel the announcements
 
 ### 2.4.0 - 2017-04-07
 - make possible to get info on project sub-projects

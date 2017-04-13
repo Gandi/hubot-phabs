@@ -462,6 +462,25 @@ Note that the tasks from a subprojects are also announced in the feed for the pa
 
 The feed has an optional way to limit the IP of the sender, by setting the HUBOT_AUTHORIZED_IP_REGEXP env variable. If this variable is not set, there is not access control. It's a limited soft protection, if you really need a heavy secure protection, do something on your network for it.
 
+Since 2.4.1, users can also set private alerts on tasks they own or are subscribed to.
+
+    .phab me set alerts
+        will send a private message for each task the caller owns or is subscribed to
+        (note: it only works on tasks for now)
+        permission: phuser
+
+    .phab <user> set alerts
+        same as with 'me' but with arbitrary user name, to enable their subscription to alerts
+        permission: phadmin
+
+    .phab me unset alerts
+        will disable alerts
+        permission: phuser
+
+    .phab <user> unset alerts
+        same as with 'me' but with arbitrary user name, to disable their subscription to alerts
+        permission: phadmin
+
 
 ### Hear feature
 
