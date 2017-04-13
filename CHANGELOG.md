@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.4.1 - wip
+### 2.4.1 - 2017-04-13
 - make possible to specify an optional limit to search commands
   with `.ph search 10 <terms>` or `.ph <project> 10 <terms>`
 - fix duplication of feeds array elements (no impact, just annoying)
