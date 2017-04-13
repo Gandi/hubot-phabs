@@ -75,11 +75,9 @@ module.exports = (robot) ->
     msg.finish()
 
   robot.router.post "/#{robot.name}/phabs/feeds", (req, res) ->
-    console.log req.body
     if req.body.storyID?
       phab.getFeed(req.body)
       .then (announce) ->
-        console.log announce
         for room in announce.rooms
           robot.messageRoom room, announce.message
         for user in announce.users
