@@ -514,7 +514,7 @@ class Phabricator
 
   searchTask: (phid, terms, status = undefined, limit = 3) ->
     query = {
-      'constraints[fulltext]': terms.replace(/ /g,'+'),
+      'constraints[fulltext]': terms.replace(' ','+'),
       'constraints[projects][0]': phid,
       'order': 'newest',
       'limit': limit
@@ -525,7 +525,7 @@ class Phabricator
 
   searchAllTask: (terms, status = undefined, limit = 3) ->
     query = {
-      'constraints[fulltext]': terms.replace(/ /g,'+'),
+      'constraints[fulltext]': terms.replace(' ','+'),
       'order': 'newest',
       'limit': limit
     }
