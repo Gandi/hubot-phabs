@@ -344,56 +344,7 @@ describe 'phabs_feeds', ->
           'attachments[subscribers]': '1',
           'api.token': 'xxx'
         })
-        .reply(200, { result: {
-          'data': [
-            {
-              'id': 2569,
-              'type': 'TASK',
-              'phid': 'PHID-TASK-sx2g66opn67h4yfl7wk6',
-              'fields': {
-                'name': 'setup webhooks',
-                'authorPHID': 'PHID-USER-7p4d4k6v4csqx7gcxcbw',
-                'ownerPHID': 'PHID-USER-bniykos45qldfh7yumsl',
-                'status': {
-                  'value': 'resolved',
-                  'name': 'Resolved',
-                  'color': null
-                },
-                'priority': {
-                  'value': 50,
-                  'subpriority': 0,
-                  'name': 'Normal',
-                  'color': 'orange'
-                },
-                'points': null,
-                'spacePHID': null,
-                'dateCreated': 1468489192,
-                'dateModified': 1469210692,
-                'policy': {
-                  'view': 'users',
-                  'edit': 'users'
-                }
-              },
-              'attachments': {
-                'projects': {
-                  'projectPHIDs': [
-                    'PHID-PROJ-ccjxd4xuv22sngpwrhql'
-                  ]
-                }
-              }
-            }
-          ],
-          'maps': { },
-          'query': {
-            'queryKey': 'XQHShcroSRib'
-          },
-          'cursor': {
-            'limit': 100,
-            'after': null,
-            'before': null,
-            'order': null
-          }
-        } })
+        .reply(200, require('./samples/search_feed_1.json'))
 
       @postData = '{
         "storyID": "7297",
@@ -448,56 +399,7 @@ describe 'phabs_feeds', ->
           'attachments[projects]': '1',
           'api.token': 'xxx'
         })
-        .reply(200, { result: {
-          'data': [
-            {
-              'id': 2569,
-              'type': 'TASK',
-              'phid': 'PHID-TASK-67wkenmryjcl66w3zioj',
-              'fields': {
-                'name': 'setup webhooks',
-                'authorPHID': 'PHID-USER-7p4d4k6v4csqx7gcxcbw',
-                'ownerPHID': 'PHID-USER-bniykos45qldfh7yumsl',
-                'status': {
-                  'value': 'resolved',
-                  'name': 'Resolved',
-                  'color': null
-                },
-                'priority': {
-                  'value': 50,
-                  'subpriority': 0,
-                  'name': 'Normal',
-                  'color': 'orange'
-                },
-                'points': null,
-                'spacePHID': null,
-                'dateCreated': 1468489192,
-                'dateModified': 1469210692,
-                'policy': {
-                  'view': 'users',
-                  'edit': 'users'
-                }
-              },
-              'attachments': {
-                'projects': {
-                  'projectPHIDs': [
-                    'PHID-PROJ-qhmexneudkt62wc7o3z4'
-                  ]
-                }
-              }
-            }
-          ],
-          'maps': { },
-          'query': {
-            'queryKey': 'XQHShcroSRib'
-          },
-          'cursor': {
-            'limit': 100,
-            'after': null,
-            'before': null,
-            'order': null
-          }
-        } })
+        .reply(200, require('./samples/search_feed_2.json'))
 
       @postData = '{
         "storyID": "7297",
@@ -556,61 +458,7 @@ describe 'phabs_feeds', ->
           'attachments[projects]': '1',
           'api.token': 'xxx'
         })
-        .reply(200, { result: {
-          'data': [
-            {
-              'id': 2569,
-              'type': 'TASK',
-              'phid': 'PHID-TASK-67wkenmryjcl66w3zioj',
-              'fields': {
-                'name': 'setup webhooks',
-                'authorPHID': 'PHID-USER-7p4d4k6v4csqx7gcxcbw',
-                'ownerPHID': 'PHID-USER-bniykos45qldfh7yumsl',
-                'status': {
-                  'value': 'resolved',
-                  'name': 'Resolved',
-                  'color': null
-                },
-                'priority': {
-                  'value': 50,
-                  'subpriority': 0,
-                  'name': 'Normal',
-                  'color': 'orange'
-                },
-                'points': null,
-                'spacePHID': null,
-                'dateCreated': 1468489192,
-                'dateModified': 1469210692,
-                'policy': {
-                  'view': 'users',
-                  'edit': 'users'
-                }
-              },
-              'attachments': {
-                'projects': {
-                  'projectPHIDs': [
-                    'PHID-PROJ-qhmexneudkt62wc7o3z4'
-                  ]
-                },
-                'subscribers': {
-                  'subscriberPHIDs': [
-                    'PHID-USER-123546789'
-                  ]
-                }
-              }
-            }
-          ],
-          'maps': { },
-          'query': {
-            'queryKey': 'XQHShcroSRib'
-          },
-          'cursor': {
-            'limit': 100,
-            'after': null,
-            'before': null,
-            'order': null
-          }
-        } })
+        .reply(200, require('./samples/search_feed_3.json'))
 
       @postData = '{
         "storyID": "7297",
@@ -670,56 +518,7 @@ describe 'phabs_feeds', ->
           'attachments[projects]': '1',
           'api.token': 'xxx'
         })
-        .reply(200, { result: {
-          'data': [
-            {
-              'id': 2569,
-              'type': 'TASK',
-              'phid': 'PHID-TASK-67wkenmryjcl66w3zioj',
-              'fields': {
-                'name': 'setup webhooks',
-                'authorPHID': 'PHID-USER-7p4d4k6v4csqx7gcxcbw',
-                'ownerPHID': 'PHID-USER-bniykos45qldfh7yumsl',
-                'status': {
-                  'value': 'resolved',
-                  'name': 'Resolved',
-                  'color': null
-                },
-                'priority': {
-                  'value': 50,
-                  'subpriority': 0,
-                  'name': 'Normal',
-                  'color': 'orange'
-                },
-                'points': null,
-                'spacePHID': null,
-                'dateCreated': 1468489192,
-                'dateModified': 1469210692,
-                'policy': {
-                  'view': 'users',
-                  'edit': 'users'
-                }
-              },
-              'attachments': {
-                'projects': {
-                  'projectPHIDs': [
-                    'PHID-PROJ-1234567'
-                  ]
-                }
-              }
-            }
-          ],
-          'maps': { },
-          'query': {
-            'queryKey': 'XQHShcroSRib'
-          },
-          'cursor': {
-            'limit': 100,
-            'after': null,
-            'before': null,
-            'order': null
-          }
-        } })
+        .reply(200, require('./samples/search_feed_4.json'))
 
       @postData = '{
         "storyID": "7297",
@@ -830,42 +629,7 @@ describe 'phabs_feeds', ->
             'attachments[projects]': '1',
             'api.token': 'xxx'
           })
-          .reply(200, { result: {
-            'data': [
-              {
-                'id': 2569,
-                'type': 'TASK',
-                'phid': 'PHID-TASK-12',
-                'fields': {
-                  'name': 'setup webhooks',
-                  'authorPHID': 'PHID-USER-7p4d4k6v4csqx7gcxcbw',
-                  'ownerPHID': 'PHID-USER-bniykos45qldfh7yumsl',
-                  'status': {
-                    'value': 'resolved',
-                    'name': 'Resolved',
-                    'color': null
-                  }
-                },
-                'attachments': {
-                  'projects': {
-                    'projectPHIDs': [
-                      'PHID-PROJ-qhmexneudkt62wc7o3z4'
-                    ]
-                  }
-                }
-              }
-            ],
-            'maps': { },
-            'query': {
-              'queryKey': 'XQHShcroSRib'
-            },
-            'cursor': {
-              'limit': 100,
-              'after': null,
-              'before': null,
-              'order': null
-            }
-          } })
+          .reply(200, require('./samples/search_feed_5.json'))
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
