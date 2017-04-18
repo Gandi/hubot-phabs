@@ -695,6 +695,69 @@ describe 'phabs_hear module', ->
           expect(hubotResponse()).to.eql 'V30: This is a poll (closed)'
 
   # ---------------------------------------------------------------------------------
+  context 'someone talks about a diff', ->
+    context 'when the diff is unknown', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: { } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about D555555 or something', ->
+        hubot 'whatever about D555555 or something'
+        it "warns the user that this Diff doesn't exist", ->
+          expect(hubotResponse()).to.eql 'oops D555555 was not found.'
+
+    context 'when it is an open diff', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            status: 'open',
+            title: 'some diff',
+            uri: 'http://example.com/D55'
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about D55 or something', ->
+        hubot 'whatever about D55 or something'
+        it "gives information about the open Diff, including uri", ->
+          expect(hubotResponse()).to.eql 'http://example.com/D55 - some diff'
+      context 'whatever about http://example.com/D55 or something', ->
+        hubot 'whatever about http://example.com/D55 or something'
+        it "gives information about the open Diff, without uri", ->
+          expect(hubotResponse()).to.eql 'D55: some diff'
+
+    context 'when it is a closed diff', ->
+      beforeEach ->
+        do nock.disableNetConnect
+        nock(process.env.PHABRICATOR_URL)
+          .get('/api/phid.lookup')
+          .reply(200, { result: {
+            status: 'closed',
+            title: 'some diff',
+            uri: 'http://example.com/D55'
+          } })
+
+      afterEach ->
+        nock.cleanAll()
+
+      context 'whatever about D55 or something', ->
+        hubot 'whatever about D55 or something'
+        it 'gives information about the closed Diff, including uri', ->
+          expect(hubotResponse()).to.eql 'http://example.com/D55 - some diff (closed)'
+      context 'whatever about http://example.com/D55 or something', ->
+        hubot 'whatever about http://example.com/D55 or something'
+        it 'gives information about the closed Diff, without uri', ->
+          expect(hubotResponse()).to.eql 'D55: some diff (closed)'
+
+  # ---------------------------------------------------------------------------------
   context 'someone talks about a commit', ->
     context 'when the commit is unknown', ->
       beforeEach ->
