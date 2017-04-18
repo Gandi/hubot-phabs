@@ -718,9 +718,13 @@ describe 'phabs_hear module', ->
           .get('/api/phid.lookup')
           .reply(200, { result: {
             'D55': {
-              'status': 'open',
-              'title': 'some diff',
-              'uri': 'http://example.com/D55'
+              'phid': 'PHID-DREV-hqztsdcva3jkucu4mmv2',
+              'uri': 'http://example.com/D55',
+              'typeName': 'Differential Revision',
+              'type': 'DREV',
+              'name': 'D55',
+              'fullName': 'D55: some diff',
+              'status': 'open'
             }
           } })
 
@@ -743,9 +747,13 @@ describe 'phabs_hear module', ->
           .get('/api/phid.lookup')
           .reply(200, { result: {
             'D55': {
-              'status': 'closed',
-              'title': 'some diff',
-              'uri': 'http://example.com/D55'
+              'phid': 'PHID-DREV-hqztsdcva3jkucu4mmv2',
+              'uri': 'http://example.com/D55',
+              'typeName': 'Differential Revision',
+              'type': 'DREV',
+              'name': 'D55',
+              'fullName': 'D55: some diff',
+              'status': 'closed'
             }
           } })
 
