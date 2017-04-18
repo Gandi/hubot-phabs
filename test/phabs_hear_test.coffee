@@ -717,9 +717,11 @@ describe 'phabs_hear module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/phid.lookup')
           .reply(200, { result: {
-            status: 'open',
-            title: 'some diff',
-            uri: 'http://example.com/D55'
+            'D55': {
+              'status': 'open',
+              'title': 'some diff',
+              'uri': 'http://example.com/D55'
+            }
           } })
 
       afterEach ->
@@ -740,9 +742,11 @@ describe 'phabs_hear module', ->
         nock(process.env.PHABRICATOR_URL)
           .get('/api/phid.lookup')
           .reply(200, { result: {
-            status: 'closed',
-            title: 'some diff',
-            uri: 'http://example.com/D55'
+            'D55': {
+              'status': 'closed',
+              'title': 'some diff',
+              'uri': 'http://example.com/D55'
+            }
           } })
 
       afterEach ->
