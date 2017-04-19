@@ -45,6 +45,7 @@ class Phabricator
     'low': 25,
     'normal': 50,
     'high': 80,
+    'important': 80,
     'urgent': 80,
     'wish': 0
   }
