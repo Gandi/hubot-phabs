@@ -206,8 +206,7 @@ module.exports = (robot) ->
 
   robot.respond new RegExp(
     'ph(?:ab)?(?: T([0-9]+)| (last))?((?:' +
-    " is (?:#{Object.keys(phab.priorities).join('|')})|" +
-    " is (?:#{Object.keys(phab.statuses).join('|')})|" +
+    ' is [^ ]+|' +
     ' on [^ ]+|' +
     ' for [^ ]+|' +
     ' to [^ ]+|' +
@@ -355,7 +354,7 @@ module.exports = (robot) ->
       undefined
     else
       'open'
-    limit = msg.match[2] or msg.match[3] or 3
+    limit = msg.match[2] or 3
     terms = msg.match[3]
     phab.searchAllTask(terms, status, limit)
     .then (payload) ->

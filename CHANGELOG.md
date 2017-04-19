@@ -1,6 +1,12 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.4.3 - 2017-04-19
+- changed regexp for `.ph is ...` so that it gives the list of possible options 
+  if unknown status or prorioty is provided
+- marked 'tag xx not found' with single quotes so it's more explicit
+- fix `.ph search xxx` it was fucked up with the limit
+
 ### 2.4.2 - 2017-04-13
 - improve search on multi-words by replacing spaces by '+'
 - change syntax for the .ph search for consistency with the `.ph <project>`

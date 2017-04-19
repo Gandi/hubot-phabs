@@ -39,7 +39,7 @@ class Phabricator
   priorities: {
     'unbreak': 100,
     'broken': 100,
-    'need triage': 90,
+    'triage': 90,
     'none': 90,
     'unknown': 90,
     'low': 25,
@@ -318,9 +318,9 @@ class Phabricator
               parent = null
             res { name: name, phid: phid, parent: parent }
           else
-            err "Sorry, tag #{project} not found."
+            err "Sorry, tag '#{project}' not found."
         else
-          err "Sorry, tag #{project} not found."
+          err "Sorry, tag '#{project}' not found."
       .catch (e) ->
         err e
 
@@ -816,6 +816,10 @@ class Phabricator
           else if @priorities[r[2]]?
             payload.data.push({ type: 'priority', value: @priorities[r[2]] })
             payload.messages.push("priority set to #{r[2]}")
+          else
+            err "Unknown status or priority, please choose in " +
+                Object.keys(@statuses).join(', ') + ', ' +
+                Object.keys(@priorities).join(', ')
           next = str.trim().replace(p, '')
           if next.trim() isnt ''
             res @parseAction(user, item, next, payload)
