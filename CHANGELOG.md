@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.4.5 - 2017-04-19
+- Add functionality to hear Differential Revisions too (by @redstonemercury)
+
 ### 2.4.4 - 2017-04-19
 - added relative time for status in `.ph Txxx` and search results
 
