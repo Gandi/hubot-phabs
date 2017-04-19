@@ -817,7 +817,7 @@ class Phabricator
             payload.data.push({ type: 'priority', value: @priorities[r[2]] })
             payload.messages.push("priority set to #{r[2]}")
           else
-            err "Unknown status or priority, please choose in " +
+            err "Unknown status or priority '#{r[2]}', please choose in " +
                 Object.keys(@statuses).join(', ') + ', ' +
                 Object.keys(@priorities).join(', ')
           next = str.trim().replace(p, '')

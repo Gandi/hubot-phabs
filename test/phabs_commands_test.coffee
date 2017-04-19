@@ -2421,6 +2421,30 @@ describe 'phabs_commands module', ->
           it 'reports the status as spite', ->
             expect(hubotResponse()).to.eql 'Ok, T42 now has status set to spite.'
 
+      context 'phab T42 is blabla', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/maniphest.info')
+            .reply(200, { result: {
+              status: 'open',
+              priority: 'Low',
+              name: 'Test task',
+              ownerPHID: 'PHID-USER-42'
+              } })
+            .get('/api/maniphest.edit')
+            .reply(200, { result: { object: { id: 42 } } })
+
+        afterEach ->
+          nock.cleanAll()
+
+        context 'phab T42 is blabla', ->
+          hubot 'ph T42 is blabla', 'user_with_phid'
+          it 'gives the list of possible statuses and priorities', ->
+            expect(hubotResponse()).to.eql 'Unknown status or priority \'blabla\', please choose ' +
+              'in ' + Object.keys(room.robot.phab.statuses).join(', ') +
+              ', ' + Object.keys(room.robot.phab.priorities).join(', ')
+
 # --------------------------------------------------------------------------------------------------
   context 'user changes priority for a task', ->
     context 'when the task is unknown', ->
