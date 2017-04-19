@@ -136,8 +136,12 @@ module.exports = (robot) ->
       status = @body.result.status
       priority = @body.result.priority
       title = @body.result.title
+      if @body.result.status is 'open'
+        ago = moment(@body.result.dateCreated, 'X').fromNow()
+      else
+        ago = moment(@body.result.dateModified, 'X').fromNow()
       phab.recordId msg.envelope.user, @id
-      msg.send "T#{@id} - #{title} (#{status}, #{priority}, owner #{owner})"
+      msg.send "T#{@id} - #{title} (#{status} #{ago}, #{priority}, owner #{owner})"
     .catch (e) ->
       msg.send e
     msg.finish()
@@ -362,8 +366,12 @@ module.exports = (robot) ->
         msg.send "There is no task matching '#{terms}'."
       else
         for task in payload.result.data
+          if task.fields.status.name is 'Open'
+            ago = moment(task.fields.dateCreated, 'X').fromNow()
+          else
+            ago = moment(task.fields.dateModified, 'X').fromNow()
           msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}" +
-                   " (#{task.fields.status.name})"
+                   " (#{task.fields.status.name} #{ago})"
         if payload.result.cursor.after?
           msg.send '... and there is more.'
     .catch (e) ->
@@ -389,8 +397,12 @@ module.exports = (robot) ->
         msg.send "There is no task matching '#{terms}' in project '#{name}'."
       else
         for task in payload.result.data
+          if task.fields.status.name is 'Open'
+            ago = moment(task.fields.dateCreated, 'X').fromNow()
+          else
+            ago = moment(task.fields.dateModified, 'X').fromNow()
           msg.send "#{process.env.PHABRICATOR_URL}/T#{task.id} - #{task.fields['name']}" +
-                   " (#{task.fields.status.name})"
+                   " (#{task.fields.status.name} #{ago})"
         if payload.result.cursor.after?
           msg.send '... and there is more.'
     .catch (e) ->

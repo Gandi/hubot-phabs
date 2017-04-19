@@ -9,6 +9,7 @@ helper = new Helper('../scripts/phabs_commands.coffee')
 path   = require 'path'
 nock   = require 'nock'
 sinon  = require 'sinon'
+moment = require 'moment'
 expect = require('chai').use(require('sinon-chai')).expect
 
 room = null
@@ -220,7 +221,9 @@ describe 'phabs_commands module', ->
             status: 'open',
             priority: 'Low',
             name: 'Test task',
-            ownerPHID: 'PHID-USER-42'
+            ownerPHID: 'PHID-USER-42',
+            dateCreated: moment().subtract(5, 'days').format('X'),
+            dateModified: moment().subtract(3, 'hours').format('X')
             } })
           .get('/api/user.query')
           .query({
@@ -235,12 +238,12 @@ describe 'phabs_commands module', ->
       context 'phab T42', ->
         hubot 'phab T42'
         it 'gives information about the task Txxx', ->
-          expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner toto)'
+          expect(hubotResponse()).to.eql 'T42 - some task (open 5 days ago, Low, owner toto)'
 
       context 'ph T42 # with an ending space', ->
         hubot 'ph T42 '
         it 'gives information about the task Txxx', ->
-          expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner toto)'
+          expect(hubotResponse()).to.eql 'T42 - some task (open 5 days ago, Low, owner toto)'
 
     context 'task id is provided but doesn not exist', ->
       beforeEach ->
@@ -278,7 +281,9 @@ describe 'phabs_commands module', ->
             status: 'open',
             priority: 'Low',
             name: 'Test task',
-            ownerPHID: null
+            ownerPHID: null,
+            dateCreated: moment().subtract(5, 'days').format('X'),
+            dateModified: moment().subtract(3, 'hours').format('X')
             } })
 
       afterEach ->
@@ -287,7 +292,7 @@ describe 'phabs_commands module', ->
       context 'phab T42', ->
         hubot 'phab T42'
         it 'gives information about the task Txxx', ->
-          expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner nobody)'
+          expect(hubotResponse()).to.eql 'T42 - some task (open 5 days ago, Low, owner nobody)'
 
     context 'task id is provided, and owner is unknown', ->
       beforeEach ->
@@ -303,7 +308,9 @@ describe 'phabs_commands module', ->
             status: 'open',
             priority: 'Low',
             name: 'Test task',
-            ownerPHID: 'PHID-USER-42'
+            ownerPHID: 'PHID-USER-42',
+            dateCreated: moment().subtract(5, 'days').format('X'),
+            dateModified: moment().subtract(3, 'hours').format('X')
             } })
           .get('/api/user.query')
           .reply(200, { error_info: 'unknown user' })
@@ -331,7 +338,9 @@ describe 'phabs_commands module', ->
             status: 'open',
             priority: 'Low',
             name: 'Test task',
-            ownerPHID: 'PHID-USER-000000'
+            ownerPHID: 'PHID-USER-000000',
+            dateCreated: moment().subtract(5, 'days').format('X'),
+            dateModified: moment().subtract(3, 'hours').format('X')
             } })
           .get('/api/user.query')
           .query({
@@ -346,7 +355,7 @@ describe 'phabs_commands module', ->
       context 'phab T42', ->
         hubot 'phab T42'
         it 'gives information about the task Txxx', ->
-          expect(hubotResponse()).to.eql 'T42 - some task (open, Low, owner unknown)'
+          expect(hubotResponse()).to.eql 'T42 - some task (open 5 days ago, Low, owner unknown)'
 
 # --------------------------------------------------------------------------------------------------
   context 'user asks for next checkbox of a task', ->
@@ -1118,7 +1127,9 @@ describe 'phabs_commands module', ->
             status: 'open',
             priority: 'Low',
             name: 'Test task',
-            ownerPHID: 'PHID-USER-123456789'
+            ownerPHID: 'PHID-USER-123456789',
+            dateCreated: moment().subtract(10, 'seconds').format('X'),
+            dateModified: moment().subtract(10, 'seconds').format('X')
             } })
 
       afterEach ->
@@ -1131,7 +1142,8 @@ describe 'phabs_commands module', ->
         it 'replies with the object id', ->
           # console.log room.robot.brain.data.phabricator.users.user_with_phid
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
-          expect(hubotResponse(3)).to.eql 'T24 - some task (open, Low, owner user_with_phid)'
+          expect(hubotResponse(3))
+            .to.eql 'T24 - some task (open a few seconds ago, Low, owner user_with_phid)'
 
 
     context 'phab new proj2 a task', ->
@@ -1494,7 +1506,9 @@ describe 'phabs_commands module', ->
             status: 'open',
             priority: 'Low',
             name: 'Test task',
-            ownerPHID: 'PHID-USER-123456789'
+            ownerPHID: 'PHID-USER-123456789',
+            dateCreated: moment().subtract(10, 'seconds').format('X'),
+            dateModified: moment().subtract(10, 'seconds').format('X')
             } })
 
       afterEach ->
@@ -1506,7 +1520,8 @@ describe 'phabs_commands module', ->
         hubot 'ph', 'user_with_phid'
         it 'replies with the object id', ->
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
-          expect(hubotResponse(3)).to.eql 'T24 - some task (open, Low, owner user_with_phid)'
+          expect(hubotResponse(3))
+            .to.eql 'T24 - some task (open a few seconds ago, Low, owner user_with_phid)'
 
     context 'implicit re-use of the object id with no memorization', ->
       beforeEach ->
@@ -1567,7 +1582,9 @@ describe 'phabs_commands module', ->
             status: 'open',
             priority: 'Low',
             name: 'Test task',
-            ownerPHID: 'PHID-USER-123456789'
+            ownerPHID: 'PHID-USER-123456789',
+            dateCreated: moment().subtract(10, 'seconds').format('X'),
+            dateModified: moment().subtract(10, 'seconds').format('X')
             } })
 
       afterEach ->
@@ -1580,7 +1597,8 @@ describe 'phabs_commands module', ->
         hubot 'ph', 'user_with_phid'
         it 'replies with the object id', ->
           expect(hubotResponse(1)).to.eql 'Task T24 created = http://example.com/T24'
-          expect(hubotResponse(3)).to.eql 'T24 - some task (open, Low, owner user_with_phid)'
+          expect(hubotResponse(3))
+            .to.eql 'T24 - some task (open a few seconds ago, Low, owner user_with_phid)'
 
 
     context 'phab new proj3:template1 a task', ->
@@ -3084,9 +3102,12 @@ describe 'phabs_commands module', ->
           }
         }
         do nock.disableNetConnect
+        payload = require('./samples/search_result_2.json')
+        payload.result.data[0].fields.dateCreated = moment().subtract(12, 'days').format('X')
+        payload.result.data[1].fields.dateCreated = moment().subtract(3, 'days').format('X')
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(200,  require('./samples/search_result_2.json'))
+          .reply(200, payload)
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
@@ -3096,9 +3117,9 @@ describe 'phabs_commands module', ->
         hubot 'phab all proj3 gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open 3 days ago)'
           expect(hubotResponseCount()).to.eql 2
 
     context 'there is more than 3 results', ->
@@ -3110,9 +3131,13 @@ describe 'phabs_commands module', ->
           }
         }
         do nock.disableNetConnect
+        payload = require('./samples/search_result_3.json')
+        payload.result.data[0].fields.dateCreated = moment().subtract(12, 'days').format('X')
+        payload.result.data[1].fields.dateCreated = moment().subtract(3, 'days').format('X')
+        payload.result.data[2].fields.dateCreated = moment().subtract(1, 'hours').format('X')
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(200, require('./samples/search_result_3.json'))
+          .reply(200, payload)
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
@@ -3122,11 +3147,11 @@ describe 'phabs_commands module', ->
         hubot 'phab all proj3 gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open 3 days ago)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T2078 - Task 3 (Open)'
+            .to.eql 'http://example.com/T2078 - Task 3 (Open an hour ago)'
           expect(hubotResponse(4))
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 4
@@ -3140,9 +3165,13 @@ describe 'phabs_commands module', ->
           }
         }
         do nock.disableNetConnect
+        payload = require('./samples/search_result_5.json')
+        payload.result.data[0].fields.dateCreated = moment().subtract(12, 'days').format('X')
+        payload.result.data[1].fields.dateCreated = moment().subtract(3, 'days').format('X')
+        payload.result.data[2].fields.dateCreated = moment().subtract(1, 'hours').format('X')
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(200, require('./samples/search_result_5.json'))
+          .reply(200, payload)
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
@@ -3152,11 +3181,11 @@ describe 'phabs_commands module', ->
         hubot 'phab all 5 proj3 gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T4920 - pouet (Open)'
+            .to.eql 'http://example.com/T4920 - pouet (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T4123 - zarma (Open)'
+            .to.eql 'http://example.com/T4123 - zarma (Open 3 days ago)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T4121 - pouet (Open)'
+            .to.eql 'http://example.com/T4121 - pouet (Open an hour ago)'
           expect(hubotResponse(6))
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 6
@@ -3170,6 +3199,11 @@ describe 'phabs_commands module', ->
           }
         }
         do nock.disableNetConnect
+        payload = require('./samples/search_result_long.json')
+        payload.result.data[0].fields.dateCreated = moment().subtract(12, 'days').format('X')
+        payload.result.data[1].fields.dateCreated = moment().subtract(3, 'days').format('X')
+        payload.result.data[2].fields.dateCreated = moment().subtract(1, 'hours').format('X')
+        payload.result.data[46].fields.dateModified = moment().subtract(8, 'hours').format('X')
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
           .reply(200, require('./samples/search_result_long.json'))
@@ -3182,13 +3216,14 @@ describe 'phabs_commands module', ->
         hubot 'phab all 1000 proj3 gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T4920 - pouet (Open)'
+            .to.eql 'http://example.com/T4920 - pouet (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T4123 - zarma (Open)'
+            .to.eql 'http://example.com/T4123 - zarma (Open 3 days ago)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T4121 - pouet (Open)'
+            .to.eql 'http://example.com/T4121 - pouet (Open an hour ago)'
           expect(hubotResponse(47))
-            .to.eql 'http://example.com/T2263 - woualou another one again more (Invalid)'
+            .to.eql 'http://example.com/T2263 - ' +
+                    'woualou another one again more (Invalid 8 hours ago)'
           expect(hubotResponseCount()).to.eql 47
 
     context 'there is no results', ->
@@ -3266,10 +3301,13 @@ describe 'phabs_commands module', ->
 
     context 'there is 2 results', ->
       beforeEach ->
+        payload = require('./samples/search_result_2.json')
+        payload.result.data[0].fields.dateCreated = moment().subtract(12, 'days').format('X')
+        payload.result.data[1].fields.dateCreated = moment().subtract(3, 'days').format('X')
         do nock.disableNetConnect
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(200, require('./samples/search_result_2.json'))
+          .reply(200, payload)
 
       afterEach ->
         nock.cleanAll()
@@ -3278,17 +3316,21 @@ describe 'phabs_commands module', ->
         hubot 'phab search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open 3 days ago)'
           expect(hubotResponseCount()).to.eql 2
 
     context 'there is more than 3 results', ->
       beforeEach ->
         do nock.disableNetConnect
+        payload = require('./samples/search_result_3.json')
+        payload.result.data[0].fields.dateCreated = moment().subtract(12, 'days').format('X')
+        payload.result.data[1].fields.dateCreated = moment().subtract(3, 'days').format('X')
+        payload.result.data[2].fields.dateCreated = moment().subtract(1, 'hours').format('X')
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(200,  require('./samples/search_result_3.json'))
+          .reply(200, payload)
 
       afterEach ->
         nock.cleanAll()
@@ -3297,11 +3339,11 @@ describe 'phabs_commands module', ->
         hubot 'phab search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open 3 days ago)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T2078 - Task 3 (Open)'
+            .to.eql 'http://example.com/T2078 - Task 3 (Open an hour ago)'
           expect(hubotResponse(4))
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 4
@@ -3311,11 +3353,11 @@ describe 'phabs_commands module', ->
         hubot 'phab all search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open 3 days ago)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T2078 - Task 3 (Open)'
+            .to.eql 'http://example.com/T2078 - Task 3 (Open an hour ago)'
           expect(hubotResponse(4))
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 4
@@ -3323,9 +3365,13 @@ describe 'phabs_commands module', ->
     context 'user asks for 5 results', ->
       beforeEach ->
         do nock.disableNetConnect
+        payload = require('./samples/search_result_5.json')
+        payload.result.data[0].fields.dateCreated = moment().subtract(12, 'days').format('X')
+        payload.result.data[1].fields.dateCreated = moment().subtract(3, 'days').format('X')
+        payload.result.data[2].fields.dateCreated = moment().subtract(1, 'hours').format('X')
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(200, require('./samples/search_result_5.json'))
+          .reply(200, payload)
 
       afterEach ->
         nock.cleanAll()
@@ -3334,11 +3380,11 @@ describe 'phabs_commands module', ->
         hubot 'phab 5 search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T4920 - pouet (Open)'
+            .to.eql 'http://example.com/T4920 - pouet (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T4123 - zarma (Open)'
+            .to.eql 'http://example.com/T4123 - zarma (Open 3 days ago)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T4121 - pouet (Open)'
+            .to.eql 'http://example.com/T4121 - pouet (Open an hour ago)'
           expect(hubotResponse(6))
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 6
@@ -3347,11 +3393,11 @@ describe 'phabs_commands module', ->
         hubot 'phab all 5 search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T4920 - pouet (Open)'
+            .to.eql 'http://example.com/T4920 - pouet (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T4123 - zarma (Open)'
+            .to.eql 'http://example.com/T4123 - zarma (Open 3 days ago)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T4121 - pouet (Open)'
+            .to.eql 'http://example.com/T4121 - pouet (Open an hour ago)'
           expect(hubotResponse(6))
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 6
@@ -3359,9 +3405,14 @@ describe 'phabs_commands module', ->
     context 'user asks for 50 results', ->
       beforeEach ->
         do nock.disableNetConnect
+        payload = require('./samples/search_result_long.json')
+        payload.result.data[0].fields.dateCreated = moment().subtract(12, 'days').format('X')
+        payload.result.data[1].fields.dateCreated = moment().subtract(3, 'days').format('X')
+        payload.result.data[2].fields.dateCreated = moment().subtract(1, 'hours').format('X')
+        payload.result.data[46].fields.dateModified = moment().subtract(8, 'hours').format('X')
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(200, require('./samples/search_result_long.json'))
+          .reply(200, payload)
 
       afterEach ->
         nock.cleanAll()
@@ -3370,26 +3421,28 @@ describe 'phabs_commands module', ->
         hubot 'phab 50 search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T4920 - pouet (Open)'
+            .to.eql 'http://example.com/T4920 - pouet (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T4123 - zarma (Open)'
+            .to.eql 'http://example.com/T4123 - zarma (Open 3 days ago)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T4121 - pouet (Open)'
+            .to.eql 'http://example.com/T4121 - pouet (Open an hour ago)'
           expect(hubotResponse(47))
-            .to.eql 'http://example.com/T2263 - woualou another one again more (Invalid)'
+            .to.eql 'http://example.com/T2263 - ' +
+                    'woualou another one again more (Invalid 8 hours ago)'
           expect(hubotResponseCount()).to.eql 47
 
       context 'phab all 50 search gitlab', ->
         hubot 'phab all 50 search gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T4920 - pouet (Open)'
+            .to.eql 'http://example.com/T4920 - pouet (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T4123 - zarma (Open)'
+            .to.eql 'http://example.com/T4123 - zarma (Open 3 days ago)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T4121 - pouet (Open)'
+            .to.eql 'http://example.com/T4121 - pouet (Open an hour ago)'
           expect(hubotResponse(47))
-            .to.eql 'http://example.com/T2263 - woualou another one again more (Invalid)'
+            .to.eql 'http://example.com/T2263 - ' +
+                    'woualou another one again more (Invalid 8 hours ago)'
           expect(hubotResponseCount()).to.eql 47
 
     context 'there is no results', ->
@@ -3449,9 +3502,12 @@ describe 'phabs_commands module', ->
           }
         }
         do nock.disableNetConnect
+        payload = require('./samples/search_result_2.json')
+        payload.result.data[0].fields.dateCreated = moment().subtract(12, 'days').format('X')
+        payload.result.data[1].fields.dateCreated = moment().subtract(3, 'days').format('X')
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(200,  require('./samples/search_result_2.json'))
+          .reply(200, payload)
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
@@ -3461,9 +3517,9 @@ describe 'phabs_commands module', ->
         hubot 'phab proj3 gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open 3 days ago)'
           expect(hubotResponseCount()).to.eql 2
 
     context 'there is more than 3 results', ->
@@ -3475,9 +3531,13 @@ describe 'phabs_commands module', ->
           }
         }
         do nock.disableNetConnect
+        payload = require('./samples/search_result_3.json')
+        payload.result.data[0].fields.dateCreated = moment().subtract(12, 'days').format('X')
+        payload.result.data[1].fields.dateCreated = moment().subtract(3, 'days').format('X')
+        payload.result.data[2].fields.dateCreated = moment().subtract(1, 'hours').format('X')
         nock(process.env.PHABRICATOR_URL)
           .get('/api/maniphest.search')
-          .reply(200,  require('./samples/search_result_3.json'))
+          .reply(200, payload)
 
       afterEach ->
         room.robot.brain.data.phabricator = { }
@@ -3487,11 +3547,11 @@ describe 'phabs_commands module', ->
         hubot 'phab proj3 gitlab'
         it 'gives a list of results', ->
           expect(hubotResponse())
-            .to.eql 'http://example.com/T2490 - Task 1 (Open)'
+            .to.eql 'http://example.com/T2490 - Task 1 (Open 12 days ago)'
           expect(hubotResponse(2))
-            .to.eql 'http://example.com/T2080 - Task 2 (Open)'
+            .to.eql 'http://example.com/T2080 - Task 2 (Open 3 days ago)'
           expect(hubotResponse(3))
-            .to.eql 'http://example.com/T2078 - Task 3 (Open)'
+            .to.eql 'http://example.com/T2078 - Task 3 (Open an hour ago)'
           expect(hubotResponse(4))
             .to.eql '... and there is more.'
           expect(hubotResponseCount()).to.eql 4

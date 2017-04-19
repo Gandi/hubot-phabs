@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.4.4 - 2017-04-19
+- added relative time for status in `.ph Txxx` and search results
+
 ### 2.4.3 - 2017-04-19
 - changed regexp for `.ph is ...` so that it gives the list of possible options 
   if unknown status or prorioty is provided
