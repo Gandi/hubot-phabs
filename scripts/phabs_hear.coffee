@@ -84,7 +84,7 @@ module.exports = (robot) ->
             .catch (e) ->
               msg.send "oops #{type}#{id} #{e}"
 
-          when /^(M|B|Q|L|V)$/.test type
+          when /^(D|M|B|Q|L|V)$/.test type
             phab.genericInfo("#{type}#{id}")
             .then (body) ->
               if Object.keys(body.result).length < 1

@@ -493,6 +493,7 @@ There is possibility to only react to certain item type too, by setting the `PHA
         the plugin will watch if it sees 
         - T[0-9]+ for tasks (of Maniphest)
         - P[0-9]+ for pastes 
+        - D[0-9]+ for differential revisions
         - F[0-9]+ for files 
         - M[0-9]+ for mocks (of Pholio)
         - B[0-9]+ for builds (of Harbormaster)
