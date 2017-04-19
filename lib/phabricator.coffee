@@ -58,8 +58,8 @@ class Phabricator
     'B', # builds
     'Q', # ponder
     'L', # legalpad
-    'V'  # polls
-    'D', # diffs
+    'V', # polls
+    'D'  # diffs
   ]
 
   constructor: (@robot, env) ->
