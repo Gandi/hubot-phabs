@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.4.6 - 2017-04-20
+- fix feeds issue on newly created projects
+
 ### 2.4.5 - 2017-04-19
 - Add functionality to hear Differential Revisions too (by @redstonemercury)
 
