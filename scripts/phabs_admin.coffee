@@ -121,12 +121,16 @@ module.exports = (robot) ->
     .then ->
       phab.getProject(project)
     .then (proj) ->
-      data.projects[proj.data.name].feeds ?= [ ]
-      if room in data.projects[proj.data.name].feeds
-        msg.send "The feed from '#{proj.data.name}' to '#{room}' already exist."
+      if proj.data.parent?
+        fullname = "#{proj.data.parent}/#{proj.data.name}"
       else
-        data.projects[proj.data.name].feeds.push room
-        msg.send "Ok, '#{proj.data.name}' is now feeding '#{room}'."
+        fullname = proj.data.name
+      data.projects[fullname].feeds ?= [ ]
+      if room in data.projects[fullname].feeds
+        msg.send "The feed from '#{fullname}' to '#{room}' already exist."
+      else
+        data.projects[fullname].feeds.push room
+        msg.send "Ok, '#{fullname}' is now feeding '#{room}'."
     .catch (e) ->
       msg.send e
 
@@ -152,13 +156,17 @@ module.exports = (robot) ->
     .then ->
       phab.getProject(project)
     .then (proj) ->
-      data.projects[proj.data.name].feeds ?= [ ]
-      if room in data.projects[proj.data.name].feeds
-        idx = data.projects[proj.data.name].feeds.indexOf room
-        data.projects[proj.data.name].feeds.splice(idx, 1)
-        msg.send "Ok, The feed from '#{proj.data.name}' to '#{room}' was removed."
+      if proj.data.parent?
+        fullname = "#{proj.data.parent}/#{proj.data.name}"
       else
-        msg.send "Sorry, '#{proj.data.name}' is not feeding '#{room}'."
+        fullname = proj.data.name
+      data.projects[fullname].feeds ?= [ ]
+      if room in data.projects[fullname].feeds
+        idx = data.projects[fullname].feeds.indexOf room
+        data.projects[fullname].feeds.splice(idx, 1)
+        msg.send "Ok, The feed from '#{fullname}' to '#{room}' was removed."
+      else
+        msg.send "Sorry, '#{fullname}' is not feeding '#{room}'."
     .catch (e) ->
       msg.send e
 

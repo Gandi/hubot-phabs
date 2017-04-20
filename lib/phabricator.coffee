@@ -258,8 +258,6 @@ class Phabricator
       projectname = projectinfo.name
       if projectinfo.parent?
         projectname = projectinfo.parent + '/' + projectname
-      unless projectinfo.feeds?
-        projectinfo.feeds = []
       data.projects[projectname] = projectinfo
       if @aliasize(projectname) isnt projectname
         data.aliases[@aliasize(projectname)] = projectname
