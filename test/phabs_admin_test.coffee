@@ -880,32 +880,66 @@ describe 'phabs_admin module', ->
             .to.eql "The feed from 'bug report' to '#dev' already exist."
 
     context 'and the feed do not already exists', ->
-      beforeEach ->
-        room.robot.brain.data.phabricator.projects = {
-          'bug report': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-            name: 'bug report',
-            feeds: [ ]
-          },
-          'project': { phid: 'PHID-PROJ-1234567' },
-        }
-        room.robot.brain.data.phabricator.aliases = {
-          bugs: 'bug report',
-          bug: 'bug report'
-        }
-        do nock.disableNetConnect
+      context 'and project has no parent', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'bug report': {
+              phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+              name: 'bug report',
+              feeds: [ ]
+            },
+            'project': { phid: 'PHID-PROJ-1234567' },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'bug report',
+            bug: 'bug report'
+          }
+          do nock.disableNetConnect
 
-      afterEach ->
-        room.robot.brain.data.phabricator = { }
-        nock.cleanAll()
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
 
-      context 'phad feed bug to #dev', ->
-        hubot 'phad feed bug to #dev'
-        it 'should say that the feed was created', ->
-          expect(hubotResponse())
-            .to.eql "Ok, 'bug report' is now feeding '#dev'."
-          expect(room.robot.brain.data.phabricator.projects['bug report'].feeds)
-            .to.include '#dev'
+        context 'phad feed bug to #dev', ->
+          hubot 'phad feed bug to #dev'
+          it 'should say that the feed was created', ->
+            expect(hubotResponse())
+              .to.eql "Ok, 'bug report' is now feeding '#dev'."
+            expect(room.robot.brain.data.phabricator.projects['bug report'].feeds)
+              .to.include '#dev'
+
+      context 'and project has a parent', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'project/bug report': {
+              phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+              name: 'bug report',
+              parent: 'project',
+              feeds: [ ]
+            },
+            'project': {
+              phid: 'PHID-PROJ-1234567',
+              name: 'project',
+              feeds: [ ]
+            },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'project/bug report',
+            bug: 'project/bug report'
+          }
+          do nock.disableNetConnect
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'phad feed bug to #dev', ->
+          hubot 'phad feed bug to #dev'
+          it 'should say that the feed was created', ->
+            expect(hubotResponse())
+              .to.eql "Ok, 'project/bug report' is now feeding '#dev'."
+            expect(room.robot.brain.data.phabricator.projects['project/bug report'].feeds)
+              .to.include '#dev'
 
   # ---------------------------------------------------------------------------------
   context 'user wants to add a catchall feed', ->
@@ -1026,34 +1060,69 @@ describe 'phabs_admin module', ->
 
 
     context 'and the feed exists', ->
-      beforeEach ->
-        room.robot.brain.data.phabricator.projects = {
-          'bug report': {
-            phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
-            name: 'bug report',
-            feeds: [
-              '#dev'
-            ]
-          },
-          'project': { phid: 'PHID-PROJ-1234567' },
-        }
-        room.robot.brain.data.phabricator.aliases = {
-          bugs: 'bug report',
-          bug: 'bug report'
-        }
-        do nock.disableNetConnect
+      context 'and project has no parent', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'bug report': {
+              phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+              name: 'bug report',
+              feeds: [
+                '#dev'
+              ]
+            },
+            'project': { phid: 'PHID-PROJ-1234567' },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'bug report',
+            bug: 'bug report'
+          }
+          do nock.disableNetConnect
 
-      afterEach ->
-        room.robot.brain.data.phabricator = { }
-        nock.cleanAll()
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
 
-      context 'phad remove bug from #dev', ->
-        hubot 'phad remove bug from #dev'
-        it 'should say that the feed was removed', ->
-          expect(hubotResponse())
-            .to.eql "Ok, The feed from 'bug report' to '#dev' was removed."
-          expect(room.robot.brain.data.phabricator.projects['bug report'].feeds)
-            .not.to.include '#dev'
+        context 'phad remove bug from #dev', ->
+          hubot 'phad remove bug from #dev'
+          it 'should say that the feed was removed', ->
+            expect(hubotResponse())
+              .to.eql "Ok, The feed from 'bug report' to '#dev' was removed."
+            expect(room.robot.brain.data.phabricator.projects['bug report'].feeds)
+              .not.to.include '#dev'
+
+      context 'and project has a parent', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'project/bug report': {
+              phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4',
+              name: 'bug report',
+              parent: 'project',
+              feeds: [ '#dev' ]
+            },
+            'project': {
+              phid: 'PHID-PROJ-1234567',
+              name: 'project',
+              feeds: [ ]
+            },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'project/bug report',
+            bug: 'project/bug report'
+          }
+          do nock.disableNetConnect
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'phad remove bug from #dev', ->
+          hubot 'phad remove bug from #dev'
+          it 'should say that the feed was removed', ->
+            expect(hubotResponse())
+              .to.eql "Ok, The feed from 'project/bug report' to '#dev' was removed."
+            expect(room.robot.brain.data.phabricator.projects['project/bug report'].feeds)
+              .not.to.include '#dev'
+
 
     context 'but the feed do not already exists', ->
       beforeEach ->
