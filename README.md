@@ -262,13 +262,13 @@ Requests can be done on arbitrary projects. Their PHID will be retrieved at firs
     .phab T123 sub <user> + some comment
     .phab T123 unsub <user> = some comment
         subscribes and unsubscribes users to tasks.
-        A comment can optionaly be added.
+        A comment can optionally be added.
         You can use 'me' as username and it will substitute your username
         permission: phuser
 
     .phab T123 on <someone> is low is open to <column>
         starting with `v2.2.0` it's possible to combine several commands to 
-        change a task. It detects actions to be taken according to the conjonction used:
+        change a task. It detects actions to be taken according to the conjunction used:
         - on      - change owner
         - for     - change owner (alias to on)
         - is      - change status or priority
