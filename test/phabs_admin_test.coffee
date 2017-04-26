@@ -1489,6 +1489,23 @@ describe 'phabs_admin module', ->
             expect(hubotResponse())
               .to.eql 'Columns for PHID-PROJ-qhmexneudkt62wc7o3z4: back_log, done'
 
+      context 'when an error occurs', ->
+        beforeEach ->
+          do nock.disableNetConnect
+          nock(process.env.PHABRICATOR_URL)
+            .get('/api/project.search')
+            .reply(500, { message: 'Internal error' })
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'phad columns project', ->
+          hubot 'phad columns project'
+          it 'should say ok', ->
+            expect(hubotResponse())
+              .to.eql 'http error 500'
+
   # ---------------------------------------------------------------------------------
   context 'permissions system', ->
     beforeEach ->

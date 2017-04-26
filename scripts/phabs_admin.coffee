@@ -52,7 +52,7 @@ module.exports = (robot) ->
       else
         msg.send "#{project} not found in memory."
     .catch (e) ->
-      msg.send e
+      msg.send e.message or e
 
   #   hubot phad info|refresh <project>
   robot.respond /phad (info|show|refresh) (.+) *$/, (msg) ->
@@ -82,7 +82,7 @@ module.exports = (robot) ->
       response += '.'
       msg.send response
     .catch (e) ->
-      msg.send e
+      msg.send e.message or e
 
   #   hubot phad alias <project> as <alias>
   robot.respond /phad alias (.+) as (.+)$/, (msg) ->
@@ -98,7 +98,7 @@ module.exports = (robot) ->
         data.aliases[alias] = proj.data.name
         msg.send "Ok, '#{proj.data.name}' will be known as '#{alias}'."
     .catch (e) ->
-      msg.send e
+      msg.send e.message or e
 
   #   hubot phad forget <alias>
   robot.respond /phad forget (.+)$/, (msg) ->
@@ -111,7 +111,7 @@ module.exports = (robot) ->
       else
         msg.send "Sorry, I don't know the alias '#{alias}'."
     .catch (e) ->
-      msg.send e
+      msg.send e.message or e
 
   #   hubot phad feed <project> to <room>
   robot.respond /phad feeds? (.+) to (.+)$/, (msg) ->
@@ -132,7 +132,7 @@ module.exports = (robot) ->
         data.projects[fullname].feeds.push room
         msg.send "Ok, '#{fullname}' is now feeding '#{room}'."
     .catch (e) ->
-      msg.send e
+      msg.send e.message or e
 
   #   hubot phad feedall to <room>
   robot.respond /phad feedall to (.+)$/, (msg) ->
@@ -168,7 +168,7 @@ module.exports = (robot) ->
       else
         msg.send "Sorry, '#{fullname}' is not feeding '#{room}'."
     .catch (e) ->
-      msg.send e
+      msg.send e.message or e
 
   #   hubot phad removeall from <room>
   robot.respond /phad removeall from (.+)$/, (msg) ->
@@ -198,4 +198,4 @@ module.exports = (robot) ->
       else
         msg.send "The project #{project} has no columns."
     .catch (e) ->
-      msg.send e.message
+      msg.send e.message or e
