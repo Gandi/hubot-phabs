@@ -101,7 +101,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot bl <id> - blacklists <id> from auto-resopnses
-  robot.respond /ph(?:ab)? bl ((?:T|F|P|M|B|Q|L|V)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
+  robot.respond /ph(?:ab)? bl ((?:T|F|P|M|B|Q|L|V|D)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
     phab.getPermission(msg.envelope.user, 'phuser')
     .then ->
       phab.blacklist msg.match[1]
@@ -111,7 +111,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot bl <id> - blacklists <id> from auto-resopnses
-  robot.respond /ph(?:ab)? unbl ((?:T|F|P|M|B|Q|L|V)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
+  robot.respond /ph(?:ab)? unbl ((?:T|F|P|M|B|Q|L|V|D)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
     phab.getPermission(msg.envelope.user, 'phuser')
     .then ->
       phab.unblacklist msg.match[1]
