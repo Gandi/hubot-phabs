@@ -1,6 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.4.8 - wip
+- add D in the list of possible blacklists
+
 ### 2.4.7 - 2017-04-20
 - fix feeds issue on sub-projects
 
