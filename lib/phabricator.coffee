@@ -246,7 +246,10 @@ class Phabricator
           break
     if projectData? and not refresh
       return new Promise (res, err) =>
-        res { aliases: @projectAliases(projectData.name), data: projectData }
+        projectname = projectData.name
+        if projectData.parent?
+          projectname = projectData.parent + '/' + projectname
+        res { aliases: @projectAliases(projectname), data: projectData }
     else
       @getProjectData project
 

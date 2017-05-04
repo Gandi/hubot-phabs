@@ -1,8 +1,9 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.4.8 - wip
+### 2.4.8 - 2017-05-04
 - add D in the list of possible blacklists
+- fix various use cases of alias with subprojects
 
 ### 2.4.7 - 2017-04-20
 - fix feeds issue on sub-projects
