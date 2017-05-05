@@ -8,6 +8,12 @@
 # Urls:
 #   /hubot/phabs/feeds
 #
+# Commands:
+#   hubot phab <user> set alerts - private messages sent to user on task subscribed or owned
+#   hubot phab me set alerts - private messages sent to user on task subscribed or owned
+#   hubot phab <user> unset alerts - remove an alert flag for a user
+#   hubot phab me unset alerts - remove an alert flag for the caller
+#
 # Author:
 #   mose
 #
@@ -52,7 +58,7 @@ module.exports = (robot) ->
     msg.finish()
 
   #   hubot phab <user> unset alerts - remove an alert flag for user
-  #   hubot phab me set unalerts - remove an alert flag for caller
+  #   hubot phab me unset alerts - remove an alert flag for the caller
   robot.respond /ph(?:ab)? ([^ ]*) unset alerts *$/, (msg) ->
     assigned = msg.match[1]
     if assigned is 'me'

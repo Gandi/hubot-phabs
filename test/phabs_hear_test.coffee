@@ -823,13 +823,13 @@ describe 'phabs_hear module', ->
 
       context 'whatever about rTULIP156f7196453c or something', ->
         hubot 'whatever about rTULIP156f7196453c or something'
-        it 'gives information about the Paste, including uri', ->
+        it 'gives information about the Commit, including uri', ->
           expect(hubotResponse())
             .to.eql 'https://example.com/rP156f7196453c6612ee90f97e41bb9389e5d6ec0b - ' +
                     '(stable) Promote 2016 Week 28'
       context 'whatever about http://example.com/rTULIP156f7196453c or something', ->
         hubot 'whatever about http://example.com/rTULIP156f7196453c or something'
-        it 'gives information about the Paste, without uri', ->
+        it 'gives information about the Commit, without uri', ->
           expect(hubotResponse()).to.eql 'rTULIP156f7196453c: (stable) Promote 2016 Week 28'
 
     context 'when it is an existing commit with a status closed', ->
@@ -854,12 +854,12 @@ describe 'phabs_hear module', ->
 
       context 'whatever about rTULIP156f7196453c or something', ->
         hubot 'whatever about rTULIP156f7196453c or something'
-        it 'gives information about the Paste, including uri', ->
+        it 'gives information about the Commit, including uri', ->
           expect(hubotResponse())
             .to.eql 'https://example.com/rP156f7196453c6612ee90f97e41bb9389e5d6ec0b - ' +
                     '(stable) Promote 2016 Week 28 (closed)'
       context 'whatever about http://example.com/rTULIP156f7196453c or something', ->
         hubot 'whatever about http://example.com/rTULIP156f7196453c or something'
-        it 'gives information about the Paste, without uri', ->
+        it 'gives information about the Commit, without uri', ->
           expect(hubotResponse())
             .to.eql 'rTULIP156f7196453c: (stable) Promote 2016 Week 28 (closed)'

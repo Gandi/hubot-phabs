@@ -16,6 +16,8 @@
 #   hubot phad forget <alias>
 #   hubot phad feed <project> to <room>
 #   hubot phad remove <project> from <room>
+#   hubot phad removeall from <room>
+#   hubot phad columns <project>
 #
 # Author:
 #   mose
