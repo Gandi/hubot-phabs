@@ -25,11 +25,12 @@
 #   hubot phab Txx prev [<key>] - outputs last checked checkbox found in task Txx
 #   hubot phab Txx check [<key>] - update task Txx description by checking a box
 #   hubot phab Txx uncheck [<key>] - update task Txx description by unchecking a box
-#   hubot phab <user> - checks if user is known or not
+#   hubot phab user <user> - checks if user is known or not
 #   hubot phab me as <email> - makes caller known with <email>
-#   hubot phab <user> = <email> - associates user to email
-#   hubot phab search [all] earch terms - searches for terms in tasks ([all] to search non-open)
+#   hubot phab user <user> = <email> - associates user to email
+#   hubot phab search [all] search terms - searches for terms in tasks ([all] to search non-open)
 #   hubot phab [all] <project> search terms - searches terms in project ([all] to search non-open)
+#   hubot phid <phid> - returns info about an arbitrary phid
 #
 # Author:
 #   mose
@@ -100,7 +101,7 @@ module.exports = (robot) ->
       msg.send e
     msg.finish()
 
-  #   hubot bl <id> - blacklists <id> from auto-resopnses
+  #   hubot phab bl <id> - blacklists <id> from auto-resopnses
   robot.respond /ph(?:ab)? bl ((?:T|F|P|M|B|Q|L|V|D)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
     phab.getPermission(msg.envelope.user, 'phuser')
     .then ->
@@ -110,7 +111,7 @@ module.exports = (robot) ->
       msg.send e
     msg.finish()
 
-  #   hubot bl <id> - blacklists <id> from auto-resopnses
+  #   hubot phab unbl <id> - blacklists <id> from auto-resopnses
   robot.respond /ph(?:ab)? unbl ((?:T|F|P|M|B|Q|L|V|D)(?:[0-9]+)|(?:r[A-Z]+[a-f0-9]{10,}))/, (msg) ->
     phab.getPermission(msg.envelope.user, 'phuser')
     .then ->
