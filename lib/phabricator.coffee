@@ -72,14 +72,14 @@ class Phabricator
         users: { },
         bot_phid: env.PHABRICATOR_BOT_PHID
       }
+      @data.templates ?= { }
+      @data.blacklist ?= [ ]
+      @data.users ?= { }
+      @data.alerts ?= { }
+      @data.projects['*'] ?= { }
       @robot.logger.debug '---- Phabricator Data Loaded.'
     @robot.brain.on 'loaded', storageLoaded
     storageLoaded() # just in case storage was loaded before we got here
-    @data.templates ?= { }
-    @data.blacklist ?= [ ]
-    @data.users ?= { }
-    @data.alerts ?= { }
-    @data.projects['*'] ?= { }
 
   ready: ->
     if not process.env.PHABRICATOR_URL
