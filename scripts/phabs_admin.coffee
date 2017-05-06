@@ -30,11 +30,10 @@ module.exports = (robot) ->
 
   robot.phab ?= new Phabricator robot, process.env
   phab = robot.phab
-  data = robot.brain.data.phabricator
 
   #   hubot phad projects
   robot.respond /phad (?:projects|list) *$/, (msg) ->
-    projects = Object.keys(data.projects).filter (i) ->
+    projects = Object.keys(phab.data.projects).filter (i) ->
       i isnt '*'
     if projects.length > 0
       msg.send "Known Projects: #{projects.join(', ')}"
@@ -46,10 +45,10 @@ module.exports = (robot) ->
     project = msg.match[1]
     phab.getPermission(msg.envelope.user, 'phadmin')
     .then ->
-      if data.projects[project]?
-        delete data.projects[project]
-        for alias, proj of data.aliases
-          delete data.aliases[alias] if proj is project
+      if phab.data.projects[project]?
+        delete phab.data.projects[project]
+        for alias, proj of phab.data.aliases
+          delete phab.data.aliases[alias] if proj is project
         msg.send "#{project} erased from memory."
       else
         msg.send "#{project} not found in memory."
@@ -94,14 +93,14 @@ module.exports = (robot) ->
     .then ->
       phab.getProject(project)
     .then (proj) ->
-      if data.aliases[alias]?
-        msg.send "The alias '#{alias}' already exists for project '#{data.aliases[alias]}'."
+      if phab.data.aliases[alias]?
+        msg.send "The alias '#{alias}' already exists for project '#{phab.data.aliases[alias]}'."
       else
         if proj.data.parent?
           fullname = "#{proj.data.parent}/#{proj.data.name}"
         else
           fullname = proj.data.name
-        data.aliases[alias] = fullname
+        phab.data.aliases[alias] = fullname
         msg.send "Ok, '#{fullname}' will be known as '#{alias}'."
     .catch (e) ->
       msg.send e.message or e
@@ -111,8 +110,8 @@ module.exports = (robot) ->
     alias = msg.match[1]
     phab.getPermission(msg.envelope.user, 'phadmin')
     .then ->
-      if data.aliases[alias]
-        delete data.aliases[alias]
+      if phab.data.aliases[alias]
+        delete phab.data.aliases[alias]
         msg.send "Ok, the alias '#{alias}' is forgotten."
       else
         msg.send "Sorry, I don't know the alias '#{alias}'."
@@ -131,11 +130,11 @@ module.exports = (robot) ->
         fullname = "#{proj.data.parent}/#{proj.data.name}"
       else
         fullname = proj.data.name
-      data.projects[fullname].feeds ?= [ ]
-      if room in data.projects[fullname].feeds
+      phab.data.projects[fullname].feeds ?= [ ]
+      if room in phab.data.projects[fullname].feeds
         msg.send "The feed from '#{fullname}' to '#{room}' already exist."
       else
-        data.projects[fullname].feeds.push room
+        phab.data.projects[fullname].feeds.push room
         msg.send "Ok, '#{fullname}' is now feeding '#{room}'."
     .catch (e) ->
       msg.send e.message or e
@@ -147,11 +146,11 @@ module.exports = (robot) ->
     .then ->
       phab.getProject('*')
     .then (proj) ->
-      data.projects['*'].feeds ?= [ ]
-      if room in data.projects['*'].feeds
+      phab.data.projects['*'].feeds ?= [ ]
+      if room in phab.data.projects['*'].feeds
         msg.send "The catchall feed to '#{room}' already exist."
       else
-        data.projects['*'].feeds.push room
+        phab.data.projects['*'].feeds.push room
         msg.send "Ok, all feeds will be announced on '#{room}'."
     .catch (e) ->
       msg.send e.message or e
@@ -168,10 +167,10 @@ module.exports = (robot) ->
         fullname = "#{proj.data.parent}/#{proj.data.name}"
       else
         fullname = proj.data.name
-      data.projects[fullname].feeds ?= [ ]
-      if room in data.projects[fullname].feeds
-        idx = data.projects[fullname].feeds.indexOf room
-        data.projects[fullname].feeds.splice(idx, 1)
+      phab.data.projects[fullname].feeds ?= [ ]
+      if room in phab.data.projects[fullname].feeds
+        idx = phab.data.projects[fullname].feeds.indexOf room
+        phab.data.projects[fullname].feeds.splice(idx, 1)
         msg.send "Ok, The feed from '#{fullname}' to '#{room}' was removed."
       else
         msg.send "Sorry, '#{fullname}' is not feeding '#{room}'."
@@ -186,10 +185,10 @@ module.exports = (robot) ->
       phab.getProject('*')
     .then (proj) ->
       proj.data.feeds ?= [ ]
-      data.projects['*'].feeds ?= [ ]
-      if room in data.projects['*'].feeds
-        idx = data.projects['*'].feeds.indexOf room
-        data.projects['*'].feeds.splice(idx, 1)
+      phab.data.projects['*'].feeds ?= [ ]
+      if room in phab.data.projects['*'].feeds
+        idx = phab.data.projects['*'].feeds.indexOf room
+        phab.data.projects['*'].feeds.splice(idx, 1)
         msg.send "Ok, The catchall feed to '#{room}' was removed."
       else
         msg.send "Sorry, the catchall feed for '#{room}' doesn't exist."
@@ -202,9 +201,9 @@ module.exports = (robot) ->
     phab.getPermission(msg.envelope.user, 'phadmin')
     .then ->
       phab.getProject(project)
-    .then (data) ->
-      if data.data.columns? and Object.keys(data.data.columns).length > 0
-        msg.send "Columns for #{project}: #{Object.keys(data.data.columns).join(', ')}"
+    .then (payload) ->
+      if payload.data.columns? and Object.keys(payload.data.columns).length > 0
+        msg.send "Columns for #{project}: #{Object.keys(payload.data.columns).join(', ')}"
       else
         msg.send "The project #{project} has no columns."
     .catch (e) ->
