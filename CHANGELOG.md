@@ -1,6 +1,10 @@
 Hubot-phabs Changelog
 ==========================
 
+### 2.4.9 - 2017-05-06
+- fixed a weird brain persistence issue on `.phad feedall` command
+  (and possible other `.phad commands`)
+
 ### 2.4.8 - 2017-05-04
 - add D in the list of possible blacklists
 - fix various use cases of alias with subprojects
