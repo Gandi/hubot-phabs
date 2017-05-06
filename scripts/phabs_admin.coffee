@@ -153,6 +153,8 @@ module.exports = (robot) ->
       else
         data.projects['*'].feeds.push room
         msg.send "Ok, all feeds will be announced on '#{room}'."
+    .catch (e) ->
+      msg.send e.message or e
 
   #   hubot phad remove <project> from <room>
   robot.respond /phad remove (.+) from (.+)$/, (msg) ->
@@ -191,6 +193,8 @@ module.exports = (robot) ->
         msg.send "Ok, The catchall feed to '#{room}' was removed."
       else
         msg.send "Sorry, the catchall feed for '#{room}' doesn't exist."
+    .catch (e) ->
+      msg.send e.message or e
 
   #   hubot phad columns <project>
   robot.respond /phad columns (.+)$/, (msg) ->
