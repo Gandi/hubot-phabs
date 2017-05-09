@@ -1616,6 +1616,7 @@ describe 'phabs_admin module', ->
           room.robot.brain.data.phabricator.projects = {
             'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
             'project': { phid: 'PHID-PROJ-1234567' },
+            '*': { feeds: [ '#chan' ] }
           }
           room.robot.brain.data.phabricator.aliases = {
             bugs: 'Bug Report',
@@ -1638,3 +1639,35 @@ describe 'phabs_admin module', ->
           it 'warns the user that he has no permission to use that command', ->
             expect(hubotResponse())
               .to.eql "You don't have permission to do that."
+
+        context 'phad feedall to #dev', ->
+          hubot 'phad feedall to #dev'
+          it 'should say that the feed was created', ->
+            expect(hubotResponse())
+              .to.eql "You don't have permission to do that."
+            expect(room.robot.brain.data.phabricator.projects['*'].feeds)
+              .not.to.include '#dev'
+
+        context 'phad feedall to #dev', ->
+          hubot 'phad feedall to #dev', 'phadmin_user'
+          it 'should say that the feed was created', ->
+            expect(hubotResponse())
+              .to.eql "Ok, all feeds will be announced on '#dev'."
+            expect(room.robot.brain.data.phabricator.projects['*'].feeds)
+              .to.include '#dev'
+
+        context 'phad removeall from #chan', ->
+          hubot 'phad removeall from #chan'
+          it 'should say that the feed was created', ->
+            expect(hubotResponse())
+              .to.eql "You don't have permission to do that."
+            expect(room.robot.brain.data.phabricator.projects['*'].feeds)
+              .to.include '#chan'
+
+        context 'phad removeall from #chan', ->
+          hubot 'phad removeall from #chan', 'phadmin_user'
+          it 'should say that the feed was created', ->
+            expect(hubotResponse())
+              .to.eql "Ok, The catchall feed to '#chan' was removed."
+            expect(room.robot.brain.data.phabricator.projects['*'].feeds)
+              .not.to.include '#chan'
