@@ -734,29 +734,58 @@ describe 'phabs_admin module', ->
 
 
     context 'when the alias does not exists yet', ->
-      beforeEach ->
-        room.robot.brain.data.phabricator.projects = {
-          'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
-          'project': {
-            phid: 'PHID-PROJ-1234567',
-            name: 'project'
-          },
-        }
-        room.robot.brain.data.phabricator.aliases = {
-          bugs: 'Bug Report',
-          bug: 'Bug Report'
-        }
-        do nock.disableNetConnect
+      context 'and project has no parent', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'Bug Report': { phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4' },
+            'project': {
+              phid: 'PHID-PROJ-1234567',
+              name: 'project'
+            },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'Bug Report',
+            bug: 'Bug Report'
+          }
+          do nock.disableNetConnect
 
-      afterEach ->
-        room.robot.brain.data.phabricator = { }
-        nock.cleanAll()
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
 
-      context 'phad alias project as pwp', ->
-        hubot 'phad alias project as pwp'
-        it 'should say that the alias was created', ->
-          expect(hubotResponse())
-            .to.eql "Ok, 'project' will be known as 'pwp'."
+        context 'phad alias project as pwp', ->
+          hubot 'phad alias project as pwp'
+          it 'should say that the alias was created', ->
+            expect(hubotResponse())
+              .to.eql "Ok, 'project' will be known as 'pwp'."
+
+      context 'and project has a parent', ->
+        beforeEach ->
+          room.robot.brain.data.phabricator.projects = {
+            'Bug Report': {
+              phid: 'PHID-PROJ-qhmexneudkt62wc7o3z4'
+            },
+            'Bug Report/project': {
+              phid: 'PHID-PROJ-1234567',
+              name: 'project',
+              parent: 'Bug Report'
+            },
+          }
+          room.robot.brain.data.phabricator.aliases = {
+            bugs: 'Bug Report',
+            pr: 'Bug Report/project'
+          }
+          do nock.disableNetConnect
+
+        afterEach ->
+          room.robot.brain.data.phabricator = { }
+          nock.cleanAll()
+
+        context 'phad alias pr as pwp', ->
+          hubot 'phad alias pr as pwp'
+          it 'should say that the alias was created', ->
+            expect(hubotResponse())
+              .to.eql "Ok, 'Bug Report/project' will be known as 'pwp'."
 
   # ---------------------------------------------------------------------------------
   context 'user wants to remove an alias', ->
