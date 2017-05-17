@@ -75,7 +75,7 @@ module.exports = (robot) ->
               else
                 lang = ''
                 key = Object.keys(body.result)[0]
-                if body['result'][key]['language'] isnt ''
+                if body['result'][key]['language']? and body['result'][key]['language'] isnt ''
                   lang = " (#{body.result[key].language})"
                 if url?
                   msg.send "#{type}#{id} - #{body.result[key].title}#{lang}"
