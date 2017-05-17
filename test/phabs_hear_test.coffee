@@ -9,6 +9,7 @@ helper = new Helper('../scripts/phabs_hear.coffee')
 nock = require('nock')
 sinon = require('sinon')
 expect = require('chai').use(require('sinon-chai')).expect
+moment = require 'moment'
 
 room = null
 
@@ -136,6 +137,7 @@ describe 'phabs_hear module', ->
             isClosed: false,
             title: 'some task',
             priority: 'Low',
+            dateCreated: moment().subtract(2, 'months').unix(),
             uri: 'http://example.com/T42'
           } })
 
@@ -145,11 +147,11 @@ describe 'phabs_hear module', ->
       context 'whatever about T42 or something', ->
         hubot 'whatever about T42 or something'
         it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'http://example.com/T42 - some task (Low)'
+          expect(hubotResponse()).to.eql 'http://example.com/T42 - some task (Low, open 2 months ago)'
       context 'whatever about http://example.com/T42 or something', ->
         hubot 'whatever about http://example.com/T42 or something'
         it "warns the user that this Task doesn't exist", ->
-          expect(hubotResponse()).to.eql 'T42 - some task (Low)'
+          expect(hubotResponse()).to.eql 'T42 - some task (Low, open 2 months ago)'
 
     context 'when it is a closed task', ->
       beforeEach ->
@@ -160,6 +162,7 @@ describe 'phabs_hear module', ->
             status: 'resolved',
             isClosed: true,
             title: 'some task',
+            dateModified: moment().subtract(2, 'months').unix(),
             priority: 'Low',
             uri: 'http://example.com/T42'
           } })
@@ -170,11 +173,11 @@ describe 'phabs_hear module', ->
       context 'whatever about T42 or something', ->
         hubot 'whatever about T42 or something'
         it 'gives information about the Task, including uri', ->
-          expect(hubotResponse()).to.eql 'http://example.com/T42 (resolved) - some task (Low)'
+          expect(hubotResponse()).to.eql 'http://example.com/T42 - some task (Low, resolved 2 months ago)'
       context 'whatever about http://example.com/T42 or something', ->
         hubot 'whatever about http://example.com/T42 or something'
         it 'gives information about the Task, without uri', ->
-          expect(hubotResponse()).to.eql 'T42 (resolved) - some task (Low)'
+          expect(hubotResponse()).to.eql 'T42 - some task (Low, resolved 2 months ago)'
 
 
   # ---------------------------------------------------------------------------------
@@ -258,7 +261,8 @@ describe 'phabs_hear module', ->
           .reply(200, { result: {
             'PHID-PSTE-hdxawtm6psdtsxy3nyzk': {
               title: 'file.coffee',
-              language: '',
+              language: null,
+              dateCreated: moment().subtract(2, 'months').unix(),
               uri: 'https://example.com/P42'
             }
           } })
@@ -269,11 +273,11 @@ describe 'phabs_hear module', ->
       context 'whatever about P42 or something', ->
         hubot 'whatever about P42 or something'
         it 'gives information about the Paste, including uri', ->
-          expect(hubotResponse()).to.eql 'https://example.com/P42 - file.coffee'
+          expect(hubotResponse()).to.eql 'https://example.com/P42 - file.coffee (created 2 months ago)'
       context 'whatever about http://example.com/P42 or something', ->
         hubot 'whatever about http://example.com/P42 or something'
         it 'gives information about the Paste, without uri', ->
-          expect(hubotResponse()).to.eql 'P42 - file.coffee'
+          expect(hubotResponse()).to.eql 'P42 - file.coffee (created 2 months ago)'
 
 
     context 'when it is an existing Paste with a language set', ->
@@ -285,6 +289,7 @@ describe 'phabs_hear module', ->
             'PHID-PSTE-hdxawtm6psdtsxy3nyzk': {
               title: 'file.coffee',
               language: 'coffee',
+              dateCreated: moment().subtract(2, 'months').unix(),
               uri: 'https://example.com/P42'
             }
           } })
@@ -295,11 +300,11 @@ describe 'phabs_hear module', ->
       context 'whatever about P42 or something', ->
         hubot 'whatever about P42 or something'
         it 'gives information about the Paste, including uri', ->
-          expect(hubotResponse()).to.eql 'https://example.com/P42 - file.coffee (coffee)'
+          expect(hubotResponse()).to.eql 'https://example.com/P42 - file.coffee (coffee, created 2 months ago)'
       context 'whatever about http://example.com/P42 or something', ->
         hubot 'whatever about http://example.com/P42 or something'
         it 'gives information about the Paste, without uri', ->
-          expect(hubotResponse()).to.eql 'P42 - file.coffee (coffee)'
+          expect(hubotResponse()).to.eql 'P42 - file.coffee (coffee, created 2 months ago)'
 
   # ---------------------------------------------------------------------------------
   context 'someone talks about a mock', ->

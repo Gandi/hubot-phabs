@@ -15,6 +15,8 @@
 # Author:
 #   mose
 
+moment = require 'moment'
+
 Phabricator = require '../lib/phabricator'
 
 humanFileSize = (size) ->
@@ -41,15 +43,16 @@ module.exports = (robot) ->
           when 'T' is type
             phab.taskInfo(id)
             .then (body) ->
-              closed = ''
-              if body.result.isClosed is true
-                closed = " (#{body.result.status})"
-              if url?
-                msg.send "#{type}#{id}#{closed} - #{body.result.title} " +
-                         "(#{body['result']['priority']})"
+              if body.result.status is 'open'
+                ago = moment(body.result.dateCreated, 'X').fromNow()
               else
-                msg.send "#{body.result.uri}#{closed} - #{body.result.title} " +
-                         "(#{body.result.priority})"
+                ago = moment(body.result.dateModified, 'X').fromNow()
+              if url?
+                msg.send "#{type}#{id} - #{body.result.title} " +
+                         "(#{body.result.priority}, #{body.result.status} #{ago})"
+              else
+                msg.send "#{body.result.uri} - #{body.result.title} " +
+                         "(#{body.result.priority}, #{body.result.status} #{ago})"
               phab.recordId msg.envelope.user, id
             .catch (e) ->
               msg.send "oops #{type}#{id} #{e}"
@@ -75,12 +78,13 @@ module.exports = (robot) ->
               else
                 lang = ''
                 key = Object.keys(body.result)[0]
-                if body['result'][key]['language']? and body['result'][key]['language'] isnt ''
-                  lang = " (#{body.result[key].language})"
+                if body.result[key]['language']? and body.result[key]['language'] isnt ''
+                  lang = "#{body.result[key].language}, "
+                ago = moment(body.result[key].dateCreated, 'X').fromNow()
                 if url?
-                  msg.send "#{type}#{id} - #{body.result[key].title}#{lang}"
+                  msg.send "#{type}#{id} - #{body.result[key].title} (#{lang}created #{ago})"
                 else
-                  msg.send "#{body.result[key].uri} - #{body.result[key].title}#{lang}"
+                  msg.send "#{body.result[key].uri} - #{body.result[key].title} (#{lang}created #{ago})"
             .catch (e) ->
               msg.send "oops #{type}#{id} #{e}"
 
