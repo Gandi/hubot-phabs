@@ -197,11 +197,12 @@ class Phabricator
               for name, project of data.projects
                 if name is '*' or
                     (project.phid? and phid is project.phid)
+                  morefeeds = [ ]
                   project.feeds ?= [ ]
                   if project.parent?
                     data.projects[project.parent].feeds ?= [ ]
-                    project.feeds = project.feeds.concat(data.projects[project.parent].feeds)
-                  for room in project.feeds
+                    morefeeds = project.feeds.concat(data.projects[project.parent].feeds)
+                  for room in project.feeds.concat(morefeeds)
                     if announces.rooms.indexOf(room) is -1
                       announces.rooms.push room
             for username, userphid of data.alerts

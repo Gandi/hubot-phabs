@@ -4,6 +4,7 @@ Hubot-phabs Changelog
 ### 2.4.10 - wip
 - avoid (null) in paste description from the `hear` feature
 - add age in task and paste description from the `hear` feature
+- fix the growing array of feeds on subprojects in brain
 
 ### 2.4.9 - 2017-05-06
 - fixed a weird brain persistence issue on `.phad feedall` command

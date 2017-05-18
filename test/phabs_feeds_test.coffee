@@ -501,7 +501,7 @@ describe 'phabs_feeds', ->
             'room1'
           ]
         },
-        'project with phid': {
+        'Bug Report/project with phid': {
           phid: 'PHID-PROJ-1234567',
           name: 'project with phid',
           parent: 'Bug Report'
@@ -549,6 +549,7 @@ describe 'phabs_feeds', ->
       phab.getFeed(JSON.parse(@postData))
         .then (announce) ->
           expect(announce).to.eql expected
+          expect(room.robot.brain.data.phabricator.projects['Bug Report/project with phid'].feeds).to.eql []
 
   # ---------------------------------------------------------------------------------
   context 'test the http responses', ->
