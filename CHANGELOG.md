@@ -1,7 +1,7 @@
 Hubot-phabs Changelog
 ==========================
 
-### 2.4.10 - wip
+### 2.4.10 - 2017-05-18
 - avoid (null) in paste description from the `hear` feature
 - add age in task and paste description from the `hear` feature
 - fix the growing array of feeds on subprojects in brain
