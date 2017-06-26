@@ -17,7 +17,7 @@ room = null
 # --------------------------------------------------------------------------------------------------
 describe 'phabs_commands module with no bot_phid', ->
 
-  hubotHear = (message, userName = 'momo', tempo = 40) ->
+  hubotHear = (message, userName = 'momo', tempo = 50) ->
     beforeEach (done) ->
       room.user.say userName, message
       setTimeout (done), tempo

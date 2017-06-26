@@ -15,7 +15,7 @@ room = null
 
 describe 'phabs_admin module', ->
 
-  hubotHear = (message, userName = 'momo', tempo = 40) ->
+  hubotHear = (message, userName = 'momo', tempo = 50) ->
     beforeEach (done) ->
       room.user.say userName, message
       setTimeout (done), tempo
