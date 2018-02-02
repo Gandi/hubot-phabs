@@ -560,7 +560,8 @@ Attribution
 
 ### Authors
 
-- [@mose](https://github.com/mose) - author and maintainer
+- [@mose](https://github.com/mose) - author
+- [@baptistem](https://github.com/baptistem) - maintainer
 
 ### License
 

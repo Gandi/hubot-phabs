@@ -1,5 +1,7 @@
 Hubot-phabs Changelog
 ==========================
+### 2.4.11 - 2018-02-02
+- fix fulltext search error 
 
 ### 2.4.10 - 2017-05-18
 - avoid (null) in paste description from the `hear` feature
