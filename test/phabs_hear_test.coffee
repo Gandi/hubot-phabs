@@ -738,11 +738,11 @@ describe 'phabs_hear module', ->
 
       context 'whatever about D55 or something', ->
         hubot 'whatever about D55 or something'
-        it "gives information about the open Diff, including uri", ->
+        it 'gives information about the open Diff, including uri', ->
           expect(hubotResponse()).to.eql 'http://example.com/D55 - some diff'
       context 'whatever about http://example.com/D55 or something', ->
         hubot 'whatever about http://example.com/D55 or something'
-        it "gives information about the open Diff, without uri", ->
+        it 'gives information about the open Diff, without uri', ->
           expect(hubotResponse()).to.eql 'D55: some diff'
 
     context 'when it is a closed diff', ->
