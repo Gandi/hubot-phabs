@@ -5,6 +5,7 @@
 #
 # Configuration:
 #  PHABRICATOR_URL
+#  PHABRICATOR_VERSION
 #  PHABRICATOR_API_KEY
 #  PHABRICATOR_BOT_PHID
 #  PHABRICATOR_TRUSTED_USERS
@@ -37,20 +38,6 @@ class Phabricator
     'lame': 'spite'
   }
 
-  priorities: {
-    'unbreak': 100,
-    'broken': 100,
-    'triage': 90,
-    'none': 90,
-    'unknown': 90,
-    'low': 25,
-    'normal': 50,
-    'high': 80,
-    'important': 80,
-    'urgent': 80,
-    'wish': 0
-  }
-
   itemTypes: [
     'T', # tasks
     'F', # files
@@ -79,6 +66,34 @@ class Phabricator
       @data.alerts ?= { }
       @data.projects['*'] ?= { }
       @robot.logger.debug '---- Phabricator Data Loaded.'
+      @priorities = if env.PHABRICATOR_VERSION? and env.PHABRICATOR_VERSION > 2017.24
+        {
+          'unbreak': 'unbreak',
+          'broken': 'unbreak',
+          'triage': 'triage',
+          'none': 'triage',
+          'unknown': 'triage',
+          'low': 'low',
+          'normal': 'normal',
+          'high': 'high',
+          'important': 'high',
+          'urgent': 'high',
+          'wish': 'wish'
+        }
+      else
+        {
+          'unbreak': 100,
+          'broken': 100,
+          'triage': 90,
+          'none': 90,
+          'unknown': 90,
+          'low': 25,
+          'normal': 50,
+          'high': 80,
+          'important': 80,
+          'urgent': 80,
+          'wish': 0
+        }
     @robot.brain.on 'loaded', storageLoaded
     storageLoaded() # just in case storage was loaded before we got here
 
