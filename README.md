@@ -77,6 +77,7 @@ Configuration
 -----------------
 
 - `PHABRICATOR_URL` - main url of your Phabricator instance
+- `PHABRICATOR_VERSION` - the version of phabricatior used, in the shape `2017.24` so it's `year.week` and looks like a float easy to compare. This is used for handling breaking changes between versions of phabricator.
 - `PHABRICATOR_API_KEY` - api key for the bot user
 - `PHABRICATOR_LAST_TASK_LIFETIME` - how long the last task is remembered for each user (default 60 min). If set to "0" there is memory on the last task remembered. If set to "-" the memory is never expired.
 

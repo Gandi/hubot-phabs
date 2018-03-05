@@ -54,3 +54,47 @@ describe 'Phabricator lib', ->
         ready = @phab.ready(@msg)
         expect(@msg.send).not.called
         expect(ready).to.be.true
+
+  context 'when phabricator version is newer than 2017.24', ->
+    beforeEach ->
+      process.env.PHABRICATOR_URL = 'http://example.com'
+      process.env.PHABRICATOR_VERSION = 2018.03
+      process.env.PHABRICATOR_API_KEY = 'xxx'
+      process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
+      room = helper.createRoom { httpd: false }
+      @phab = new Phabricator room.robot, process.env
+      @msg = sinon.spy()
+      @msg.message = sinon.spy()
+      @msg.send = sinon.stub()
+    afterEach ->
+      delete process.env.PHABRICATOR_URL
+      delete process.env.PHABRICATOR_VERSION
+      delete process.env.PHABRICATOR_API_KEY
+      delete process.env.PHABRICATOR_BOT_PHID
+
+    describe '.priorities', ->
+      it 'should list strings', ->
+        ready = @phab.ready(@msg)
+        expect(@phab.priorities.low).to.eql 'low'
+
+  context 'when phabricator version is older than 2017.24', ->
+    beforeEach ->
+      process.env.PHABRICATOR_URL = 'http://example.com'
+      process.env.PHABRICATOR_VERSION = 2016.03
+      process.env.PHABRICATOR_API_KEY = 'xxx'
+      process.env.PHABRICATOR_BOT_PHID = 'PHID-USER-xxx'
+      room = helper.createRoom { httpd: false }
+      @phab = new Phabricator room.robot, process.env
+      @msg = sinon.spy()
+      @msg.message = sinon.spy()
+      @msg.send = sinon.stub()
+    afterEach ->
+      delete process.env.PHABRICATOR_URL
+      delete process.env.PHABRICATOR_VERSION
+      delete process.env.PHABRICATOR_API_KEY
+      delete process.env.PHABRICATOR_BOT_PHID
+
+    describe '.priorities', ->
+      it 'should list strings', ->
+        ready = @phab.ready(@msg)
+        expect(@phab.priorities.low).to.eql 25
