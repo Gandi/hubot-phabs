@@ -24,7 +24,7 @@ class Phabricator
 
   statuses: {
     'open': 'open',
-    'stalled' : 'stalled',
+    'stalled': 'stalled',
     'opened': 'open',
     'resolved': 'resolved',
     'resolve': 'resolved',
