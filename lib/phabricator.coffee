@@ -536,21 +536,27 @@ class Phabricator
 
   searchTask: (phid, terms, status = undefined, limit = 3) ->
     query = {
-      'constraints[query]': terms.replace(' ', '+'),
       'constraints[projects][0]': phid,
       'order': 'newest',
       'limit': limit
     }
+    if process.env.PHABRICATOR_VERSION > 2017.37
+      query['constraints[query]'] = terms.replace(' ', '+')
+    else
+      query['constraints[fulltext]'] = terms.replace(' ', '+')
     if status?
       query['constraints[statuses][0]'] = status
     @request query, 'maniphest.search'
 
   searchAllTask: (terms, status = undefined, limit = 3) ->
     query = {
-      'constraints[query]': terms.replace(' ', '+'),
       'order': 'newest',
       'limit': limit
     }
+    if process.env.PHABRICATOR_VERSION > 2017.37
+      query['constraints[query]'] = terms.replace(' ', '+')
+    else
+      query['constraints[fulltext]'] = terms.replace(' ', '+')
     if status?
       query['constraints[statuses][0]'] = status
     @request query, 'maniphest.search'
