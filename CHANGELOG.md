@@ -1,5 +1,12 @@
 Hubot-phabs Changelog
 ==========================
+
+### 2.4.12 - wip
+- introduce a new PHABRICATOR_VERSION env var so we can alleviate the lack of consideration 
+  of the phabricator developers to backward compatibility
+- fixed priorities set for newer phabricator versions
+- made fulltext search fix conditionnal to phabricator version so old phabricators don't break it
+
 ### 2.4.11 - 2018-02-02
 - fix fulltext search error 
 
