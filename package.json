@@ -25,8 +25,8 @@
     "moment": ">= 2.14.1"
   },
   "peerDependencies": {
-    "hubot": "2.x",
-    "coffee-script": "~1.6"
+    "hubot": "3.x",
+    "coffeescript": "~1.6"
   },
   "devDependencies": {
     "chai": "~3.5.0",
@@ -36,7 +36,7 @@
     "coffeelint": "~1.15.7",
     "coveralls": "~2.11.12",
     "es6-promise": "~3.2.1",
-    "hubot": "2.x",
+    "hubot": "3.x",
     "hubot-auth": "^2.0.0",
     "hubot-test-helper": "~1.4.4",
     "istanbul": "~0.4.4",
